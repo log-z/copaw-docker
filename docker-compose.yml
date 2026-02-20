@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  copaw:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: copaw:latest
+    container_name: copaw
+
+    # 端口映射
+    ports:
+      - "8088:8088"
+
+    # 环境变量
+    environment:
+      # CoPaw 基础配置
+      - COPAW_WORKING_DIR=/data/copaw
+      - COPAW_CONFIG_FILE=config.json
+      - COPAW_LOG_LEVEL=INFO
+
+      # Embedding 服务配置
+      - EMBEDDING_API_KEY=${EMBEDDING_API_KEY:-}
+      - EMBEDDING_BASE_URL=${EMBEDDING_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      - EMBEDDING_MODEL_NAME=${EMBEDDING_MODEL_NAME:-text-embedding-v4}
+      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS:-1024}
+      - FTS_ENABLED=${FTS_ENABLED:-true}
+
+      # ModelScope (魔搭)
+      - MODELSCOPE_API_KEY=${MODELSCOPE_API_KEY:-}
+
+      # DashScope (灵积)
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:-}
+
+      # 自定义 OpenAI 兼容接口
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-}
+      - OPENAI_MODEL_NAME=${OPENAI_MODEL_NAME:-}
+
+      # 自动初始化
+      - COPAW_AUTO_INIT=${COPAW_AUTO_INIT:-true}
+
+    # 数据卷挂载
+    volumes:
+      # 持久化工作目录
+      - copaw-data:/data/copaw
+
+      # 可选：挂载自定义技能目录
+      # - ./customized_skills:/data/copaw/customized_skills:ro
+
+      # 可选：挂载本地配置文件
+      # - ./config/config.json:/data/copaw/config.json:ro
+
+    # 重启策略
+    restart: unless-stopped
+
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # 网络配置
+    networks:
+      - copaw-network
+
+# 数据卷定义
+volumes:
+  copaw-data:
+    driver: local
+    name: copaw-data
+
+# 网络定义
+networks:
+  copaw-network:
+    driver: bridge
+    name: copaw-network

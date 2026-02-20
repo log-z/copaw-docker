@@ -1,0 +1,58 @@
+# Git 相关
+.git
+.gitignore
+.gitattributes
+
+# Docker 相关
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Python 相关
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+.eggs
+.pytest_cache
+.coverage
+htmlcov
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv
+
+# IDE 相关
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 文档
+README.md
+docs/
+*.md
+!scripts/entrypoint.sh
+!scripts/healthcheck.sh
+
+# 日志和临时文件
+*.log
+*.tmp
+*.temp
+
+# 配置文件（敏感信息）
+config/
+.env
+.env.local
+.env.*.local
+
+# 数据目录（避免挂载大量文件）
+data/
