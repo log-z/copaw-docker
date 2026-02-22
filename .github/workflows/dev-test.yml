@@ -1,4 +1,4 @@
-name: Test Docker Startup
+name: Dev Test
 
 on:
   push:
