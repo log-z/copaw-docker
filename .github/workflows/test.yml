@@ -32,6 +32,9 @@ jobs:
       - name: Build Docker image
         run: docker compose build
 
+      - name: Make test script executable
+        run: chmod +x ./scripts/test-startup.sh
+
       - name: Run startup tests
         run: ./scripts/test-startup.sh --ci
 
