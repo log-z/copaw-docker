@@ -2,10 +2,14 @@ version: '3.8'
 
 services:
   copaw:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: copaw:latest
+    # 使用预构建镜像（推荐）
+    image: ghcr.io/log-z/copaw-docker:latest
+
+    # 如需自行构建镜像，请注释上面的 image 配置，并取消注释下面的 build 配置：
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    # image: copaw:latest
     container_name: copaw
 
     # 端口映射

@@ -15,6 +15,19 @@ CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 
 ---
 
+## ⚠️ 安全警告 ⚠️
+
+> **CoPaw 没有任何权限控制和登录功能，切勿将服务端口暴露到公网！**
+
+- WebUI 管理界面**没有登录验证机制**，任何能访问该端口的人都可以完全控制你的 CoPaw 实例
+- 默认端口 `8088` 仅应在**受信任的内网环境**或通过**反向代理 + 认证**等方式访问
+- 如果必须远程访问，请使用以下安全措施之一：
+  - 通过 SSH 隧道访问：`ssh -L 8088:localhost:8088 your-server`
+  - 配置 Nginx/Caddy 等反向代理并添加 Basic Auth 或 OAuth 认证
+  - 使用防火墙限制访问来源 IP
+
+---
+
 ## 快速开始
 
 ### 前置要求
@@ -22,46 +35,71 @@ CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 - Docker >= 20.10
 - Docker Compose >= 2.0
 
-### 1. 配置环境变量
+### 使用方式选择
 
-复制环境变量示例文件并根据需要修改：
+#### 方式一：使用预构建镜像（推荐）
+
+直接使用已构建好的 Docker 镜像，无需等待构建过程。
+
+##### 1. （可选）配置环境变量
+
+如需提前配置 API Keys，可复制环境变量示例文件：
 
 ```bash
 cp .env.example .env
 ```
 
-编辑 `.env` 文件，填入你的 API Keys：
+编辑 `.env` 文件填入你的配置。也可以在应用启动后通过 Web UI 进行配置。
 
-```env
-# Embedding 服务（用于记忆向量搜索）
-EMBEDDING_API_KEY=your_embedding_api_key_here
-
-# 模型提供商（选择一个或多个）
-MODELSCOPE_API_KEY=your_modelscope_api_key_here
-DASHSCOPE_API_KEY=your_dashscope_api_key_here
-```
-
-### 2. 构建镜像
+##### 2. 拉取并启动服务
 
 ```bash
-docker-compose build
-```
-
-### 3. 启动服务
-
-```bash
+docker-compose pull
 docker-compose up -d
 ```
 
-### 4. 查看日志
+##### 3. 查看日志
 
 ```bash
 docker-compose logs -f copaw
 ```
 
-### 5. 访问控制台
+##### 4. 访问控制台
 
 浏览器打开：http://localhost:8088
+
+---
+
+#### 方式二：自行构建镜像
+
+如果需要自定义镜像或预构建镜像不可用，可以自行构建。
+
+##### 1. （可选）配置环境变量
+
+同方式一。
+
+##### 2. 修改 docker-compose.yml
+
+编辑 `docker-compose.yml`，注释掉预构建镜像配置，取消注释构建配置：
+
+```yaml
+copaw:
+  # image: ghcr.io/log-z/copaw-docker:latest  # 注释预构建镜像
+  build:                                     # 取消注释构建配置
+    context: .
+    dockerfile: Dockerfile
+  image: copaw:latest
+```
+
+##### 3. 构建镜像
+
+```bash
+docker-compose build
+```
+
+##### 4. 启动服务、查看日志、访问控制台
+
+同方式一。
 
 ---
 
@@ -69,16 +107,41 @@ docker-compose logs -f copaw
 
 ```
 copaw/
-├── Dockerfile                 # Docker 镜像定义
-├── docker-compose.yml         # Docker Compose 配置
-├── .dockerignore             # Docker 构建忽略文件
-├── .env.example              # 环境变量配置示例
-├── README.md                 # 本文件
+├── .github/
+│   └── workflows/
+│       └── docker-build.yml  # GitHub Actions 自动构建工作流
 ├── docs/
-│   └── copaw-info.md         # CoPaw 官方文档信息汇总
-└── scripts/
-    ├── entrypoint.sh         # 容器启动脚本
-    └── healthcheck.sh        # 健康检查脚本
+│   └── copaw-info.md          # CoPaw 官方文档信息汇总
+├── scripts/
+│   ├── entrypoint.sh          # 容器启动脚本（自动初始化检查）
+│   ├── healthcheck.sh         # 健康检查脚本（Docker HEALTHCHECK）
+│   ├── test-startup.sh        # 启动流程测试脚本
+│   └── validate-config.sh     # 配置文件验证脚本
+├── .dockerignore              # Docker 构建忽略文件
+├── .env.example               # 环境变量配置示例
+├── .gitignore                 # Git 忽略文件配置
+├── CLAUDE.md                  # Claude Code 工作指引
+├── Dockerfile                 # 多阶段构建的 Docker 镜像定义
+├── README.md                  # 本文件
+└── docker-compose.yml         # Docker Compose 编排配置
+```
+
+### 数据卷结构（运行时生成）
+
+```
+copaw-data:/
+└── copaw/
+    ├── config.json            # 主配置文件（通道、心跳、语言等）
+    ├── SOUL.md                # Agent 核心身份与行为原则（必填）
+    ├── AGENTS.md              # 详细工作流程与指南（必填）
+    ├── MEMORY.md              # 长期记忆存储
+    ├── PROFILE.md             # 身份和用户画像
+    ├── HEARTBEAT.md           # 心跳任务配置
+    ├── jobs.json              # 定时任务列表
+    ├── chats.json             # 会话列表
+    ├── active_skills/         # 当前激活的技能
+    ├── customized_skills/     # 用户自定义技能
+    └── memory/                # Agent 记忆文件存储
 ```
 
 ---
@@ -194,6 +257,8 @@ docker-compose exec copaw copaw cron
 
 ## 端口说明
 
+> ⚠️ **再次提醒**：请勿将端口暴露到公网！CoPaw WebUI 没有任何身份验证机制。
+
 | 容器端口 | 主机端口 | 说明 |
 |----------|----------|------|
 | `8088` | `8088` | CoPaw Web 服务端口 |
@@ -261,6 +326,14 @@ docker-compose restart
 ---
 
 ## 镜像信息
+
+### 预构建镜像
+
+- **镜像地址**: `ghcr.io/log-z/copaw-docker:latest`
+- **拉取命令**: `docker pull ghcr.io/log-z/copaw-docker:latest`
+- **更新频率**: 随 CoPaw 官方版本更新
+
+### 自行构建
 
 - **基础镜像**: `python:3.12-slim`
 - **Python 版本**: 3.12
