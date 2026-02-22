@@ -87,10 +87,8 @@ else
     check_fail "Docker 未安装或不在 PATH 中"
 fi
 
-if command -v docker-compose &> /dev/null; then
-    check_pass "Docker Compose 已安装: $(docker-compose --version | head -n1)"
-elif docker compose version &> /dev/null; then
-    check_pass "Docker Compose 插件已安装: $(docker compose version | head -n1)"
+if docker compose version &> /dev/null; then
+    check_pass "Docker Compose 已安装: $(docker compose version | head -n1)"
 else
     check_fail "Docker Compose 未安装"
 fi
@@ -212,7 +210,7 @@ echo -e "${RED}失败: $FAIL_COUNT${NC}"
 echo ""
 
 if [ $FAIL_COUNT -eq 0 ]; then
-    log_info "配置验证通过！可以运行 docker-compose up -d 启动服务"
+    log_info "配置验证通过！可以运行 docker compose up -d 启动服务"
     exit 0
 else
     log_error "发现 $FAIL_COUNT 个错误，请修复后再试"

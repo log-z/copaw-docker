@@ -42,7 +42,7 @@ read -p "是否清理旧容器和卷？[y/N] " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     log_info "停止并删除旧容器..."
-    docker-compose down -v 2>/dev/null || true
+    docker compose down -v 2>/dev/null || true
     log_info "清理完成"
 else
     log_info "跳过清理"
@@ -52,7 +52,7 @@ echo ""
 # 2. 构建镜像
 log_section "2. 构建 Docker 镜像"
 log_info "开始构建..."
-if docker-compose build; then
+if docker compose build; then
     log_info "镜像构建成功"
 else
     log_error "镜像构建失败"
@@ -63,7 +63,7 @@ echo ""
 # 3. 启动服务
 log_section "3. 启动服务"
 log_info "启动 CoPaw 容器..."
-if docker-compose up -d; then
+if docker compose up -d; then
     log_info "容器启动成功"
 else
     log_error "容器启动失败"
@@ -77,7 +77,7 @@ log_info "等待容器启动（最多 60 秒）..."
 TIMEOUT=60
 ELAPSED=0
 while [ $ELAPSED -lt $TIMEOUT ]; do
-    if docker-compose ps | grep -q "copaw.*Up"; then
+    if docker compose ps | grep -q "copaw.*Up"; then
         log_info "容器已启动"
         break
     fi
@@ -89,8 +89,8 @@ echo ""
 
 if [ $ELAPSED -ge $TIMEOUT ]; then
     log_error "等待超时，容器未能在 ${TIMEOUT} 秒内启动"
-    docker-compose ps
-    docker-compose logs --tail=50
+    docker compose ps
+    docker compose logs --tail=50
     exit 1
 fi
 
@@ -106,7 +106,7 @@ while [ $ELAPSED -lt $TIMEOUT ]; do
         break
     elif [ "$HEALTH_STATUS" = "unhealthy" ]; then
         log_error "健康检查失败"
-        docker-compose logs --tail=50
+        docker compose logs --tail=50
         exit 1
     fi
     sleep 3
@@ -139,26 +139,26 @@ done
 
 if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
     log_error "服务无法访问"
-    docker-compose logs --tail=50
+    docker compose logs --tail=50
     exit 1
 fi
 echo ""
 
 # 7. 显示容器状态
 log_section "7. 容器状态"
-docker-compose ps
+docker compose ps
 echo ""
 
 # 8. 显示日志摘要
 log_section "8. 日志摘要（最近 30 行）"
-docker-compose logs --tail=30 copaw
+docker compose logs --tail=30 copaw
 echo ""
 
 # 9. 进入容器测试
 log_section "9. 容器内部测试"
 log_info "测试 CoPaw 命令..."
-docker-compose exec -T copaw copaw --version 2>/dev/null || log_warn "无法获取版本信息"
-docker-compose exec -T copaw ls -la /data/copaw 2>/dev/null || log_warn "无法列出数据目录"
+docker compose exec -T copaw copaw --version 2>/dev/null || log_warn "无法获取版本信息"
+docker compose exec -T copaw ls -la /data/copaw 2>/dev/null || log_warn "无法列出数据目录"
 echo ""
 
 # 10. 数据持久化验证
@@ -182,9 +182,9 @@ echo "  - Web 界面: http://localhost:8088"
 echo "  - API 端点: http://localhost:8088/api"
 echo ""
 log_info "常用命令："
-echo "  - 查看日志: docker-compose logs -f copaw"
-echo "  - 进入容器: docker-compose exec copaw bash"
-echo "  - 停止服务: docker-compose stop"
-echo "  - 重启服务: docker-compose restart"
-echo "  - 删除容器: docker-compose down"
+echo "  - 查看日志: docker compose logs -f copaw"
+echo "  - 进入容器: docker compose exec copaw bash"
+echo "  - 停止服务: docker compose stop"
+echo "  - 重启服务: docker compose restart"
+echo "  - 删除容器: docker compose down"
 echo ""

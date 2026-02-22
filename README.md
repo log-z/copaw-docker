@@ -54,14 +54,14 @@ cp .env.example .env
 ##### 2. 拉取并启动服务
 
 ```bash
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 ```
 
 ##### 3. 查看日志
 
 ```bash
-docker-compose logs -f copaw
+docker compose logs -f copaw
 ```
 
 ##### 4. 访问控制台
@@ -94,7 +94,7 @@ copaw:
 ##### 3. 构建镜像
 
 ```bash
-docker-compose build
+docker compose build
 ```
 
 ##### 4. 启动服务、查看日志、访问控制台
@@ -152,22 +152,22 @@ copaw-data:/
 
 ```bash
 # 启动服务
-docker-compose up -d
+docker compose up -d
 
 # 停止服务
-docker-compose stop
+docker compose stop
 
 # 重启服务
-docker-compose restart
+docker compose restart
 
 # 查看日志
-docker-compose logs -f copaw
+docker compose logs -f copaw
 
 # 进入容器
-docker-compose exec copaw bash
+docker compose exec copaw bash
 
 # 停止并删除容器
-docker-compose down
+docker compose down
 ```
 
 ### 数据管理
@@ -189,13 +189,13 @@ docker run --rm -v copaw-data:/data -v $(pwd):/backup \
 
 ```bash
 # 重新初始化
-docker-compose exec copaw copaw init --defaults
+docker compose exec copaw copaw init --defaults
 
 # 管理技能
-docker-compose exec copaw copaw skills config
+docker compose exec copaw copaw skills config
 
 # 管理定时任务
-docker-compose exec copaw copaw cron
+docker compose exec copaw copaw cron
 ```
 
 ---
@@ -293,7 +293,7 @@ networks:
 检查日志：
 
 ```bash
-docker-compose logs copaw
+docker compose logs copaw
 ```
 
 ### 2. 健康检查失败
@@ -301,7 +301,7 @@ docker-compose logs copaw
 检查服务是否正常运行：
 
 ```bash
-docker-compose ps
+docker compose ps
 curl http://localhost:8088/
 ```
 
@@ -320,7 +320,7 @@ docker volume ls | grep copaw
 确保 `.env` 文件中的 API Key 正确，并重启服务：
 
 ```bash
-docker-compose restart
+docker compose restart
 ```
 
 ---

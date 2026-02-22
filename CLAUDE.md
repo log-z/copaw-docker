@@ -18,34 +18,34 @@ This is a Docker deployment project for CoPaw, a personal assistant product base
 
 ```bash
 # Build the Docker image
-docker-compose build
+docker compose build
 
 # Start the service
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f copaw
+docker compose logs -f copaw
 
 # Stop the service
-docker-compose stop
+docker compose stop
 
 # Restart the service
-docker-compose restart
+docker compose restart
 
 # Stop and remove containers
-docker-compose down
+docker compose down
 ```
 
 ### Container Interaction
 
 ```bash
 # Enter the container shell
-docker-compose exec copaw bash
+docker compose exec copaw bash
 
 # Run CoPaw commands inside container
-docker-compose exec copaw copaw init --defaults
-docker-compose exec copaw copaw skills config
-docker-compose exec copaw copaw cron
+docker compose exec copaw copaw init --defaults
+docker compose exec copaw copaw skills config
+docker compose exec copaw copaw cron
 ```
 
 ### Data Management
@@ -83,7 +83,7 @@ docker run --rm -v copaw-data:/data -v $(pwd):/backup \
 ### Container Startup Flow
 
 ```
-docker-compose up
+docker compose up
         ↓
 entrypoint.sh runs
         ↓
@@ -116,7 +116,7 @@ All CoPaw data is stored in the Docker volume `copaw-data` at `/data/copaw`:
 Key variables are defined in two places:
 
 1. **Dockerfile**: Default values (COPAW_WORKING_DIR, COPAW_LOG_LEVEL, etc.)
-2. **docker-compose.yml**: Overridden with `.env` file values
+2. **docker-compose.yml**: Configuration file for environment variables
 
 Critical variables:
 - `EMBEDDING_API_KEY` - Required for vector memory search
