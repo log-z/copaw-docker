@@ -1,0 +1,40 @@
+name: Test Docker Startup
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Modify docker-compose.yml for local build
+        run: |
+          # 注释掉预构建镜像配置
+          sed -i 's/^    image: ghcr.io\/log-z\/copaw-docker:latest$/    # image: ghcr.io\/log-z\/copaw-docker:latest/' docker-compose.yml
+          # 取消注释本地构建配置
+          sed -i 's/^    # build:$/    build:/' docker-compose.yml
+          sed -i 's/^    #   context:.$/    context: ./' docker-compose.yml
+          sed -i 's/^    #   dockerfile: Dockerfile$/    dockerfile: Dockerfile/' docker-compose.yml
+          sed -i 's/^    # image: copaw:latest$/    image: copaw:latest/' docker-compose.yml
+
+      - name: Build Docker image
+        run: docker compose build
+
+      - name: Run startup tests
+        run: ./scripts/test-startup.sh --ci
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v

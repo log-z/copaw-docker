@@ -3,6 +3,29 @@
 
 set -e
 
+# CI 模式标志（非交互模式）
+CI_MODE=false
+
+# 解析命令行参数
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --ci)
+            CI_MODE=true
+            shift
+            ;;
+        -h|--help)
+            echo "用法: $0 [--ci]"
+            echo "  --ci    启用 CI 模式（非交互模式，自动清理）"
+            exit 0
+            ;;
+        *)
+            echo "未知选项: $1"
+            echo "使用 --help 查看帮助"
+            exit 1
+            ;;
+    esac
+done
+
 # 颜色输出
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -36,16 +59,22 @@ cd "$PROJECT_DIR"
 log_section "CoPaw Docker 启动测试"
 echo ""
 
-# 1. 清理旧容器（可选）
+# 1. 清理旧容器
 log_section "1. 清理旧环境"
-read -p "是否清理旧容器和卷？[y/N] " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    log_info "停止并删除旧容器..."
+if [ "$CI_MODE" = true ]; then
+    log_info "CI 模式：自动清理旧容器和卷..."
     docker compose down -v 2>/dev/null || true
     log_info "清理完成"
 else
-    log_info "跳过清理"
+    read -p "是否清理旧容器和卷？[y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        log_info "停止并删除旧容器..."
+        docker compose down -v 2>/dev/null || true
+        log_info "清理完成"
+    else
+        log_info "跳过清理"
+    fi
 fi
 echo ""
 
@@ -159,6 +188,12 @@ log_section "9. 容器内部测试"
 log_info "测试 CoPaw 命令..."
 docker compose exec -T copaw copaw --version 2>/dev/null || log_warn "无法获取版本信息"
 docker compose exec -T copaw ls -la /data/copaw 2>/dev/null || log_warn "无法列出数据目录"
+
+# 在 CI 模式下，显示容器环境信息
+if [ "$CI_MODE" = true ]; then
+    log_info "CI 模式：检查容器环境..."
+    docker compose exec -T copaw env | sort || log_warn "无法获取环境变量"
+fi
 echo ""
 
 # 10. 数据持久化验证
