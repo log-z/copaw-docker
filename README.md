@@ -37,9 +37,24 @@ CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 
 ### 使用方式选择
 
-#### 方式一：使用预构建镜像（推荐）
+#### 方式一：快速体验
 
-直接使用已构建好的 Docker 镜像，无需等待构建过程。
+最简单的方式，直接使用 docker run 命令启动，适合快速体验。
+
+```bash
+docker run -d --name copaw \
+  -p 8088:8088 \
+  --restart unless-stopped \
+  ghcr.io/log-z/copaw-docker:latest
+```
+
+访问控制台：http://localhost:8088
+
+---
+
+#### 方式二：使用 Docker Compose（推荐）
+
+使用 Docker Compose 方便管理和配置。
 
 ##### 1. （可选）配置环境变量
 
@@ -70,13 +85,13 @@ docker compose logs -f copaw
 
 ---
 
-#### 方式二：自行构建镜像
+#### 方式三：自行构建镜像
 
 如果需要自定义镜像或预构建镜像不可用，可以自行构建。
 
 ##### 1. （可选）配置环境变量
 
-同方式一。
+同方式二。
 
 ##### 2. 修改 docker-compose.yml
 
@@ -99,7 +114,7 @@ docker compose build
 
 ##### 4. 启动服务、查看日志、访问控制台
 
-同方式一。
+同方式二。
 
 ---
 
