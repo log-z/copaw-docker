@@ -34,8 +34,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
+      - name: Extract image metadata
+        id: image_meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -43,15 +43,19 @@ jobs:
             type=ref,event=tag
             type=sha,prefix=
 
+      - name: Extract CoPaw metadata
+        id: copaw_meta
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.image_meta.outputs.tags }}
+          labels: ${{ steps.image_meta.outputs.labels }}
           build-args: |
-            COPAW_VERSION=${{ github.ref_name }}
+            COPAW_VERSION=${{ steps.copaw_meta.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

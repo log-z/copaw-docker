@@ -15,11 +15,18 @@ RUN apt-get update && \
         && rm -rf /var/lib/apt/lists/* \
     && python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# 安装 CoPaw 及其依赖
-RUN pip install --no-cache-dir copaw
+# 安装 CoPaw 及其依赖（支持动态版本指定）
+RUN if [ "$COPAW_VERSION" = "latest" ]; then \
+      pip install --no-cache-dir copaw; \
+    else \
+      pip install --no-cache-dir copaw==${COPAW_VERSION}; \
+    fi
 
 # ==================== 运行阶段 ====================
 FROM python:3.12-slim
+
+# 重新声明构建参数，使其可用于 LABEL
+ARG COPAW_VERSION="latest"
 
 # 设置标签
 LABEL maintainer="copaw@example.com"
