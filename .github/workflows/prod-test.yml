@@ -16,10 +16,10 @@ jobs:
 
       - name: Pull and tag production image
         run: |
-          SHA=$(echo ${{ github.event.workflow_run.head_sha }} | cut -c1-12)
+          SHA=$(echo ${{ github.event.workflow_run.head_sha }} | cut -c1-7)
           echo "Pulling production image with SHA: ${SHA}"
-          docker pull ghcr.io/${{ github.repository }}:sha-${SHA}
-          docker tag ghcr.io/${{ github.repository }}:sha-${SHA} copaw:latest
+          docker pull ghcr.io/${{ github.repository }}:${SHA}
+          docker tag ghcr.io/${{ github.repository }}:${SHA} copaw:latest
 
       - name: Make test script executable
         run: chmod +x ./scripts/test-startup.sh
