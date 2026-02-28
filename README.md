@@ -286,6 +286,8 @@ docker compose exec copaw copaw clean               # 清空工作目录（交�
 
 ## 数据持久化
 
+> **⚠️ 重要提示**：本项目的 `copaw-data` 存储卷与 CoPaw 官方镜像的存储卷**不能通用**，原因是文件权限设置不一致。官方镜像可能使用不同的用户权限运行，直接挂载可能导致权限问题。
+
 本项目使用 Docker 数据卷 `copaw-data` 持久化以下内容：
 
 - `config.json` - 主配置文件
