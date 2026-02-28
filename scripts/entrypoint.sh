@@ -36,7 +36,8 @@ if [ ! -f "${COPAW_WORKING_DIR}/config.json" ]; then
     # 使用默认值初始化或使用用户提供的参数
     if [ "${COPAW_AUTO_INIT}" = "true" ]; then
         log_info "Running: copaw init --defaults"
-        copaw init --defaults || {
+        # 使用 yes 自动确认安全警告（非交互模式）
+        yes "" | copaw init --defaults || {
             log_error "Initialization failed. Please check your configuration."
             exit 1
         }
