@@ -1,6 +1,6 @@
-# CoPaw Docker 部署
+# CoPaw Docker 部署方案
 
-> CoPaw 的 Docker 部署方案，支持一键构建和运行。
+> CoPaw 的 Docker 部署方案，支持一键构建和运行，相比官方镜像更小。
 
 ## 关于 CoPaw
 
