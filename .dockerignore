@@ -40,8 +40,6 @@ ENV/
 README.md
 docs/
 *.md
-!scripts/entrypoint.sh
-!scripts/healthcheck.sh
 
 # 日志和临时文件
 *.log
