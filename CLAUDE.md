@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Docker deployment project for CoPaw, a personal assistant product based on AgentScope. CoPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT) and runs locally with user-configured LLM providers.
+This is a Docker deployment project for CoPaw, a personal assistant product based on AgentScope. CoPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT, Mattermost, Matrix) and runs locally with user-configured LLM providers.
 
 **Key Technologies**: Python 3.12, Docker, Docker Compose, AgentScope framework
 
@@ -87,6 +87,7 @@ docker compose exec copaw copaw models config-key dashscope    # Configure DashS
 docker compose exec copaw copaw models config-key custom       # Configure custom provider
 docker compose exec copaw copaw models config-key anthropic    # Configure Anthropic API Key (v0.0.5+)
 docker compose exec copaw copaw models config-key gemini       # Configure Gemini API Key (v0.0.6+)
+docker compose exec copaw copaw models config-key lmstudio    # Configure LM Studio API Key (v0.0.7+)
 docker compose exec copaw copaw models set-llm                 # Switch active model
 
 # Model Management (Local Models - llama.cpp / MLX)
@@ -221,6 +222,7 @@ All CoPaw data is stored in the Docker volume `copaw-data` at `/data/copaw`:
 | `customized_skills/` | User-defined skills |
 | `custom_channels/` | User-defined channel modules |
 | `memory/` | Agent memory files (with daily logs) |
+| `working.secret/` | Persistent provider settings and API keys in Docker (v0.0.7+) |
 
 **v0.0.5 Important Change**: `providers.json` and `envs.json` are now stored in a persistent `SECRET_DIR` to survive container restarts. Automatic migration happens on first startup.
 
@@ -235,6 +237,9 @@ Critical variables:
 - `EMBEDDING_API_KEY` - Required for vector memory search
 - `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` - LLM provider keys
 - `COPAW_AUTO_INIT` - Controls automatic initialization (default: true)
+- `COPAW_LLM_MAX_RETRIES` - Maximum retry attempts for LLM API calls (v0.0.7+)
+- `COPAW_LLM_BACKOFF_BASE` - Base backoff time for retries (v0.0.7+)
+- `COPAW_LLM_BACKOFF_CAP` - Maximum backoff time cap (v0.0.7+)
 
 See [.env.example](.env.example) for all available variables.
 
@@ -265,7 +270,7 @@ Access http://localhost:8088/ after startup:
 
 | Group | Feature | Description |
 |-------|---------|-------------|
-| Chat | Chat | Chat with CoPaw, manage sessions |
+| Chat | Chat | Chat with CoPaw, manage sessions, switch models (v0.0.7+) |
 | Control | Channels | Enable/disable channels, configure credentials |
 | Control | Sessions | Filter, rename, delete sessions |
 | Control | Cron Jobs | Create/edit/delete tasks, run immediately |
@@ -273,10 +278,12 @@ Access http://localhost:8088/ after startup:
 | Agent | Skills | Enable/disable/create/**import**/delete skills |
 | Agent | MCP | Enable/disable/create/delete MCP clients |
 | Agent | Runtime Config | Modify max iterations and max input length |
-| Agent | Tools | Enable/disable built-in tools (v0.0.6+) |
-| Agent | System Prompts | Custom system prompts from workspace files (v0.0.6+) |
+| Agent | Tools | Enable/disable built-in tools (v0.0.6+), batch toggle (v0.0.7+) |
+| Agent | System Prompts | Custom system prompts from workspace files (v0.0.6+), drag-and-drop reordering (v0.0.7+) |
 | Settings | Models | Configure providers (custom providers), manage local/Ollama models, select model |
 | Settings | Environment Variables | Add/edit/delete environment variables (with security masking v0.0.6+) |
+| Settings | Security | Tool Guard security rules management (v0.0.7+) |
+| Settings | Token Usage | Track token usage across providers (v0.0.7+) |
 
 **Skills Hub Import**: Now supports importing skills from community platforms:
 - `https://skills.sh/...`
@@ -286,9 +293,50 @@ Access http://localhost:8088/ after startup:
 
 ---
 
+## New Features (CoPaw 0.0.7)
+
+### v0.0.7 New Features (Latest)
+
+#### Security
+- **Tool Guard** - Pre-execution security layer that scans tool parameters for risky patterns (e.g., `rm`, `mv` in shell commands). Risky calls are blocked until the user approves via `/approve`; denied tools are always blocked. New Security settings page for managing rules and approvals.
+
+#### Channel & Communication
+- **Mattermost Channel** - Full Mattermost integration supporting DMs and threaded conversations with text, images, files, video, and audio, plus typing indicator and configurable access policies.
+- **Matrix Channel** - New Matrix protocol channel integration using matrix-nio, supporting text, images, video, audio, and file messages.
+- **Require Mention Filtering** - Group messages are ignored unless the bot is @mentioned (or a slash command is used on Telegram), configurable per-channel via `require_mention` for Discord, DingTalk, Feishu, and Telegram.
+- **Telegram Markdown Rendering** - Markdown-to-Telegram HTML conversion for LLM output including bold, italic, code blocks, links, blockquotes, spoilers, and more, with automatic plain text fallback on send failure.
+- **Feishu Emoji Reaction** - Automatically adds a "DONE" emoji reaction to the last Feishu reply when processing completes successfully.
+- **Feishu Rich Text Media** - Parsing of media files (videos, audio, and other files) in Feishu post-type rich text messages, with automatic download and attachment.
+- **QQ Image Messages** - Support for sending image messages via `[Image: url]` tags in agent output for both DM and group chats.
+
+#### Model & AI Features
+- **Model Retry** - Automatic retries for LLM API calls on transient errors (rate limit, timeout, connection) with exponential backoff, configurable via `COPAW_LLM_MAX_RETRIES`, `COPAW_LLM_BACKOFF_BASE`, `COPAW_LLM_BACKOFF_CAP`.
+- **LM Studio Provider** - LM Studio added as a built-in model provider with configuration UI and documentation.
+- **Token Usage Tracking** - End-to-end token usage tracking across providers with a Token Usage settings page, API, and `get_token_usage` tool.
+- **Provider Advanced Configuration** - Added `generate_kwargs` editor for custom generation parameters (e.g., temperature, top_p, enable_thinking); providers without API keys (Ollama, LM Studio) are now correctly shown as configured.
+
+#### Console & UI
+- **Workspace Drag-and-Drop** - Drag-and-drop reordering for enabled system prompt files in Agent Workspace, controlling prompt file precedence.
+- **Chat Model Selection** - Model selector dropdown on the Chat page for switching models during conversation.
+- **Agent Language Selector** - Change the agent's language directly from the console Agent Config page.
+- **Tool Batch Toggle** - "Enable All" and "Disable All" buttons on the Tools page for batch tool management.
+- **Chat URL Routing** - Direct URL access to specific chat sessions via `/chat/:chatId` with automatic URL synchronization.
+- **Context Management UI** - New Context Management section in Agent Config with adjustable compact ratio, reserve ratio, and tool result compaction settings, displaying derived token thresholds.
+- **Preserve Chat on Navigate** - Chat stays mounted when switching to other pages, preserving in-progress messages, cursor position, and running state.
+
+#### Skills
+- **AI Skill Optimization** - "AI Optimize" button in the skill editor uses the active model to rewrite skill content with streaming output; supports English, Chinese, and Russian prompts.
+- **Skill Card Description** - Skill cards now display the `description` from SKILL.md frontmatter so you can see what each skill does without opening it.
+
+#### Installation & Platform
+- **Auto PyPI Mirror** - Automatic PyPI mirror selection in the install script, detecting connectivity and falling back to Alibaba Cloud mirror for users in China.
+- **Docker Secret Directory** - Added `/app/working.secret` to Docker layout for persistent provider settings and API keys.
+
+---
+
 ## New Features (CoPaw 0.0.6)
 
-### v0.0.6 New Features (Latest)
+### v0.0.6 Features (Retained)
 
 #### Desktop Applications
 - **Native Desktop Installers** - One-click installer for Windows and standalone `.app` bundle for macOS
@@ -501,10 +549,12 @@ docker compose exec copaw copaw models ollama-pull qwen3:8b
 | Feishu | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
-| QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | 🚧 | 🚧 | 🚧 | 🚧 |
+| QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
 | Telegram | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Twilio Voice | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
 | MQTT | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| Mattermost | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Matrix | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 > ✓ = Supported; 🚧 = In progress; ✗ = Not supported
 
