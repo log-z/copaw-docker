@@ -48,6 +48,11 @@ services:
       # Gemini (v0.0.6 新增)
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
 
+      # LLM 重试配置 (v0.0.7 新增)
+      - COPAW_LLM_MAX_RETRIES=${COPAW_LLM_MAX_RETRIES:-3}
+      - COPAW_LLM_BACKOFF_BASE=${COPAW_LLM_BACKOFF_BASE:-1.0}
+      - COPAW_LLM_BACKOFF_CAP=${COPAW_LLM_BACKOFF_CAP:-60.0}
+
       # Tavily 搜索 (用于网络搜索技能)
       - TAVILY_API_KEY=${TAVILY_API_KEY:-}
 
