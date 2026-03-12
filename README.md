@@ -217,6 +217,9 @@ docker compose exec copaw copaw models list                    # 查看所有提
 docker compose exec copaw copaw models config                  # 交互式配置
 docker compose exec copaw copaw models config-key modelscope   # 配置 ModelScope API Key
 docker compose exec copaw copaw models config-key dashscope    # 配置 DashScope API Key
+docker compose exec copaw copaw models config-key anthropic    # 配置 Anthropic API Key（v0.0.5+）
+docker compose exec copaw copaw models config-key gemini       # 配置 Gemini API Key（v0.0.6+）
+docker compose exec copaw copaw models config-key lmstudio     # 配置 LM Studio（v0.0.7+）
 docker compose exec copaw copaw models config-key custom       # 配置自定义提供商
 docker compose exec copaw copaw models set-llm                 # 切换活跃模型
 
@@ -310,6 +313,15 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 | `OPENAI_BASE_URL` | OpenAI 兼容接口地址 |
 | `OPENAI_MODEL_NAME` | OpenAI 兼容模型名称 |
 | `ANTHROPIC_API_KEY` | Anthropic API Key（v0.0.5+ 新增） |
+| `GEMINI_API_KEY` | Gemini API Key（v0.0.6+ 新增） |
+
+### 模型重试配置（v0.0.7+ 新增）
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `COPAW_LLM_MAX_RETRIES` | `3` | LLM API 调用最大重试次数 |
+| `COPAW_LLM_BACKOFF_BASE` | `1.0` | 重试退避基准时间（秒） |
+| `COPAW_LLM_BACKOFF_CAP` | `30.0` | 最大退避时间上限（秒） |
 
 ### Web 服务配置
 
@@ -351,11 +363,14 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 |------|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
 | 钉钉 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 | 🚧 | 🚧 |
+| Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
-| QQ | ✓ | 🚧 | 🚧 | 🚧 | 🚧 | ✓ | 🚧 | 🚧 | 🚧 | 🚧 |
+| QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
 | Telegram | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Twilio Voice | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
+| MQTT | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| Mattermost | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Matrix | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 > ✓ = 已支持；🚧 = 施工中；✗ = 不支持
 
@@ -455,69 +470,42 @@ docker compose restart
 
 ## 新功能支持
 
-### v0.0.5 新增功能
+### v0.0.7 新增功能 (最新)
 
-- **Twilio Voice 频道** - 语音频道集成，支持 Cloudflare tunnel
-- **Telegram CLI 配置** - 交互式命令行工具配置 Telegram 频道
-- **Anthropic 提供商** - 新增内置模型提供商
-- **DeepSeek Reasoner 支持** - 保留 `reasoning_content` 用于推理模式
-- **版本更新通知** - 自动版本检测与更新提示
-- **Daemon 模式** - `copaw daemon` CLI 管理后台服务
-- **Agent 中断 API** - `interrupt()` 方法取消活跃回复任务
-- **MCP 客户端自动恢复** - 自动重连关闭的 MCP 会话
-- **iMessage 附件支持** - 支持发送图片、音频、视频文件
-- **消息过滤配置** - 每频道可隐藏工具执行步骤 (`filter_tool_messages`) 和思考内容 (`filter_thinking`)
-- **Docker 配置持久化** - `providers.json` 和 `envs.json` 自动迁移到 `SECRET_DIR`
-- **频道文档链接** - 每个频道卡片上的快速 "Doc" 按钮
-- **Skills Hub 导入** - 支持从社区平台导入技能
+#### 安全功能
+- **Tool Guard** - 工具执行前安全层，扫描工具参数中的危险模式（如 shell 命令中的 rm、mv）。危险调用被阻止直到用户通过 `/approve` 批准；被拒绝的工具始终被阻止。新增 Security 设置页面管理规则和审批。
 
-### MCP (模型上下文协议)
+#### 频道与通信
+- **Mattermost 频道** - 完整集成，支持 DM 和线程对话，文本/图片/文件/视频/音频，输入指示器，可配置访问策略
+- **Matrix 频道** - 使用 matrix-nio 的 Matrix 协议集成，支持文本/图片/视频/音频/文件消息
+- **Require Mention 过滤** - 群组消息在 bot 被 @提及时才会响应，通过 `require_mention` 为 Discord、钉钉、飞书、Telegram 配置
+- **Telegram Markdown 渲染** - Markdown 到 Telegram HTML 转换，发送失败时自动降级为纯文本
+- **飞书表情反应** - 处理成功完成时自动添加"DONE"表情反应
+- **飞书富文本媒体** - 解析帖子类型富文本消息中的媒体文件
+- **QQ 图片消息** - 通过 `[Image: url]` 标签发送图片
 
-CoPaw 0.0.3+ 支持 MCP（Model Context Protocol），可以连接外部 MCP 服务器扩展能力。
+#### 模型与 AI 功能
+- **模型重试** - LLM API 调用在瞬态错误时自动重试，指数退避，通过 `COPAW_LLM_MAX_RETRIES`、`COPAW_LLM_BACKOFF_BASE`、`COPAW_LLM_BACKOFF_CAP` 配置
+- **LM Studio 提供商** - 新增内置模型提供商，含配置 UI
+- **Token 使用追踪** - 端到端 token 追踪，含 Token Usage 设置页面、API 和 `get_token_usage` 工具
+- **提供商高级配置** - `generate_kwargs` 编辑器用于自定义生成参数；无 API Key 的提供商（Ollama、LM Studio）正确显示为已配置
 
-**前置要求**: 无额外要求（镜像已包含 Node.js 20.x LTS）
+#### 控制台与 UI
+- **工作区拖放** - 拖放重新排序已启用的系统提示文件
+- **聊天模型选择** - Chat 页面上的模型选择下拉菜单
+- **Agent 语言选择器** - 直接从控制台更改 agent 语言
+- **工具批量切换** - Tools 页面上的"全部启用"/"全部禁用"按钮
+- **聊天 URL 路由** - 通过 `/chat/:chatId` 直接 URL 访问
+- **上下文管理 UI** - 调整压缩比例、保留比例、工具结果压缩设置
+- **导航时保留聊天** - 切换页面时聊天保持挂载
 
-**配置示例**（通过控制台添加）:
-```json
-{
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/directory"]
-    }
-  }
-}
-```
+#### 技能
+- **AI 技能优化** - "AI Optimize"按钮使用活动模型重写技能内容
+- **技能卡片描述** - 技能卡片显示 SKILL.md frontmatter 中的描述
 
-**管理方式**:
-- 控制台 → 智能体 → MCP → 创建客户端
-- 支持启用/禁用/编辑/删除 MCP 客户端
-
-### 本地模型支持
-
-CoPaw 支持本地运行模型（无需 API Key），但需要额外依赖：
-
-| 后端 | 说明 | 额外依赖 |
-|------|------|----------|
-| llama.cpp | 跨平台 | `pip install 'copaw[llamacpp]'` |
-| MLX | Apple Silicon 优化 | `pip install 'copaw[mlx]'` |
-| Ollama | Ollama 守护进程 | `pip install 'copaw[ollama]'` + Ollama 服务 |
-
-> **注意**: Docker 镜像默认不包含这些依赖。如需使用，需要自定义构建镜像或在容器中手动安装。
-
-### 控制台新功能
-
-**技能管理增强**:
-- 从 Skill Hub 导入技能（通过 URL）
-- 直接在控制台创建自定义技能
-
-**工作区功能**:
-- 上传/下载工作区（.zip 格式）
-- 支持工作区备份和迁移
-
-**运行配置**:
-- 可修改最大迭代次数 (max_iters)
-- 可修改最大输入长度 (max_input_length)
+#### 安装与平台
+- **自动 PyPI 镜像** - 自动镜像选择，中国用户回退到阿里云镜像
+- **Docker Secret 目录** - 添加 `/app/working.secret` 用于持久化提供商设置
 
 ---
 
@@ -527,16 +515,20 @@ CoPaw 支持本地运行模型（无需 API Key），但需要额外依赖：
 
 | 组 | 功能 | 说明 |
 |----|------|------|
-| 聊天 | 聊天 | 和 CoPaw 对话、管理会话 |
+| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型（v0.0.7+） |
 | 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接（v0.0.5+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
-| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载 |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/删除技能 |
+| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、拖放排序系统提示（v0.0.7+） |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化（v0.0.7+）/删除技能 |
 | 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端 |
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度 |
-| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama 模型、选择模型 |
-| 设置 | 环境变量 | 添加/编辑/删除环境变量 |
+| 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置（v0.0.7+） |
+| 智能体 | 工具 | 启用/禁用内置工具、批量切换（v0.0.6+） |
+| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型 |
+| 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩 v0.0.6+） |
+| 设置 | 安全 | Tool Guard 安全规则管理（v0.0.7+） |
+| 设置 | Token 使用 | 追踪各提供商 token 使用量（v0.0.7+） |
 
 **Skills Hub 导入**（v0.0.5+）：支持从社区平台导入技能
 - `https://skills.sh/...`
