@@ -19,7 +19,15 @@ jobs:
           SHA=$(echo ${{ github.event.workflow_run.head_sha }} | cut -c1-7)
           echo "Pulling production image with SHA: ${SHA}"
           docker pull ghcr.io/${{ github.repository }}:${SHA}
-          docker tag ghcr.io/${{ github.repository }}:${SHA} copaw:latest
+          docker tag ghcr.io/${{ github.repository }}:${SHA} copaw:testing
+
+      - name: Create docker-compose override for pulled image
+        run: |
+          cat > docker-compose.override.yml <<'EOF'
+          services:
+            copaw:
+              image: copaw:testing
+          EOF
 
       - name: Make test script executable
         run: chmod +x ./scripts/test-startup.sh
