@@ -72,7 +72,8 @@ ENV PYTHONUNBUFFERED=1 \
     COPAW_CONFIG_FILE="config.json" \
     COPAW_LOG_LEVEL="INFO" \
     COPAW_RUNNING_IN_CONTAINER=1 \
-    COPAW_PORT=8088
+    COPAW_PORT=8088 \
+    TZ=Asia/Shanghai
 
 # 创建非 root 用户（在安装软件之前创建，避免 GID 被占用）
 # 固定 UID/GID 为 999

@@ -23,6 +23,7 @@ services:
       - COPAW_CONFIG_FILE=config.json
       - COPAW_LOG_LEVEL=INFO
       - COPAW_PORT=${COPAW_PORT:-8088}
+      - TZ=${TZ:-Asia/Shanghai}
 
       # Web 认证配置 (v0.1.0 新增)
       # 启用后首次访问显示注册页面，本地请求自动绕过认证
