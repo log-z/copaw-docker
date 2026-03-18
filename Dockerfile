@@ -118,18 +118,11 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # 通过软链接实现持久化设置
 RUN mkdir -p /data/copaw/.runtime && \
-    echo "{}" > /data/copaw/.runtime/providers.json && \
-    echo "{}" > /data/copaw/.runtime/envs.json && \
-    ln -sf /data/copaw/.runtime /data/copaw.secret && \
-    ln -sf /data/copaw/.runtime/providers.json \
-          /usr/local/lib/python3.12/site-packages/copaw/providers/providers.json && \
-    ln -sf /data/copaw/.runtime/envs.json \
-          /usr/local/lib/python3.12/site-packages/copaw/envs/envs.json
+    ln -sf /data/copaw/.runtime /data/copaw.secret
 
 # 设置目录所有权
 RUN chown -R copaw:copaw /usr/local/lib/python3.12/site-packages/copaw && \
-    chown -R copaw:copaw /data/copaw && \
-    chmod -R 700 /data/copaw/.runtime
+    chown -R copaw:copaw /data/copaw
 
 # 设置工作目录
 WORKDIR /data/copaw
@@ -137,9 +130,10 @@ WORKDIR /data/copaw
 # 复制启动脚本和健康检查脚本
 COPY --chown=copaw:copaw scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chown=copaw:copaw scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY --chown=copaw:copaw scripts/migration-helper.sh /usr/local/bin/migration-helper.sh
 
 # 设置脚本权限
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/migration-helper.sh
 
 # 切换到非 root 用户
 USER copaw

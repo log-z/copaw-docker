@@ -18,16 +18,20 @@ This is a Docker deployment project for CoPaw, a personal assistant product base
 
 ### Security Warning
 
-> **CoPaw has NO authentication or access control. NEVER expose the service port to the public internet!**
+> **CoPaw v0.1.0+ supports optional Web authentication. For versions prior to v0.1.0 or when authentication is disabled, NEVER expose the service port to the public internet!**
 
-- The WebUI management interface has **no login authentication**
-- Anyone who can access port 8088 can fully control the CoPaw instance
-- Default port `8088` should only be accessed in **trusted internal networks**
-- v0.0.5+ changed default Docker port binding to `127.0.0.1` for improved security
-- If remote access is required, use:
-  - SSH tunnel: `ssh -L 8088:localhost:8088 your-server`
-  - Reverse proxy (Nginx/Caddy) with Basic Auth or OAuth
-  - Firewall rules to restrict access by IP
+- **v0.1.0+**: Set `COPAW_AUTH_ENABLED=true` to enable Web authentication (disabled by default)
+  - First access shows registration page
+  - Local requests (127.0.0.1) automatically bypass authentication
+  - Password reset: `docker compose exec copaw copaw auth reset-password`
+- **v0.0.x or when authentication disabled**:
+  - The WebUI management interface has **no login authentication**
+  - Default port `8088` should only be accessed in **trusted internal networks**
+  - v0.0.5+ changed default Docker port binding to `127.0.0.1` for improved security
+  - If remote access is required, use:
+    - SSH tunnel: `ssh -L 8088:localhost:8088 your-server`
+    - Reverse proxy (Nginx/Caddy) with Basic Auth or OAuth
+    - Firewall rules to restrict access by IP
 
 ### Data Volume Compatibility
 
@@ -149,6 +153,9 @@ docker compose exec copaw copaw clean --dry-run     # Show what would be deleted
 
 # Desktop Mode (v0.0.6+)
 docker compose exec copaw copaw desktop             # Open CoPaw in native webview window
+
+# Web Authentication (v0.1.0+)
+docker compose exec copaw copaw auth reset-password # Reset Web UI password
 ```
 
 ### Data Management
@@ -208,11 +215,13 @@ All CoPaw data is stored in the Docker volume `copaw-data` at `/data/copaw`:
 
 | File/Directory | Purpose |
 |----------------|---------|
-| `config.json` | Main configuration (channels, heartbeat, language) |
-| `providers.json` | LLM provider configuration (v0.0.5+: migrated to SECRET_DIR) |
-| `envs.json` | Environment variables (v0.0.5+: migrated to SECRET_DIR) |
-| `SOUL.md` | Agent core identity and behavior rules (required) |
-| `AGENTS.md` | Detailed workflow and guidelines (required) |
+| `config.json` | Root configuration with agent references (v0.1.0+) |
+| `workspaces/default/` | Default agent workspace (v0.1.0+) |
+| `workspaces/default/agent.json` | Agent configuration (v0.1.0+) |
+| `workspaces/default/SOUL.md` | Agent core identity (moved to workspace) |
+| `workspaces/default/AGENTS.md` | Detailed workflow (moved to workspace) |
+| `.runtime/` | SECRET_DIR: providers.json, envs.json, auth.json |
+| `.runtime/auth.json` | Web authentication data (v0.1.0+) |
 | `MEMORY.md` | Long-term memory storage |
 | `PROFILE.md` | Identity and user profile |
 | `HEARTBEAT.md` | Heartbeat task questions |
@@ -222,7 +231,8 @@ All CoPaw data is stored in the Docker volume `copaw-data` at `/data/copaw`:
 | `customized_skills/` | User-defined skills |
 | `custom_channels/` | User-defined channel modules |
 | `memory/` | Agent memory files (with daily logs) |
-| `working.secret/` | Persistent provider settings and API keys in Docker (v0.0.7+) |
+
+**v0.1.0 Migration**: Existing configurations are automatically migrated to the new multi-workspace architecture on first startup.
 
 **v0.0.5 Important Change**: `providers.json` and `envs.json` are now stored in a persistent `SECRET_DIR` to survive container restarts. Automatic migration happens on first startup.
 
@@ -234,6 +244,7 @@ Key variables are defined in two places:
 2. **docker-compose.yml**: Configuration file for environment variables
 
 Critical variables:
+- `COPAW_AUTH_ENABLED` - Enable Web authentication (default: `false`, v0.1.0+)
 - `EMBEDDING_API_KEY` - Required for vector memory search
 - `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` - LLM provider keys
 - `COPAW_AUTO_INIT` - Controls automatic initialization (default: true)
@@ -293,6 +304,44 @@ Access http://localhost:8088/ after startup:
 
 ---
 
+## New Features (CoPaw v0.1.0-beta.1)
+
+### v0.1.0-beta.1 New Features (Latest)
+
+#### Multi-Workspace Architecture
+- **Agent Workspaces** - Each agent has its own workspace directory with isolated configuration
+- **Default Workspace** - `{WORKING_DIR}/workspaces/default/` for single-agent deployments
+- **Automatic Migration** - Legacy configurations are automatically migrated to new format
+- **Backward Compatibility** - Falls back to root config if `agent.json` not found
+
+#### Web Authentication
+- **Optional Authentication** - Set `COPAW_AUTH_ENABLED=true` to enable (disabled by default)
+- **Single User Mode** - First access shows registration page
+- **Local Bypass** - Requests from 127.0.0.1 automatically bypass authentication
+- **Password Reset** - Use `copaw auth reset-password` CLI command
+
+#### Built-in WeCom Channel
+- **Official Support** - WeCom channel is now built into CoPaw
+- **No Custom Setup** - Remove the need for third-party WeCom plugins
+
+#### New Model Providers
+- **MiniMax Provider** - New built-in model provider
+- **DeepSeek Provider** - New built-in model provider
+- **Gemini Provider** - New built-in model provider
+
+#### Voice Transcription
+- **Audio Transcription** - Voice messages can be transcribed using local Whisper
+- **Provider Support** - Supports whisper_api and local_whisper backends
+
+#### Other Improvements
+- **XiaoYi Channel** - New channel for Huawei A2A protocol
+- **CLI Update Command** - `copaw update` to automatically update CoPaw
+- **view_image Tool** - LLM visual analysis tool
+- **User Timezone Configuration** - Per-user timezone settings
+- **Console Dark Mode** - Dark theme support
+
+---
+
 ## New Features (CoPaw 0.0.7)
 
 ### v0.0.7 New Features (Latest)
@@ -330,7 +379,7 @@ Access http://localhost:8088/ after startup:
 
 #### Installation & Platform
 - **Auto PyPI Mirror** - Automatic PyPI mirror selection in the install script, detecting connectivity and falling back to Alibaba Cloud mirror for users in China.
-- **Docker Secret Directory** - Added `/app/working.secret` to Docker layout for persistent provider settings and API keys.
+- **Docker Secret Directory** - SECRET_DIR (`/data/copaw.secret` -> `/data/copaw/.runtime`) for persistent provider settings and API keys.
 
 ---
 

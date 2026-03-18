@@ -45,6 +45,9 @@ log_info "Working directory: ${COPAW_WORKING_DIR}"
 log_info "Log level: ${COPAW_LOG_LEVEL}"
 log_info "Port: ${COPAW_PORT}"
 
+# 运行迁移辅助脚本，创建软链接以兼容 CoPaw 迁移代码
+/usr/local/bin/migration-helper.sh "${COPAW_WORKING_DIR}"
+
 # 检查是否需要初始化
 if [ ! -f "${COPAW_WORKING_DIR}/config.json" ]; then
     log_warn "Configuration file not found. Initializing CoPaw..."
@@ -52,7 +55,7 @@ if [ ! -f "${COPAW_WORKING_DIR}/config.json" ]; then
     # 使用默认值初始化或使用用户提供的参数
     if [ "${COPAW_AUTO_INIT}" = "true" ]; then
         log_info "Running: copaw init --defaults --accept-security"
-        copaw init --defaults  --accept-security || {
+        copaw init --defaults --accept-security || {
             log_error "Initialization failed. Please check your configuration."
             exit 1
         }
@@ -62,20 +65,6 @@ if [ ! -f "${COPAW_WORKING_DIR}/config.json" ]; then
     fi
 else
     log_info "Configuration file found at ${COPAW_WORKING_DIR}/config.json"
-fi
-
-# 显示必需的文件检查
-REQUIRED_FILES=("config.json" "SOUL.md" "AGENTS.md")
-missing_files=()
-for file in "${REQUIRED_FILES[@]}"; do
-    if [ ! -f "${COPAW_WORKING_DIR}/$file" ]; then
-        missing_files+=("$file")
-    fi
-done
-
-if [ ${#missing_files[@]} -gt 0 ]; then
-    log_warn "Some required files are missing: ${missing_files[*]}"
-    log_warn "You may need to run 'copaw init' to complete the setup."
 fi
 
 # 检查环境变量配置
