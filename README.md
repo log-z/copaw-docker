@@ -145,8 +145,7 @@ copaw/
 ├── scripts/
 │   ├── entrypoint.sh          # 容器启动脚本（自动初始化检查）
 │   ├── healthcheck.sh         # 健康检查脚本（Docker HEALTHCHECK）
-│   ├── test-startup.sh        # 启动流程测试脚本
-│   └── validate-config.sh     # 配置文件验证脚本（启动前检查环境）
+│   └── test-startup.sh        # 启动流程测试脚本
 ├── .dockerignore              # Docker 构建忽略文件
 ├── .env.example               # 环境变量配置示例
 ├── .gitignore                 # Git 忽略文件配置
@@ -162,25 +161,25 @@ copaw/
 copaw-data:/
 ├── copaw.secret -> copaw/.runtime    # 软链接指向 .runtime（兼容 SECRET_DIR）
 └── copaw/
-    ├── config.json            # 根配置文件（包含代理引用，v0.1.0+）
-    ├── workspaces/            # 多代理工作区目录（v0.1.0+）
-    │   └── default/           # 默认代理工作区
-    │       ├── agent.json     # 代理配置
-    │       ├── SOUL.md        # Agent 核心身份与行为原则（必填）
-    │       ├── AGENTS.md      # 详细工作流程与指南（必填）
-    │       ├── PROFILE.md     # 身份和用户画像
-    │       ├── active_skills/ # 当前激活的技能
-    │       └── customized_skills/ # 用户自定义技能
     ├── .runtime/              # 敏感配置目录
-    │   ├── providers.json     # LLM 提供商配置
+    │   ├── auth.json          # Web 认证数据（v0.1.0+）
     │   ├── envs.json          # 环境变量配置
-    │   └── auth.json          # Web 认证数据（v0.1.0+）
-    ├── HEARTBEAT.md           # 心跳任务配置
-    ├── jobs.json              # 定时任务列表
-    ├── chats.json             # 会话列表
+    │   └── providers.json     # LLM 提供商配置
     ├── custom_channels/       # 用户自定义频道模块
     ├── mcp_clients/           # MCP 客户端配置
-    └── memory/                # Agent 记忆文件存储（含每日日志）
+    ├── memory/                # Agent 记忆文件存储（含每日日志）
+    ├── workspaces/            # 多代理工作区目录（v0.1.0+）
+    │   └── default/           # 默认代理工作区
+    │       ├── active_skills/ # 当前激活的技能
+    │       ├── customized_skills/ # 用户自定义技能
+    │       ├── AGENTS.md      # 详细工作流程与指南（必填）
+    │       ├── PROFILE.md     # 身份和用户画像
+    │       ├── SOUL.md        # Agent 核心身份与行为原则（必填）
+    │       └── agent.json     # 代理配置
+    ├── chats.json             # 会话列表
+    ├── config.json            # 根配置文件（包含代理引用，v0.1.0+）
+    ├── HEARTBEAT.md           # 心跳任务配置
+    └── jobs.json              # 定时任务列表
 ```
 
 > **v0.1.0 多工作区迁移**：现有配置会在首次启动时自动迁移到新的多工作区架构。
@@ -375,23 +374,23 @@ docker compose exec copaw copaw auth reset-password # 重置 Web UI 密码
 
 本项目使用 Docker 数据卷 `copaw-data` 持久化以下内容：
 
-- `config.json` - 根配置文件（包含代理引用，v0.1.0+）
-- `workspaces/default/` - 默认代理工作区（v0.1.0+）
-  - `agent.json` - 代理配置
-  - `SOUL.md` - 核心身份与行为原则
-  - `AGENTS.md` - 详细的工作流程、规则和指南
-  - `PROFILE.md` - 身份和用户画像
-  - `active_skills/` - 当前激活的技能
-  - `customized_skills/` - 用户自定义技能
 - `.runtime/` - 敏感配置目录
-  - `providers.json` - LLM 提供商配置
-  - `envs.json` - 环境变量配置
   - `auth.json` - Web 认证数据（v0.1.0+）
-- `HEARTBEAT.md` - 心跳配置
-- `jobs.json` - 定时任务列表
-- `chats.json` - 会话列表
+  - `envs.json` - 环境变量配置
+  - `providers.json` - LLM 提供商配置
 - `custom_channels/` - 用户自定义频道模块
 - `memory/` - Agent 记忆文件
+- `workspaces/default/` - 默认代理工作区（v0.1.0+）
+  - `active_skills/` - 当前激活的技能
+  - `customized_skills/` - 用户自定义技能
+  - `AGENTS.md` - 详细的工作流程、规则和指南
+  - `PROFILE.md` - 身份和用户画像
+  - `SOUL.md` - 核心身份与行为原则
+  - `agent.json` - 代理配置
+- `chats.json` - 会话列表
+- `config.json` - 根配置文件（包含代理引用，v0.1.0+）
+- `HEARTBEAT.md` - 心跳配置
+- `jobs.json` - 定时任务列表
 
 容器重启后，所有数据都会保留。
 
