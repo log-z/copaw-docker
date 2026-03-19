@@ -20,11 +20,16 @@ CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 设置 `COPAW_AUTH_ENABLED=true` 启用 Web 认证：
 - 首次访问显示注册页面
 - 本地请求 (127.0.0.1) 自动绕过认证
+- 支持环境变量自动注册（适用于自动化部署）
 - 密码重置：`docker compose exec copaw copaw auth reset-password`
 
 ```bash
 # 在 .env 文件中启用
 COPAW_AUTH_ENABLED=true
+
+# 可选：自动注册管理员账户（首次启动时生效）
+COPAW_AUTH_USERNAME=admin
+COPAW_AUTH_PASSWORD=your_secure_password
 ```
 </details>
 
@@ -350,6 +355,8 @@ docker compose exec copaw copaw auth reset-password # 重置 Web UI 密码
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `COPAW_AUTH_ENABLED` | `false` | 是否启用 Web 认证（启用后首次访问显示注册页面） |
+| `COPAW_AUTH_USERNAME` | （空） | 自动注册管理员用户名（仅首次启动时生效） |
+| `COPAW_AUTH_PASSWORD` | （空） | 自动注册管理员密码（仅首次启动时生效） |
 
 ### 模型重试配置（v0.0.7+ 新增）
 
@@ -523,7 +530,7 @@ docker compose restart
 #### 安全
 - **技能安全扫描** - 安装前检测提示注入、命令注入、硬编码密钥、数据泄露风险
 - **破坏性命令检测** - 检测危险 shell 命令（磁盘格式化、fork 炸弹、反向 shell 等）
-- **Web 认证** - 可选 Web 认证，单用户注册、Token 登录、本地绕过
+- **Web 认证** - 可选 Web 认证，单用户注册、Token 登录、本地绕过、环境变量自动注册
 
 #### 频道
 - **企业微信频道** - 完整支持，媒体、二维码访问、控制台配置 UI

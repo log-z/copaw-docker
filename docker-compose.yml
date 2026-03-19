@@ -28,6 +28,9 @@ services:
       # Web 认证配置 (v0.1.0 新增)
       # 启用后首次访问显示注册页面，本地请求自动绕过认证
       - COPAW_AUTH_ENABLED=${COPAW_AUTH_ENABLED:-false}
+      # 自动注册管理员账户（可选，适用于自动化部署）
+      - COPAW_AUTH_USERNAME=${COPAW_AUTH_USERNAME:-}
+      - COPAW_AUTH_PASSWORD=${COPAW_AUTH_PASSWORD:-}
 
       # Embedding 服务配置
       - EMBEDDING_API_KEY=${EMBEDDING_API_KEY:-}

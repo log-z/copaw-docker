@@ -25,6 +25,7 @@ This is a Docker deployment project for CoPaw, a personal assistant product base
 - **v0.1.0+**: Set `COPAW_AUTH_ENABLED=true` to enable Web authentication (disabled by default)
   - First access shows registration page
   - Local requests (127.0.0.1) automatically bypass authentication
+  - Auto-register admin via environment variables: `COPAW_AUTH_USERNAME` and `COPAW_AUTH_PASSWORD`
   - Password reset: `docker compose exec copaw copaw auth reset-password`
 - **v0.0.x or when authentication disabled**:
   - The WebUI management interface has **no login authentication**
@@ -110,6 +111,8 @@ Key variables (see [.env.example](.env.example) for full list):
 | Variable | Description |
 |----------|-------------|
 | `COPAW_AUTH_ENABLED` | Enable Web authentication (default: `false`, v0.1.0+) |
+| `COPAW_AUTH_USERNAME` | Auto-register admin username (v0.1.0+) |
+| `COPAW_AUTH_PASSWORD` | Auto-register admin password (v0.1.0+) |
 | `COPAW_AUTO_INIT` | Auto initialization (default: true) |
 | `COPAW_LLM_MAX_RETRIES` | LLM API retry attempts (v0.0.7+) |
 | `EMBEDDING_API_KEY` | Vector memory search |
