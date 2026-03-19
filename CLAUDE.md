@@ -91,7 +91,10 @@ docker compose exec copaw copaw models config-key dashscope    # Configure DashS
 docker compose exec copaw copaw models config-key custom       # Configure custom provider
 docker compose exec copaw copaw models config-key anthropic    # Configure Anthropic API Key (v0.0.5+)
 docker compose exec copaw copaw models config-key gemini       # Configure Gemini API Key (v0.0.6+)
-docker compose exec copaw copaw models config-key lmstudio    # Configure LM Studio API Key (v0.0.7+)
+docker compose exec copaw copaw models config-key lmstudio     # Configure LM Studio (v0.0.7+)
+docker compose exec copaw copaw models config-key deepseek     # Configure DeepSeek (v0.1.0+)
+docker compose exec copaw copaw models config-key minimax      # Configure MiniMax (v0.1.0+)
+docker compose exec copaw copaw models config-key kimi         # Configure Kimi (v0.1.0+)
 docker compose exec copaw copaw models set-llm                 # Switch active model
 
 # Model Management (Local Models - llama.cpp / MLX)
@@ -156,6 +159,9 @@ docker compose exec copaw copaw desktop             # Open CoPaw in native webvi
 
 # Web Authentication (v0.1.0+)
 docker compose exec copaw copaw auth reset-password # Reset Web UI password
+
+# Update (v0.1.0+)
+docker compose exec copaw copaw update              # Update CoPaw to latest version
 ```
 
 ### Data Management
@@ -281,70 +287,89 @@ Access http://localhost:8088/ after startup:
 
 | Group | Feature | Description |
 |-------|---------|-------------|
-| Chat | Chat | Chat with CoPaw, manage sessions, switch models (v0.0.7+) |
+| Chat | Chat | Chat with CoPaw, manage sessions, switch models (v0.0.7+), multimodal support (v0.1.0+), SSE streaming (v0.1.0+) |
 | Control | Channels | Enable/disable channels, configure credentials |
 | Control | Sessions | Filter, rename, delete sessions |
 | Control | Cron Jobs | Create/edit/delete tasks, run immediately |
-| Agent | Workspace | Edit persona files, view memory, upload/download |
-| Agent | Skills | Enable/disable/create/**import**/delete skills |
+| Agent | Workspace | Edit persona files, view memory, upload/download, agent selector (v0.1.0+) |
+| Agent | Skills | Enable/disable/create/**import**/delete skills, security scan (v0.1.0+) |
 | Agent | MCP | Enable/disable/create/delete MCP clients |
 | Agent | Runtime Config | Modify max iterations and max input length |
-| Agent | Tools | Enable/disable built-in tools (v0.0.6+), batch toggle (v0.0.7+) |
+| Agent | Tools | Enable/disable built-in tools (v0.0.6+), batch toggle (v0.0.7+), glob_search/grep_search (v0.1.0+) |
 | Agent | System Prompts | Custom system prompts from workspace files (v0.0.6+), drag-and-drop reordering (v0.0.7+) |
 | Settings | Models | Configure providers (custom providers), manage local/Ollama models, select model |
 | Settings | Environment Variables | Add/edit/delete environment variables (with security masking v0.0.6+) |
 | Settings | Security | Tool Guard security rules management (v0.0.7+) |
 | Settings | Token Usage | Track token usage across providers (v0.0.7+) |
+| Settings | Voice Transcription | Voice transcription settings (v0.1.0+) |
+| Settings | Theme | Dark mode toggle (v0.1.0+) |
 
 **Skills Hub Import**: Now supports importing skills from community platforms:
 - `https://skills.sh/...`
 - `https://clawhub.ai/...`
 - `https://skillsmp.com/...`
 - `https://github.com/...`
+- LobeHub (v0.1.0+)
+- ModelScope Skill Hub (v0.1.0+)
 
 ---
 
-## New Features (CoPaw v0.1.0-beta.1)
+## New Features (CoPaw v0.1.0)
 
-### v0.1.0-beta.1 New Features (Latest)
+### v0.1.0 New Features (Latest)
 
-#### Multi-Workspace Architecture
-- **Agent Workspaces** - Each agent has its own workspace directory with isolated configuration
-- **Default Workspace** - `{WORKING_DIR}/workspaces/default/` for single-agent deployments
-- **Automatic Migration** - Legacy configurations are automatically migrated to new format
-- **Backward Compatibility** - Falls back to root config if `agent.json` not found
+#### Architecture
+- **Multi-Agent / Multi-Workspace Architecture** - Support running multiple agents simultaneously, each with its own isolated workspace containing independent config, memory, skills, and tools. Console agent selector for easy switching between agents.
+- **Context Management** - Token counting, `/dump_history` and `/load_history` commands, configurable history length limits, progress indicators during memory compaction.
 
-#### Web Authentication
-- **Optional Authentication** - Set `COPAW_AUTH_ENABLED=true` to enable (disabled by default)
-- **Single User Mode** - First access shows registration page
-- **Local Bypass** - Requests from 127.0.0.1 automatically bypass authentication
-- **Password Reset** - Use `copaw auth reset-password` CLI command
+#### Security
+- **Skill Security Scanner** - Skills are scanned for security risks (prompt injection, command injection, hardcoded secrets, data exfiltration) before installation using static analysis.
+- **Destructive Shell Command Detection** - Security rules to detect dangerous shell commands (disk formatting, fork bombs, reverse shells, privilege escalation).
+- **Web Authentication** - Optional web authentication with single-user registration, token-based login, localhost bypass, and CLI command.
 
-#### Built-in WeCom Channel
-- **Official Support** - WeCom channel is now built into CoPaw
-- **No Custom Setup** - Remove the need for third-party WeCom plugins
+#### Channels
+- **WeCom Channel** - WeCom as a messaging channel with media support, QR code access, console configuration UI.
+- **XiaoYi Channel** - XiaoYi as a messaging channel (Huawei A2A protocol).
+- **DingTalk AI Card Reply** - AI Card-based replies with incremental streaming, falling back to webhook/markdown when unavailable.
 
-#### New Model Providers
-- **MiniMax Provider** - New built-in model provider
-- **DeepSeek Provider** - New built-in model provider
-- **Gemini Provider** - New built-in model provider
+#### Skills & Tools
+- **LobeHub Skill Import** - Skills can be imported directly from LobeHub.
+- **ModelScope Skill Hub** - Skills can be imported from ModelScope Skill Hub.
+- **Version-Aware Builtin Skill Sync** - Built-in skills track versions and automatically sync updates while preserving user customizations.
+- **Guidance Skill** - Built-in skill that answers CoPaw installation and configuration questions.
+- **Zip Archive Skill Import** - Skills can be imported by uploading zip archives directly from the console.
+- **Built-in Tools** - Added `glob_search` and `grep_search` as built-in tools for file discovery and content search.
+- **view_image Tool** - LLM can analyze local images for multimodal conversations.
 
-#### Voice Transcription
-- **Audio Transcription** - Voice messages can be transcribed using local Whisper
-- **Provider Support** - Supports whisper_api and local_whisper backends
+#### Multimodal
+- **Console Multimodal Chat** - Console chat now supports sending images and files alongside text messages.
+- **Non-Multimodal LLM Media Fallback** - Non-multimodal LLM automatically strips media blocks and retries when receiving image/audio/video content.
+- **Audio Transcription** - Voice message transcription via Whisper API or local Whisper model, with audio format conversion and Voice Transcription settings page.
 
-#### Other Improvements
-- **XiaoYi Channel** - New channel for Huawei A2A protocol
-- **CLI Update Command** - `copaw update` to automatically update CoPaw
-- **view_image Tool** - LLM visual analysis tool
-- **User Timezone Configuration** - Per-user timezone settings
-- **Console Dark Mode** - Dark theme support
+#### Providers
+- **Gemini Provider** - Google Gemini as a built-in LLM provider.
+- **DeepSeek Provider** - DeepSeek as a built-in LLM provider.
+- **MiniMax Provider** - MiniMax as a built-in LLM provider with separate International and China endpoints.
+- **Kimi Provider** - Kimi as a built-in LLM provider with separate China and International endpoints.
+
+#### CLI & Deployment
+- **`copaw update` Command** - Automatically detects environment and upgrades CoPaw from PyPI.
+- **Docker Compose** - Official docker-compose.yml deployment support.
+- **Docker Image** - Additional channel dependencies included.
+
+#### Console & UI
+- **Console Dark Mode** - Full dark mode support (light / dark / follow system) covering all pages.
+- **Console Chat Streaming** - Agent responses streamed via SSE, with support for reconnection and stopping mid-response.
+
+#### Other
+- **Timezone Configuration** - Timezone selector in console; used across system prompts, cron scheduling, and heartbeat. Auto-detection on multiple platforms.
+- **OS Information in System Prompt** - System prompt now includes OS information for platform-aware responses.
 
 ---
 
 ## New Features (CoPaw 0.0.7)
 
-### v0.0.7 New Features (Latest)
+### v0.0.7 Features (Retained)
 
 #### Security
 - **Tool Guard** - Pre-execution security layer that scans tool parameters for risky patterns (e.g., `rm`, `mv` in shell commands). Risky calls are blocked until the user approves via `/approve`; denied tools are always blocked. New Security settings page for managing rules and approvals.
@@ -596,6 +621,7 @@ docker compose exec copaw copaw models ollama-pull qwen3:8b
 |---------|:----:|:-----:|:-----:|:-----:|:----:|:---------:|:----------:|:----------:|:----------:|:---------:|
 | DingTalk | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Feishu | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| WeCom | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
 | QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |

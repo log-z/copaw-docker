@@ -12,10 +12,24 @@ CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 
 ## ⚠️ 安全警告 ⚠️
 
-> **CoPaw 没有任何权限控制和登录功能，切勿将服务端口暴露到公网！**
+> **CoPaw v0.1.0+ 支持可选的 Web 认证功能。对于 v0.1.0 之前的版本或未启用认证时，切勿将服务端口暴露到公网！**
 
 <details>
-<summary>WebUI 管理界面<strong>没有登录验证机制</strong>，任何能访问该端口的人都可以完全控制你的 CoPaw 实例。点击展开安全建议。</summary>
+<summary><strong>v0.1.0+ Web 认证</strong>（推荐启用）</summary>
+
+设置 `COPAW_AUTH_ENABLED=true` 启用 Web 认证：
+- 首次访问显示注册页面
+- 本地请求 (127.0.0.1) 自动绕过认证
+- 密码重置：`docker compose exec copaw copaw auth reset-password`
+
+```bash
+# 在 .env 文件中启用
+COPAW_AUTH_ENABLED=true
+```
+</details>
+
+<details>
+<summary><strong>v0.0.x 或未启用认证时</strong>，WebUI 管理界面<strong>没有登录验证机制</strong>，任何能访问该端口的人都可以完全控制你的 CoPaw 实例。点击展开安全建议。</summary>
 
 - 默认端口 `8088` 仅应在**受信任的内网环境**或通过**反向代理 + 认证**等方式访问
 - 如果必须远程访问，请使用以下安全措施之一：
@@ -148,21 +162,28 @@ copaw/
 copaw-data:/
 ├── copaw.secret -> copaw/.runtime    # 软链接指向 .runtime（兼容 SECRET_DIR）
 └── copaw/
-    ├── .runtime/              # 敏感配置目录（providers.json、envs.json）
-    ├── config.json            # 主配置文件（通道、心跳、语言等）
-    ├── SOUL.md                # Agent 核心身份与行为原则（必填）
-    ├── AGENTS.md              # 详细工作流程与指南（必填）
-    ├── MEMORY.md              # 长期记忆存储
-    ├── PROFILE.md             # 身份和用户画像
+    ├── config.json            # 根配置文件（包含代理引用，v0.1.0+）
+    ├── workspaces/            # 多代理工作区目录（v0.1.0+）
+    │   └── default/           # 默认代理工作区
+    │       ├── agent.json     # 代理配置
+    │       ├── SOUL.md        # Agent 核心身份与行为原则（必填）
+    │       ├── AGENTS.md      # 详细工作流程与指南（必填）
+    │       ├── PROFILE.md     # 身份和用户画像
+    │       ├── active_skills/ # 当前激活的技能
+    │       └── customized_skills/ # 用户自定义技能
+    ├── .runtime/              # 敏感配置目录
+    │   ├── providers.json     # LLM 提供商配置
+    │   ├── envs.json          # 环境变量配置
+    │   └── auth.json          # Web 认证数据（v0.1.0+）
     ├── HEARTBEAT.md           # 心跳任务配置
     ├── jobs.json              # 定时任务列表
     ├── chats.json             # 会话列表
-    ├── active_skills/         # 当前激活的技能
-    ├── customized_skills/     # 用户自定义技能
     ├── custom_channels/       # 用户自定义频道模块
     ├── mcp_clients/           # MCP 客户端配置
     └── memory/                # Agent 记忆文件存储（含每日日志）
 ```
+
+> **v0.1.0 多工作区迁移**：现有配置会在首次启动时自动迁移到新的多工作区架构。
 
 ---
 
@@ -220,6 +241,9 @@ docker compose exec copaw copaw models config-key dashscope    # 配置 DashScop
 docker compose exec copaw copaw models config-key anthropic    # 配置 Anthropic API Key（v0.0.5+）
 docker compose exec copaw copaw models config-key gemini       # 配置 Gemini API Key（v0.0.6+）
 docker compose exec copaw copaw models config-key lmstudio     # 配置 LM Studio（v0.0.7+）
+docker compose exec copaw copaw models config-key deepseek     # 配置 DeepSeek（v0.1.0+）
+docker compose exec copaw copaw models config-key minimax      # 配置 MiniMax（v0.1.0+）
+docker compose exec copaw copaw models config-key kimi         # 配置 Kimi（v0.1.0+）
 docker compose exec copaw copaw models config-key custom       # 配置自定义提供商
 docker compose exec copaw copaw models set-llm                 # 切换活跃模型
 
@@ -268,6 +292,10 @@ docker compose exec copaw copaw clean --yes         # 不确认直接清空
 # 配置重载（无需重启容器，v0.0.5+）
 docker compose exec copaw copaw daemon reload-config # 重新加载配置
 docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
+
+# 更新与认证（v0.1.0+）
+docker compose exec copaw copaw update              # 更新 CoPaw 到最新版本（在容器中更新无意义）
+docker compose exec copaw copaw auth reset-password # 重置 Web UI 密码
 ```
 
 ---
@@ -314,6 +342,15 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 | `OPENAI_MODEL_NAME` | OpenAI 兼容模型名称 |
 | `ANTHROPIC_API_KEY` | Anthropic API Key（v0.0.5+ 新增） |
 | `GEMINI_API_KEY` | Gemini API Key（v0.0.6+ 新增） |
+| `DEEPSEEK_API_KEY` | DeepSeek API Key（v0.1.0+ 新增） |
+| `MINIMAX_API_KEY` | MiniMax API Key（v0.1.0+ 新增） |
+| `KIMI_API_KEY` | Kimi API Key（v0.1.0+ 新增） |
+
+### Web 认证配置（v0.1.0+ 新增）
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `COPAW_AUTH_ENABLED` | `false` | 是否启用 Web 认证（启用后首次访问显示注册页面） |
 
 ### 模型重试配置（v0.0.7+ 新增）
 
@@ -338,20 +375,27 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 
 本项目使用 Docker 数据卷 `copaw-data` 持久化以下内容：
 
-- `.runtime/` - 敏感配置目录（providers.json、envs.json）
-- `config.json` - 主配置文件
-- `SOUL.md` - 核心身份与行为原则
-- `AGENTS.md` - 详细的工作流程、规则和指南
-- `MEMORY.md` - 长期记忆
-- `PROFILE.md` - 身份和用户画像
+- `config.json` - 根配置文件（包含代理引用，v0.1.0+）
+- `workspaces/default/` - 默认代理工作区（v0.1.0+）
+  - `agent.json` - 代理配置
+  - `SOUL.md` - 核心身份与行为原则
+  - `AGENTS.md` - 详细的工作流程、规则和指南
+  - `PROFILE.md` - 身份和用户画像
+  - `active_skills/` - 当前激活的技能
+  - `customized_skills/` - 用户自定义技能
+- `.runtime/` - 敏感配置目录
+  - `providers.json` - LLM 提供商配置
+  - `envs.json` - 环境变量配置
+  - `auth.json` - Web 认证数据（v0.1.0+）
 - `HEARTBEAT.md` - 心跳配置
 - `jobs.json` - 定时任务列表
 - `chats.json` - 会话列表
-- `active_skills/` - 当前激活的技能
-- `customized_skills/` - 用户自定义技能
+- `custom_channels/` - 用户自定义频道模块
 - `memory/` - Agent 记忆文件
 
 容器重启后，所有数据都会保留。
+
+> **v0.1.0 多工作区迁移**：现有配置会在首次启动时自动迁移到新的多工作区架构。
 
 ---
 
@@ -363,6 +407,7 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 |------|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
 | 钉钉 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 企业微信 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
 | QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
@@ -378,7 +423,7 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 
 ## 端口说明
 
-> ⚠️ **再次提醒**：请勿将端口暴露到公网！CoPaw WebUI 没有任何身份验证机制。
+> ⚠️ **安全提醒**：v0.1.0 之前或未启用认证时，请勿将端口暴露到公网！环境变量启用 `COPAW_AUTH_ENABLED=true` 后可降低风险。
 
 | 容器端口 | 主机端口 | 说明 |
 |----------|----------|------|
@@ -389,11 +434,11 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 ```yaml
 ports:
   - "9000:8088"  # 使用 9000 端口访问
-  # 或 v0.0.5+ 允许外部访问（不推荐）
+  # 或 v0.1.0+ 启用认证后允许外部访问
   # - "0.0.0.0:8088:8088"
 ```
 
-> **安全更新**：v0.0.5 起，默认端口绑定改为 `127.0.0.1` 以提高安全性，仅允许本地访问。
+> **安全更新**：v0.0.5 起，默认端口绑定改为 `127.0.0.1` 以提高安全性。v0.1.0+ 启用认证后可降低风险。
 
 ---
 
@@ -470,7 +515,51 @@ docker compose restart
 
 ## 新功能支持
 
-### v0.0.7 新增功能 (最新)
+### v0.1.0 新增功能 (最新)
+
+#### 架构
+- **多代理/多工作区架构** - 支持同时运行多个代理，每个代理有独立的工作区（配置、记忆、技能、工具）
+- **上下文管理** - Token 计数、`/dump_history` 和 `/load_history` 命令、可配置历史长度限制
+
+#### 安全
+- **技能安全扫描** - 安装前检测提示注入、命令注入、硬编码密钥、数据泄露风险
+- **破坏性命令检测** - 检测危险 shell 命令（磁盘格式化、fork 炸弹、反向 shell 等）
+- **Web 认证** - 可选 Web 认证，单用户注册、Token 登录、本地绕过
+
+#### 频道
+- **企业微信频道** - 完整支持，媒体、二维码访问、控制台配置 UI
+- **小艺频道** - 华为 A2A 协议频道
+- **钉钉 AI 卡片回复** - 支持 AI 卡片增量流式回复
+
+#### 技能与工具
+- **LobeHub / ModelScope 技能导入** - 从社区平台直接导入技能
+- **内置技能版本同步** - 自动同步更新同时保留用户自定义
+- **Guidance 技能** - 回答 CoPaw 安装配置问题的内置技能
+- **ZIP 技能导入** - 上传 ZIP 包导入技能
+- **内置工具** - 新增 `glob_search` 和 `grep_search` 文件搜索工具
+- **view_image 工具** - LLM 可分析本地图片
+
+#### 多模态
+- **控制台多模态聊天** - 控制台支持发送图片和文件
+- **音频转录** - 通过 Whisper API 或本地 Whisper 转录语音消息
+
+#### 提供商
+- **DeepSeek Provider** - 内置支持
+- **MiniMax Provider** - 内置支持（国际版和中国版）
+- **Kimi Provider** - 内置支持（中国版和国际版）
+
+#### 控制台
+- **暗黑模式** - 全页面支持（浅色/深色/跟随系统）
+- **流式聊天** - SSE 流式响应，支持重连和中断
+
+#### 其他
+- **时区配置** - 控制台时区选择器
+- **OS 信息** - 系统提示包含操作系统信息
+- **`copaw update` 命令** - 自动更新 CoPaw
+
+---
+
+### v0.0.7 功能 (保留)
 
 #### 安全功能
 - **Tool Guard** - 工具执行前安全层，扫描工具参数中的危险模式（如 shell 命令中的 rm、mv）。危险调用被阻止直到用户通过 `/approve` 批准；被拒绝的工具始终被阻止。新增 Security 设置页面管理规则和审批。
@@ -515,26 +604,30 @@ docker compose restart
 
 | 组 | 功能 | 说明 |
 |----|------|------|
-| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型（v0.0.7+） |
+| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型（v0.0.7+）、多模态支持（v0.1.0+）、SSE 流式响应（v0.1.0+） |
 | 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接（v0.0.5+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
-| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、拖放排序系统提示（v0.0.7+） |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化（v0.0.7+）/删除技能 |
+| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器（v0.1.0+） |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化（v0.0.7+）/删除技能、安全扫描（v0.1.0+） |
 | 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端 |
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度 |
 | 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置（v0.0.7+） |
-| 智能体 | 工具 | 启用/禁用内置工具、批量切换（v0.0.6+） |
+| 智能体 | 工具 | 启用/禁用内置工具、批量切换（v0.0.6+）、glob_search/grep_search（v0.1.0+） |
 | 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型 |
 | 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩 v0.0.6+） |
 | 设置 | 安全 | Tool Guard 安全规则管理（v0.0.7+） |
 | 设置 | Token 使用 | 追踪各提供商 token 使用量（v0.0.7+） |
+| 设置 | 语音转录 | 语音转录设置（v0.1.0+） |
+| 设置 | 主题 | 暗黑模式切换（v0.1.0+） |
 
 **Skills Hub 导入**（v0.0.5+）：支持从社区平台导入技能
 - `https://skills.sh/...`
 - `https://clawhub.ai/...`
 - `https://skillsmp.com/...`
 - `https://github.com/...`
+- LobeHub（v0.1.0+）
+- ModelScope Skill Hub（v0.1.0+）
 
 ### 相关链接
 

@@ -53,6 +53,15 @@ services:
       # Gemini (v0.0.6 新增)
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
 
+      # DeepSeek (v0.1.0 新增)
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+
+      # MiniMax (v0.1.0 新增)
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY:-}
+
+      # Kimi (v0.1.0 新增)
+      - KIMI_API_KEY=${KIMI_API_KEY:-}
+
       # LLM 重试配置 (v0.0.7 新增)
       - COPAW_LLM_MAX_RETRIES=${COPAW_LLM_MAX_RETRIES:-3}
       - COPAW_LLM_BACKOFF_BASE=${COPAW_LLM_BACKOFF_BASE:-1.0}

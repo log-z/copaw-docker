@@ -4,13 +4,64 @@
 >
 > 官方文档：http://copaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-03-12
+> **更新日期**: 2026-03-19
 
 ---
 
-## 重要更新 (2026-03-12)
+## 重要更新 (2026-03-19)
 
-### v0.0.7 新增功能 (最新)
+### v0.1.0 新增功能 (最新)
+
+#### 架构
+- **多代理/多工作区架构** - 支持同时运行多个代理，每个代理有独立的工作区（配置、记忆、技能、工具），控制台代理选择器可切换
+- **上下文管理** - Token 计数、`/dump_history` 和 `/load_history` 命令、可配置历史长度限制、内存压缩进度指示
+
+#### 安全
+- **技能安全扫描** - 安装前检测提示注入、命令注入、硬编码密钥、数据泄露风险
+- **破坏性 Shell 命令检测** - 检测危险命令（磁盘格式化、fork 炸弹、反向 shell、提权）
+- **Web 认证** - 可选 Web 认证，单用户注册、Token 登录、本地绕过、CLI 密码重置
+
+#### 频道
+- **企业微信频道** - 完整支持，媒体、二维码访问、控制台配置 UI
+- **小艺频道** - 华为 A2A 协议频道
+- **钉钉 AI 卡片回复** - 支持 AI 卡片增量流式回复，不可用时降级到 webhook/markdown
+
+#### 技能与工具
+- **LobeHub 技能导入** - 从 LobeHub 直接导入技能
+- **ModelScope Skill Hub** - 从 ModelScope 技能中心导入技能
+- **内置技能版本同步** - 自动同步更新同时保留用户自定义
+- **Guidance 技能** - 回答 CoPaw 安装配置问题的内置技能
+- **ZIP 技能导入** - 上传 ZIP 包导入技能
+- **内置工具** - 新增 `glob_search` 和 `grep_search` 文件搜索工具
+- **view_image 工具** - LLM 可分析本地图片进行多模态对话
+
+#### 多模态
+- **控制台多模态聊天** - 控制台支持发送图片和文件
+- **非多模态 LLM 媒体降级** - 非多模态 LLM 收到媒体时自动移除媒体块重试
+- **音频转录** - 通过 Whisper API 或本地 Whisper 转录语音消息，支持音频格式转换，控制台语音转录设置页面
+
+#### 提供商
+- **Gemini Provider** - 内置 Google Gemini 支持
+- **DeepSeek Provider** - 内置 DeepSeek 支持
+- **MiniMax Provider** - 内置 MiniMax 支持（国际版和中国版分离端点）
+- **Kimi Provider** - 内置 Kimi 支持（中国版和国际版分离端点）
+
+#### CLI 与部署
+- **`copaw update` 命令** - 自动检测环境并从 PyPI 升级 CoPaw
+- **Docker Compose** - 官方支持 docker-compose.yml 部署
+- **Docker 镜像** - 包含额外频道依赖
+
+#### 控制台
+- **暗黑模式** - 全页面支持（浅色/深色/跟随系统）
+- **流式聊天** - SSE 流式响应，支持重连和中断
+
+#### 其他
+- **时区配置** - 控制台时区选择器，用于系统提示、定时任务、心跳，多平台自动检测
+- **OS 信息** - 系统提示包含操作系统信息
+
+---
+
+### v0.0.7 新增功能 (保留)
 
 #### 安全功能
 - **Tool Guard** - 工具执行前安全层，扫描工具参数中的危险模式（如 shell 命令中的 rm、mv）。危险调用被阻止直到用户通过 `/approve` 批准；被拒绝的工具始终被阻止。新增 Security 设置页面管理规则和审批。
@@ -118,8 +169,14 @@
 - **控制台功能增强** - 技能导入/创建、工作区上传下载、运行配置
 
 ### CLI 新增命令
+- `copaw update` - 自动更新 CoPaw (v0.1.0)
+- `copaw auth reset-password` - 重置 Web UI 密码 (v0.1.0)
 - `copaw desktop` - 打开桌面应用窗口 (v0.0.6)
 - `copaw daemon` - 管理后台服务 (v0.0.5)
+- `copaw models config-key gemini` - 配置 Gemini (v0.0.6)
+- `copaw models config-key minimax` - 配置 MiniMax (v0.1.0)
+- `copaw models config-key deepseek` - 配置 DeepSeek (v0.1.0)
+- `copaw models config-key kimi` - 配置 Kimi (v0.1.0)
 - `copaw models config-key lmstudio` - 配置 LM Studio (v0.0.7)
 - `copaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
 - `copaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
@@ -320,26 +377,34 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 
 ```
 ~/.copaw/
-├── config.json              # 频道开关与鉴权、心跳设置、语言等
+├── config.json              # 根配置，包含代理引用 (v0.1.0+)
+├── workspaces/              # 多代理工作区目录 (v0.1.0+)
+│   └── default/             # 默认代理工作区
+│       ├── agent.json       # 代理配置
+│       ├── SOUL.md          # （必需）核心身份与行为原则
+│       ├── AGENTS.md        # （必需）详细的工作流程、规则和指南
+│       ├── PROFILE.md       # 身份和用户画像
+│       ├── active_skills/   # 当前激活的技能
+│       └── customized_skills/ # 用户自定义的技能
 ├── HEARTBEAT.md             # 心跳每次要问 CoPaw 的内容
 ├── jobs.json                # 定时任务列表
 ├── chats.json               # 会话列表（文件存储模式）
 ├── providers.json           # LLM 提供商配置（v0.0.5+ 迁移到 SECRET_DIR）
 ├── envs.json                # 环境变量配置（v0.0.5+ 迁移到 SECRET_DIR）
-├── active_skills/           # 当前激活的技能
-├── customized_skills/       # 用户自定义的技能
 ├── custom_channels/         # 自定义频道模块
 ├── memory/                  # Agent 记忆文件（自动管理）
 │   ├── MEMORY.md            # 长期有效的关键信息
 │   └── YYYY-MM-DD.md        # 每日日志
-├── SOUL.md                  # （必需）核心身份与行为原则
-├── AGENTS.md                # （必需）详细的工作流程、规则和指南
-├── PROFILE.md               # 身份和用户画像
 ├── mcp_clients/             # MCP 客户端配置
-└── working.secret/          # Docker 持久化敏感配置 (v0.0.7+)
+└── .runtime/                # SECRET_DIR (v0.1.0+)
+    ├── providers.json       # LLM 提供商配置
+    ├── envs.json            # 环境变量配置
+    └── auth.json            # Web 认证数据 (v0.1.0+)
 ```
 
-### Docker 持久化目录 (v0.0.5+)
+**v0.1.0 多工作区迁移**：现有配置会在首次启动时自动迁移到新的多工作区架构。
+
+**v0.0.5 Docker 持久化目录**：
 
 为了解决 Docker 容器重启后配置丢失的问题，v0.0.5 将敏感配置迁移到持久化目录：
 
@@ -364,6 +429,8 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | **discord** | Discord 机器人 | `bot_token`, `http_proxy`, `http_proxy_auth` |
 | **imessage** | macOS iMessage | `db_path`, `poll_sec` |
 | **telegram** | Telegram 机器人 | `bot_token` (v0.0.5+ 支持 CLI 配置) |
+| **wecom** | 企业微信 (v0.1.0 新增) | 企业微信 AI Bot SDK 配置 |
+| **xiaoyi** | 小艺 (v0.1.0 新增) | 华为 A2A 协议配置 |
 | **mqtt** | MQTT 消息队列 (v0.0.6 新增) | `host`, `port`, `transport`, `qos`, `subscribe_topic`, `publish_topic` |
 | **twilio voice** | Twilio 语音 (v0.0.5 新增) | `account_sid`, `auth_token`, `phone_number` |
 | **mattermost** | Mattermost (v0.0.7 新增) | `url`, `token`, `team_name` |
@@ -385,6 +452,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 |------|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
 | 钉钉 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 企业微信 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
 | QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
@@ -411,6 +479,9 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | Anthropic (v0.0.5 新增) | `anthropic` | `https://api.anthropic.com` |
 | Gemini (v0.0.6 新增) | `gemini` | `https://generativelanguage.googleapis.com` |
 | LM Studio (v0.0.7 新增) | `lmstudio` | `http://localhost:1234/v1` |
+| DeepSeek (v0.1.0 新增) | `deepseek` | `https://api.deepseek.com` |
+| MiniMax (v0.1.0 新增) | `minimax` | 国际版/中国版分离端点 |
+| Kimi (v0.1.0 新增) | `kimi` | 中国版/国际版分离端点 |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
 | 自定义 | `custom` | （你自己填） |
 
@@ -508,10 +579,20 @@ copaw models config                  # 完整交互式配置
 copaw models config-key <provider>   # 配置 API Key
 copaw models config-key gemini       # 配置 Gemini API Key (v0.0.6+)
 copaw models config-key lmstudio     # 配置 LM Studio (v0.0.7+)
+copaw models config-key deepseek     # 配置 DeepSeek (v0.1.0+)
+copaw models config-key minimax      # 配置 MiniMax (v0.1.0+)
+copaw models config-key kimi         # 配置 Kimi (v0.1.0+)
 copaw models set-llm                 # 切换活跃模型
 copaw models download <repo_id>      # 下载本地模型
 copaw models local                   # 查看已下载模型
 copaw models ollama-pull <model>     # 下载 Ollama 模型
+```
+
+### 更新与认证 (v0.1.0 新增)
+
+```bash
+copaw update                         # 自动更新 CoPaw
+copaw auth reset-password            # 重置 Web UI 密码
 ```
 
 ### 桌面应用 (v0.0.6 新增)
