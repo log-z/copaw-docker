@@ -1,12 +1,17 @@
+<div align="center">
+
 # CoPaw Docker 部署方案
 
-> CoPaw 的 Docker 部署方案，支持一键构建和运行，相比官方镜像更小。
+[![GitHub Container Registry](https://img.shields.io/badge/GHCR-ghcr.io%2Flog--z%2Fcopaw--docker-blue?logo=docker&logoColor=white)](https://github.com/log-z/copaw-docker/pkgs/container/copaw-docker)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-logz2%2Fcopaw-blue?logo=docker&logoColor=white)](https://hub.docker.com/r/logz2/copaw)
 
-## 关于 CoPaw
+**支持一键构建和运行，相比官方镜像更小**
 
-CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
+</div>
 
-更多信息请看官方仓库：https://github.com/agentscope-ai/CoPaw
+CoPaw 是一款个人 AI 助手，部署在你自己的环境中，支持多种聊天平台接入，具备强大的扩展能力。
+
+更多信息请看官方仓库：[agentscope-ai/CoPaw](https://github.com/agentscope-ai/CoPaw)
 
 ---
 
