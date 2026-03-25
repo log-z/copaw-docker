@@ -87,12 +87,14 @@ RUN apt-get update && \
         ca-certificates \
         && rm -rf /var/lib/apt/lists/*
 
-# 安装 Node.js 20.x LTS (用于 MCP 功能支持)
+# 安装 Node.js 24.x LTS (用于 MCP 功能支持) 并升级 npm 修复漏洞
 RUN install -m 0755 -d /etc/apt/keyrings && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key -o /etc/apt/keyrings/nodesource.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends nodejs && \
+    npm install -g npm@latest && \
+    npm cache clean --force && \
     rm -rf /var/lib/apt/lists/*
 
 # 安装 Chromium 及依赖（无头模式，用于 MCP 浏览器功能）
