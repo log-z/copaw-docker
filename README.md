@@ -300,6 +300,11 @@ docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
 # 更新与认证（v0.1.0+）
 docker compose exec copaw copaw update              # 更新 CoPaw 到最新版本（在容器中更新无意义）
 docker compose exec copaw copaw auth reset-password # 重置 Web UI 密码
+
+# Agent 与消息（v0.2.0+）
+docker compose exec copaw copaw agents list         # 列出所有代理
+docker compose exec copaw copaw message push        # 向频道推送消息
+docker compose exec copaw copaw message send        # 向代理发送请求
 ```
 
 ---
@@ -414,14 +419,15 @@ docker compose exec copaw copaw auth reset-password # 重置 Web UI 密码
 | 钉钉 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 企业微信 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
-| iMessage | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
-| QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
+| Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| iMessage | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ |
+| QQ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 | 🚧 |
 | Telegram | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Twilio Voice | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
 | MQTT | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
 | Mattermost | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Matrix | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 小艺 | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ |
 
 > ✓ = 已支持；🚧 = 施工中；✗ = 不支持
 
@@ -521,59 +527,31 @@ docker compose restart
 
 ## 新功能支持
 
-### v0.1.0.post1 补丁修复 (最新)
+### v0.2.0 新增功能
 
-> 这是 v0.1.0 的补丁版本，包含多个 bug 修复和性能优化。详见 [docs/copaw-info.md](docs/copaw-info.md)。
+> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
 
-#### 关键修复
-- Anthropic HTTP 529 重试支持
-- Windows shell 命令问题修复
-- MCP 启动失败时跳过处理
-- cron 任务取消状态报告
+#### Agent
+- **Inter-Agent Communication** - `copaw agents` 和 `copaw message` CLI 命令，支持代理间通信
+- **Built-in QA Agent** - 内置 QA 代理，回答 CoPaw 安装使用问题
+- **Config Auto-Repair** - config.json 损坏时自动修复
 
----
+#### Security
+- **File Access Guard** - 敏感文件/目录访问保护
+- **Tool Guard Enhanced** - 并行工具执行时的正确防护
 
-### v0.1.0 新增功能
+#### Channels
+- **Feishu SDK Migration** - 迁移到官方 lark-oapi SDK，支持区域选择器（中国/国际版）
+- **XiaoYi File & Image** - 小艺频道支持文件和图片
 
-#### 架构
-- **多代理/多工作区架构** - 支持同时运行多个代理，每个代理有独立的工作区（配置、记忆、技能、工具）
-- **上下文管理** - Token 计数、`/dump_history` 和 `/load_history` 命令、可配置历史长度限制
-
-#### 安全
-- **技能安全扫描** - 安装前检测提示注入、命令注入、硬编码密钥、数据泄露风险
-- **破坏性命令检测** - 检测危险 shell 命令（磁盘格式化、fork 炸弹、反向 shell 等）
-- **Web 认证** - 可选 Web 认证，单用户注册、Token 登录、本地绕过、环境变量自动注册
-
-#### 频道
-- **企业微信频道** - 完整支持，媒体、二维码访问、控制台配置 UI
-- **小艺频道** - 华为 A2A 协议频道
-- **钉钉 AI 卡片回复** - 支持 AI 卡片增量流式回复
-
-#### 技能与工具
-- **LobeHub / ModelScope 技能导入** - 从社区平台直接导入技能
-- **内置技能版本同步** - 自动同步更新同时保留用户自定义
-- **Guidance 技能** - 回答 CoPaw 安装配置问题的内置技能
-- **ZIP 技能导入** - 上传 ZIP 包导入技能
-- **内置工具** - 新增 `glob_search` 和 `grep_search` 文件搜索工具
-- **view_image 工具** - LLM 可分析本地图片
-
-#### 多模态
-- **控制台多模态聊天** - 控制台支持发送图片和文件
-- **音频转录** - 通过 Whisper API 或本地 Whisper 转录语音消息
-
-#### 提供商
-- **DeepSeek Provider** - 内置支持
-- **MiniMax Provider** - 内置支持（国际版和中国版）
-- **Kimi Provider** - 内置支持（中国版和国际版）
-
-#### 控制台
-- **暗黑模式** - 全页面支持（浅色/深色/跟随系统）
-- **流式聊天** - SSE 流式响应，支持重连和中断
+#### Console & UI
+- **Audio, Video & Speech Input** - 控制台支持发送和显示音频、视频、语音附件
+- **Stream Reconnection** - 页面刷新自动重连流式会话
+- **Web Account Management** - 侧边栏更改用户名密码
 
 #### 其他
-- **时区配置** - 控制台时区选择器
-- **OS 信息** - 系统提示包含操作系统信息
-- **`copaw update` 命令** - 自动更新 CoPaw
+- **Faster CLI Startup** - CLI 命令延迟加载，启动更快
+- **Stable Prompts for KV Cache** - 提高 LLM KV 缓存命中率
 
 ---
 
@@ -583,30 +561,31 @@ docker compose restart
 
 | 组 | 功能 | 说明 |
 |----|------|------|
-| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型（v0.0.7+）、多模态支持（v0.1.0+）、SSE 流式响应（v0.1.0+） |
-| 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接（v0.0.5+） |
+| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+） |
+| 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
-| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器（v0.1.0+） |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化（v0.0.7+）/删除技能、安全扫描（v0.1.0+） |
+| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器 |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描 |
 | 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端 |
-| 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度 |
-| 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置（v0.0.7+） |
-| 智能体 | 工具 | 启用/禁用内置工具、批量切换（v0.0.6+）、glob_search/grep_search（v0.1.0+） |
-| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型 |
-| 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩 v0.0.6+） |
-| 设置 | 安全 | Tool Guard 安全规则管理（v0.0.7+） |
-| 设置 | Token 使用 | 追踪各提供商 token 使用量（v0.0.7+） |
-| 设置 | 语音转录 | 语音转录设置（v0.1.0+） |
-| 设置 | 主题 | 暗黑模式切换（v0.1.0+） |
+| 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度、LLM 重试配置（v0.2.0+） |
+| 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置 |
+| 智能体 | 工具 | 启用/禁用内置工具、批量切换、glob_search/grep_search |
+| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+） |
+| 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩） |
+| 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+） |
+| 设置 | Token 使用 | 追踪各提供商 token 使用量 |
+| 设置 | 语音转录 | 语音转录设置 |
+| 设置 | 主题 | 暗黑模式切换 |
+| 设置 | 账户 | 更改用户名密码（v0.2.0+，认证启用时） |
 
-**Skills Hub 导入**（v0.0.5+）：支持从社区平台导入技能
+**Skills Hub 导入**：支持从社区平台导入技能
 - `https://skills.sh/...`
 - `https://clawhub.ai/...`
 - `https://skillsmp.com/...`
 - `https://github.com/...`
-- LobeHub（v0.1.0+）
-- ModelScope Skill Hub（v0.1.0+）
+- LobeHub
+- ModelScope Skill Hub
 
 ### 相关链接
 

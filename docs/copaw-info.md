@@ -4,13 +4,68 @@
 >
 > 官方文档：http://copaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-03-20
+> **更新日期**: 2026-03-25
 
 ---
 
-## 重要更新 (2026-03-20)
+## 重要更新 (2026-03-25)
 
-### v0.1.0.post1 补丁修复 (最新)
+### v0.2.0 新增功能 (最新)
+
+#### Agent
+- **Inter-Agent Communication** - 添加 `copaw agents` 和 `copaw message` CLI 命令，用于列出代理、向频道推送消息、在代理之间发送请求
+- **Built-in QA Agent** - 预配置的 QA 代理，用于回答 CoPaw 安装和使用问题
+- **Configurable LLM Auto-Retry** - LLM 重试行为现在可以在控制台设置页面为每个代理单独配置
+- **Summarization Improvements** - 当代理达到最大迭代次数并进入摘要模式时，会追加"round ended"通知来引导用户
+- **Config Auto-Repair** - 如果 `config.json` 损坏或有轻微语法错误，会在加载时自动修复；无法恢复的文件会用唯一后缀备份，CoPaw 以默认设置启动
+
+#### Security
+- **File Access Guard** - 添加可配置的敏感文件和目录拒绝列表，启用后代理的工具将被阻止读取或写入这些路径
+- **Tool Guard Enhanced** - 工具防护现在增强，在多个工具并行运行时能正确工作
+
+#### Channels
+- **Feishu / Lark SDK Migration** - 飞书频道迁移到官方 `lark-oapi` SDK，支持原生异步调用，并添加区域选择器（飞书中国 vs Lark 国际版）
+- **XiaoYi File & Image Support** - 小艺频道支持文件和图片
+
+#### Console & UI
+- **Audio, Video & Speech Input** - 控制台聊天支持发送和显示音频、视频和语音附件
+- **Stream Reconnection** - 如果在代理仍在响应时页面刷新，控制台会自动重新连接到正在进行的流式会话并保留用户输入文本
+- **Web Account Management** - 用户可从控制台侧边栏更改用户名和密码
+- **Model Provider Search** - 模型提供商设置页面添加搜索框，支持按名称筛选
+- **Chat Scrollbar** - 聊天对话区域添加样式化滚动条
+
+#### Providers
+- **Multimodal Capability Probing** - 模型现在可以探测图像和视频支持能力，系统提示包含活动模型的多模态能力提示
+- **Gemini Tool Image Support** - Gemini 模型现在正确处理工具返回的图像
+
+#### Skills & Tools
+- **Enhanced Grep & Glob Search** - 内置的 grep 和 glob 工具现在跳过大型目录，强制执行输出大小和时间限制
+- **Workspace-Relative Tool Output** - 截图、PDF、浏览器快照等工具输出文件现在保存在代理的工作区目录下
+
+#### Core & Lifecycle
+- **Stable Prompts for KV Cache** - 环境上下文只包含当前日期而不是完整时间戳，提高 LLM KV 缓存命中率
+- **Faster CLI Startup** - CLI 命令现在延迟加载，`copaw --help` 和子命令启动更快
+
+#### Channels 优化
+- **QQ Channel Refactor** - 简化 QQ 频道实现并添加全面单元测试
+- **Smart Text Chunking for QQ & WeCom** - QQ 和企业微信长消息现在在自然边界自动分割
+- **QQ WebSocket Reconnect** - 重连尝试现在可配置，并修复清理逻辑
+
+#### Bug 修复
+- **Shell Command Hang on Windows** - 修复 Windows 上运行 shell 命令时的挂起问题
+- **Shell Stderr Visibility** - 当 shell 命令成功但仅写入 stderr 时，输出现在包含在工具响应中
+- **Anthropic Overloaded Retry** - Anthropic "overloaded" 响应（HTTP 529）现在自动重试
+- **Channel Message Processing Leak** - 修复频道消息处理中可能导致错误后消息停止处理的锁泄漏
+- **Agent List** - 修复代理列表为空时的崩溃
+- **Console Static Files** - 修复从不同工作目录启动 CoPaw 时控制台 UI 无法加载的问题
+- **Token Usage Lock** - 修复并发请求下可能导致事件循环冻结的阻塞锁
+- **Memory Timezone** - 内存摘要现在使用用户配置的时区进行每日笔记命名
+- **Cron Job Cancellation** - 取消的定时任务现在正确报告其终止状态
+- **MCP Startup Resilience** - 单个 MCP 客户端连接失败不再阻止整个应用启动
+
+---
+
+### v0.1.0.post1 补丁修复
 
 #### Bug 修复
 - **Anthropic HTTP 529 重试** - 添加 HTTP 529 到可重试状态码，处理 Anthropic 过载错误
@@ -190,6 +245,8 @@
 - **控制台功能增强** - 技能导入/创建、工作区上传下载、运行配置
 
 ### CLI 新增命令
+- `copaw agents list` - 列出所有代理 (v0.2.0)
+- `copaw message push/send` - 推送消息/发送请求 (v0.2.0)
 - `copaw update` - 自动更新 CoPaw (v0.1.0)
 - `copaw auth reset-password` - 重置 Web UI 密码 (v0.1.0)
 - `copaw desktop` - 打开桌面应用窗口 (v0.0.6)
@@ -445,7 +502,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | 频道 | 说明 | 凭据字段 |
 |------|------|----------|
 | **dingtalk** | 钉钉 | `client_id`, `client_secret`, `open`, `allow_from` (v0.0.5+) |
-| **feishu** | 飞书 / Lark | `app_id`, `app_secret`, `encrypt_key`, `verification_token`, `media_dir` |
+| **feishu** | 飞书 / Lark (v0.2.0 迁移至 lark-oapi SDK) | `app_id`, `app_secret`, `encrypt_key`, `verification_token`, `media_dir`, `region` (china/international) |
 | **qq** | QQ 机器人 | `app_id`, `client_secret` |
 | **discord** | Discord 机器人 | `bot_token`, `http_proxy`, `http_proxy_auth` |
 | **imessage** | macOS iMessage | `db_path`, `poll_sec` |
@@ -482,6 +539,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | MQTT | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
 | Mattermost | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Matrix | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 小艺 | ✓ | ✓ (v0.2.0+) | ✓ (v0.2.0+) | ✗ | ✓ (v0.2.0+) | ✓ | ✓ (v0.2.0+) | ✗ | ✗ | ✓ (v0.2.0+) |
 
 > ✓ = 已支持；🚧 = 施工中；✗ = 不支持
 
@@ -614,6 +672,14 @@ copaw models ollama-pull <model>     # 下载 Ollama 模型
 ```bash
 copaw update                         # 自动更新 CoPaw
 copaw auth reset-password            # 重置 Web UI 密码
+```
+
+### Agent 与消息 (v0.2.0 新增)
+
+```bash
+copaw agents list                    # 列出所有代理
+copaw message push <channel> <user>  # 向频道推送消息
+copaw message send <agent> <msg>     # 向代理发送请求
 ```
 
 ### 桌面应用 (v0.0.6 新增)

@@ -59,6 +59,8 @@ docker compose exec copaw bash                    # Enter container shell
 docker compose exec copaw copaw init --defaults   # Initialize with defaults
 docker compose exec copaw copaw models config     # Configure LLM provider
 docker compose exec copaw copaw channels config   # Configure channels
+docker compose exec copaw copaw agents list       # List all agents (v0.2.0+)
+docker compose exec copaw copaw message push      # Push message to channel (v0.2.0+)
 ```
 
 ### Data Management
