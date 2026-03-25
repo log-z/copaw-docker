@@ -4,8 +4,16 @@ on:
   push:
     branches:
       - '**'
+    paths-ignore:
+      - README.md
+      - CLAUDE.md
+      - docs/
   pull_request:
     branches: [main]
+    paths-ignore:
+      - README.md
+      - CLAUDE.md
+      - docs/
   workflow_dispatch:
 
 jobs:
