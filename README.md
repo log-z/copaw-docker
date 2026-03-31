@@ -308,6 +308,8 @@ docker compose exec copaw copaw auth reset-password # 重置 Web UI 密码
 
 # Agent 与消息（v0.2.0+）
 docker compose exec copaw copaw agents list         # 列出所有代理
+docker compose exec copaw copaw agents enable <agent>  # 启用代理（v1.0.0+）
+docker compose exec copaw copaw agents disable <agent> # 禁用代理（v1.0.0+）
 docker compose exec copaw copaw message push        # 向频道推送消息
 docker compose exec copaw copaw message send        # 向代理发送请求
 ```
@@ -424,6 +426,7 @@ docker compose exec copaw copaw message send        # 向代理发送请求
 | 钉钉 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 企业微信 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 微信 iLink | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | iMessage | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ |
 | QQ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 | 🚧 |
@@ -524,13 +527,57 @@ docker compose restart
 
 - **基础镜像**: `python:3.12-slim`
 - **Python 版本**: 3.12
-- **Node.js 版本**: 20.x LTS（用于 MCP 功能）
+- **Node.js 版本**: 24.x LTS（用于 MCP 功能）
 - **工作目录**: `/data/copaw`
 - **运行用户**: `copaw`（非 root）
 
 ---
 
 ## 新功能支持
+
+### v1.0.0 新增功能
+
+> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
+
+#### Multi-Agent System
+- **Background Task Support** - Agent 间通信后台执行，支持任务追踪和取消（`--background` 标志）
+- **Agent Enable/Disable Toggle** - 通过控制台 UI 和 API 启用/禁用 Agent
+- **Unified Priority Queue & `/stop`** - 按频道/会话的优先级队列，`/stop` 取消运行中任务
+
+#### Providers and Models
+- **CoPaw Local Model** - 内置本地模型提供商，基于 llama.cpp，自动下载配置
+- **Scoped Active Model** - 活跃模型可全局设置或按 Agent 单独设置
+- **Global LLM Rate Limiter** - QPM 滑动窗口限速、并发控制、全局 429 协调
+
+#### Security
+- **System Reboot & Service Protection** - 阻止系统重启、关机、提权等危险命令
+- **Chinese Prompt Injection Detection** - 中文正则模式检测提示注入
+
+#### Channels
+- **WeChat iLink Bot** - 新增微信个人频道（iLink Bot API）
+- **Custom Channel HTTP Routes** - 自定义频道可注册 FastAPI 路由
+- **Discord Bot Message Filtering** - 可配置是否处理其他 Bot 消息
+- **DingTalk Widescreen Cards** - 钉钉宽屏 AI 卡片布局
+- **WeCom Media Upload** - WebSocket 媒体上传，提高可靠性
+
+#### Tools & Skills
+- **Async Tool Execution** - 按工具粒度异步执行，自动注册后台任务辅助工具
+- **Skill Pool Architecture** - 双层技能系统（共享池 + 按工作区技能）
+- **Browser CDP Support** - Chrome DevTools Protocol 集成
+- **Multi-Workspace Cookie Management** - 按工作区 Cookie 隔离和持久化
+
+#### Console & UI
+- **Multimodal Preview** - 图片/音频/视频/文件附件预览
+- **Chat Session Labels** - 聊天会话显示频道标签和图标
+- **Command Suggestions** - `/clear`、`/compact`、`/approve`、`/deny` 命令建议
+- **Console Visual Refresh** - 控制台样式全面更新
+- **Download Page** - 桌面安装包下载页面
+
+#### Context & Memory
+- **Context Management v2.0** - 上下文和记忆管理重大重构
+- **Improved Truncation Logic** - 50KB Markdown 保护，更清晰的截断提示
+
+---
 
 ### v0.2.0 新增功能
 
@@ -566,19 +613,19 @@ docker compose restart
 
 | 组 | 功能 | 说明 |
 |----|------|------|
-| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+） |
+| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+） |
 | 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
 | 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器 |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描 |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+） |
 | 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端 |
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度、LLM 重试配置（v0.2.0+） |
 | 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置 |
 | 智能体 | 工具 | 启用/禁用内置工具、批量切换、glob_search/grep_search |
-| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+） |
+| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、CoPaw Local Model（v1.0.0+） |
 | 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩） |
-| 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+） |
+| 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+）、系统重启/服务保护（v1.0.0+）、中文提示注入检测（v1.0.0+） |
 | 设置 | Token 使用 | 追踪各提供商 token 使用量 |
 | 设置 | 语音转录 | 语音转录设置 |
 | 设置 | 主题 | 暗黑模式切换 |

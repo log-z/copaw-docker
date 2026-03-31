@@ -4,13 +4,71 @@
 >
 > 官方文档：http://copaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-03-25
+> **更新日期**: 2026-03-31
 
 ---
 
-## 重要更新 (2026-03-25)
+## 重要更新 (2026-03-31)
 
-### v0.2.0.post1 补丁修复 (最新)
+### v1.0.0 正式版 (最新)
+
+#### Multi-Agent System
+- **Background Task Support** - Agent 间通信的后台执行模式，支持任务追踪、状态轮询和取消，通过 CLI `--background` 标志启用 (#2345)
+- **Agent Enable/Disable Toggle** - 通过控制台 UI 和 API 启用或禁用 Agent (#2249)
+- **Unified Priority Queue System & `/stop` Command** - 按频道、按会话的优先级队列系统，`/stop` 命令可取消运行中的任务并清除队列中的消息 (#2411)
+
+#### Providers and Models
+- **CoPaw Local Model** - 内置本地模型提供商，使用 llama.cpp 引擎，支持自动下载、配置和自定义仓库 (#2419, #2476)
+- **Scoped Active Model Selection** - 活跃模型可在 Settings 全局设置或在 Chat 中按 Agent 单独设置 (#2278)
+- **Global LLM Rate Limiter** - QPM（每分钟查询数）滑动窗口限速、并发信号量控制、全局 429 暂停协调和防惊群抖动 (#2282)
+
+#### Security
+- **System Reboot & Service Protection** - 工具防护规则阻止系统重启、关机、服务控制、广泛进程终止和提权命令 (#2333)
+- **Chinese Prompt Injection Detection** - 扩展技能安全扫描器，支持中文正则模式检测提示注入和越狱尝试 (#2381)
+
+#### Console & UI
+- **Download Page** - 桌面安装包下载页面，含镜像站点 (#2555)
+- **Multimodal Preview** - 图片、音频、视频和文件附件在历史消息和流式响应中显示预览 URL (#2297, #2332)
+- **Chat Session Labels** - 聊天会话显示频道标签和图标，便于识别消息来源 (#2483)
+- **Command Suggestions** - 斜杠命令建议（`/clear`、`/compact`、`/approve`、`/deny`）(#2415)
+- **Console Visual Refresh** - 控制台样式全面更新，整体布局改进和主题调整 (#2228 等)
+
+#### Channels
+- **WeChat iLink Bot** - 新增微信个人频道，使用 iLink Bot API (#2260)
+- **Custom Channel HTTP Routes** - 自定义频道可注册 FastAPI 路由用于 Webhook 和自定义端点 (#2140)
+- **Discord Bot Message Filtering** - 新增配置选项控制是否处理来自其他 Bot 的消息 (#2122)
+- **DingTalk Widescreen Cards** - 支持钉钉宽屏 AI 卡片布局 (#2238)
+- **WeCom Media Upload** - 基于 WebSocket 的媒体上传，替代 HTTP 下载路径，提高可靠性 (#2401)
+
+#### Tools & Skills
+- **Async Tool Execution** - 按工具粒度的异步执行标志，自动注册后台任务辅助工具（`view_task`、`wait_task`、`cancel_task`）(#2391)
+- **Skill Pool Architecture** - 双层技能系统，共享技能池 + 按 Agent 工作区技能 (#2173, #2436, #2440, #2477, #2480)
+- **Browser CDP Support** - Chrome DevTools Protocol 集成，连接运行中的 Chrome 实例、端口扫描、缓存清理和远程浏览器附加 (#2294)
+- **Multi-Workspace Cookie Management** - 浏览器自动化使用按工作区的持久化用户数据目录，实现 Cookie 隔离和跨重启持久化 (#2131)
+
+#### Context and Memory
+- **Context Management v2.0** - 上下文和记忆管理重大重构，嵌套配置模型、新的压缩钩子、工具结果压缩、重写摘要提示和主动记忆搜索 (#2300, #2410, #2519, #2525)
+- **Improved Truncation Logic** - 增强文件截断，支持高达 50KB 的 Markdown 保护，更清晰的 LLM 截断提示 (#2449)
+
+#### Internationalization
+- **Server-Side Language Persistence** - UI 语言偏好持久化到服务器端设置 (#2408)
+- **Expanded Multi-Language Support** - 更多控制台 UI 组件支持多语言 (#2478, #2508)
+
+#### Bug 修复
+- **WeCom Heartbeat Reconnection** - WebSocket 心跳失败时自动重连，防止永久断连 (#2515)
+- **Feishu WebSocket Reconnection** - 指数退避自动重连、静默断连健康监控、过期消息过滤 (#2311, #2376)
+- **Feishu Multi-Instance Message Routing** - 序列化 WebSocket 启动和 app_id 验证，防止多实例跨工作区消息错误路由 (#2244)
+- **Discord Duplicate Messages** - 有界缓存已处理消息 ID，防止 WebSocket 重连后重复处理 (#2253)
+- **Telegram Timeout** - 增加读取和连接超时，防止长轮询过早超时 (#2280)
+- **QQ Voice Message Conversion** - AMR/AMR-WB 音频文件使用更大的 ffmpeg 探测参数以正确检测编解码器 (#2248)
+- **DingTalk Cron Reminders** - 修复 sessionWebhook 路由和持久化 Webhook 存储用于定时任务提醒 (#2392)
+- **Local Loopback Address** - CLI 在服务器绑定 `0.0.0.0` 时持久化 `127.0.0.1`，使其他 CLI 命令正确连接 (#2241)
+- **Cross-Platform File Encoding** - 使用 `utf-8-sig` 读写文件，兼容 Windows (#2403)
+- **Streaming Grep Search** - Grep 搜索逐行读取文件并使用滑动窗口，大幅降低大文件内存使用 (#2344)
+
+---
+
+### v0.2.0.post1 补丁修复
 
 #### 新功能
 - **Tool 调用解析增强** - 支持从 thinking 和 text 内容中解析 tool 调用
@@ -268,7 +326,9 @@
 
 ### CLI 新增命令
 - `copaw agents list` - 列出所有代理 (v0.2.0)
+- `copaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
 - `copaw message push/send` - 推送消息/发送请求 (v0.2.0)
+- `copaw message send --background` - 后台发送代理请求 (v1.0.0)
 - `copaw update` - 自动更新 CoPaw (v0.1.0)
 - `copaw auth reset-password` - 重置 Web UI 密码 (v0.1.0)
 - `copaw desktop` - 打开桌面应用窗口 (v0.0.6)
@@ -292,7 +352,7 @@
 
 CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 
-- **多通道对话** — 通过钉钉、飞书、QQ、Discord、iMessage、Telegram、Twilio Voice、MQTT、Mattermost、Matrix 等与你对话
+- **多通道对话** — 通过钉钉、飞书、QQ、Discord、iMessage、Telegram、Twilio Voice、MQTT、Mattermost、Matrix、微信 iLink 等与你对话
 - **定时执行** — 按你的配置自动运行任务
 - **能力由 Skills 决定** — 内置定时任务、PDF 与表单、Word/Excel/PPT 文档处理、新闻摘要、文件阅读等，还可在 Skills 中自定义扩展
 - **数据全在本地** — 不依赖第三方托管
@@ -301,7 +361,7 @@ CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 
 使用方式可以概括为两类：
 
-1. **在聊天软件里对话** — 在钉钉、飞书、QQ、Discord、iMessage、Telegram、Twilio Voice、MQTT、Mattermost 或 Matrix 里发消息，CoPaw 在同一 app 内回复
+1. **在聊天软件里对话** — 在钉钉、飞书、QQ、Discord、iMessage、Telegram、Twilio Voice、MQTT、Mattermost、Matrix 或微信 iLink 里发消息，CoPaw 在同一 app 内回复
 2. **定时自动执行** — 按设定时间自动运行任务
 
 ### 技术基础
@@ -530,6 +590,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | **imessage** | macOS iMessage | `db_path`, `poll_sec` |
 | **telegram** | Telegram 机器人 | `bot_token` (v0.0.5+ 支持 CLI 配置) |
 | **wecom** | 企业微信 (v0.1.0 新增) | 企业微信 AI Bot SDK 配置 |
+| **wechat-ilink** | 微信 iLink Bot (v1.0.0 新增) | iLink Bot API 配置 |
 | **xiaoyi** | 小艺 (v0.1.0 新增) | 华为 A2A 协议配置 |
 | **mqtt** | MQTT 消息队列 (v0.0.6 新增) | `host`, `port`, `transport`, `qos`, `subscribe_topic`, `publish_topic` |
 | **twilio voice** | Twilio 语音 (v0.0.5 新增) | `account_sid`, `auth_token`, `phone_number` |
@@ -553,6 +614,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | 钉钉 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 企业微信 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 微信 iLink (v1.0.0) | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
 | QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
@@ -583,6 +645,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | DeepSeek (v0.1.0 新增) | `deepseek` | `https://api.deepseek.com` |
 | MiniMax (v0.1.0 新增) | `minimax` | 国际版/中国版分离端点 |
 | Kimi (v0.1.0 新增) | `kimi` | 中国版/国际版分离端点 |
+| CoPaw Local Model (v1.0.0 新增) | `copaw-local` | 本地 llama.cpp 引擎 |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
 | 自定义 | `custom` | （你自己填） |
 
@@ -700,8 +763,10 @@ copaw auth reset-password            # 重置 Web UI 密码
 
 ```bash
 copaw agents list                    # 列出所有代理
+copaw agents enable/disable <agent>  # 启用/禁用代理 (v1.0.0 新增)
 copaw message push <channel> <user>  # 向频道推送消息
 copaw message send <agent> <msg>     # 向代理发送请求
+copaw message send <agent> <msg> --background  # 后台发送请求 (v1.0.0 新增)
 ```
 
 ### 桌面应用 (v0.0.6 新增)

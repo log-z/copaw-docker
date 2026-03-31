@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Docker deployment project for CoPaw, a personal assistant product based on AgentScope. CoPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT, Mattermost, Matrix) and runs locally with user-configured LLM providers.
+This is a Docker deployment project for CoPaw, a personal assistant product based on AgentScope. CoPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT, Mattermost, Matrix, WeChat iLink) and runs locally with user-configured LLM providers.
 
 **Key Technologies**: Python 3.12, Docker, Docker Compose, AgentScope framework
 
@@ -60,6 +60,7 @@ docker compose exec copaw copaw init --defaults   # Initialize with defaults
 docker compose exec copaw copaw models config     # Configure LLM provider
 docker compose exec copaw copaw channels config   # Configure channels
 docker compose exec copaw copaw agents list       # List all agents (v0.2.0+)
+docker compose exec copaw copaw agents enable <agent>  # Enable agent (v1.0.0+)
 docker compose exec copaw copaw message push      # Push message to channel (v0.2.0+)
 ```
 
@@ -136,7 +137,7 @@ Key variables (see [.env.example](.env.example) for full list):
 
 - **Repository**: `ghcr.io/log-z/copaw-docker:latest`
 - **Base**: `python:3.12-slim`
-- **Node.js**: 20.x LTS (MCP support)
+- **Node.js**: 24.x LTS (MCP support)
 - **Browser**: Chromium headless (MCP browser automation)
 - **Working dir**: `/data/copaw`
 - **User**: `copaw` (non-root)
