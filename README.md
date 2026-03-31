@@ -149,19 +149,24 @@ copaw/
 │   └── workflows/
 │       ├── dev-test.yml       # 开发环境测试工作流
 │       ├── prod-test.yml      # 生产环境测试工作流
-│       └── release-image.yml  # 发布镜像工作流
+│       ├── release-image.yml  # 发布镜像工作流
+│       └── trivy-scan.yml     # Trivy 漏洞扫描工作流
 ├── docs/
 │   └── copaw-info.md          # CoPaw 官方文档信息汇总
 ├── scripts/
 │   ├── entrypoint.sh          # 容器启动脚本（自动初始化检查）
 │   ├── healthcheck.sh         # 健康检查脚本（Docker HEALTHCHECK）
+│   ├── migration-helper.sh    # 数据迁移辅助脚本
 │   └── test-startup.sh        # 启动流程测试脚本
 ├── .dockerignore              # Docker 构建忽略文件
 ├── .env.example               # 环境变量配置示例
+├── .gitattributes             # Git 属性配置
 ├── .gitignore                 # Git 忽略文件配置
 ├── CLAUDE.md                  # Claude Code 工作指引
 ├── Dockerfile                 # 多阶段构建的 Docker 镜像定义
+├── LICENSE                    # 开源许可证
 ├── README.md                  # 本文件
+├── docker-compose.override.yml # Docker Compose 覆盖配置
 └── docker-compose.yml         # Docker Compose 编排配置
 ```
 
