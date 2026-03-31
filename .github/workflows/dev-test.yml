@@ -7,13 +7,13 @@ on:
     paths-ignore:
       - README.md
       - CLAUDE.md
-      - docs/
+      - 'docs/**'
   pull_request:
     branches: [main]
     paths-ignore:
       - README.md
       - CLAUDE.md
-      - docs/
+      - 'docs/**'
   workflow_dispatch:
 
 jobs:
