@@ -19,7 +19,7 @@ jobs:
           echo "IMAGE_REF=ghcr.io/${{ github.repository }}:${SHA}" >> $GITHUB_ENV
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: ${{ env.IMAGE_REF }}
           format: 'table'
@@ -30,7 +30,7 @@ jobs:
           output: 'trivy-report.txt'
 
       - name: Upload Trivy scan results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: trivy-scan-report
