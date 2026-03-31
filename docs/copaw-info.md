@@ -10,7 +10,29 @@
 
 ## 重要更新 (2026-03-31)
 
-### v1.0.0 正式版 (最新)
+### v1.0.0.post1 补丁修复 (最新)
+
+#### 新功能
+- **Console 选择 Agent 对话** - 控制台支持选择特定 Agent 进行对话 (#2640)
+- **多模态视频分析** - 多模态模型支持视频分析能力 (#2627)
+- **Console 消息增强** - 控制台消息功能优化 (#2604, #2612)
+- **运行时健壮性改进** - 提升运行时稳定性和可靠性 (#2616)
+- **Windows Shell 命令修复** - 修复 Windows 下 shell 命令中的 `\n` 转义问题 (#2635)
+
+#### Bug 修复
+- **暗黑模式斜杠命令对比度** - 修复暗黑模式下斜杠命令菜单的文字对比度问题 (#2600)
+- **技能签名缓存与 requires 字段** - 修复技能签名缓存，支持 requires 字段的列表格式，使用安全格式化器解析 (#2504, #2620, #2630)
+- **Llama.cpp Windows GPU** - 修复 Windows 下使用 Nvidia GPU 的问题，安装前检查 macOS 版本 (#2625)
+- **钉钉定时任务 Webhook 回退** - sessionWebhook 过期时回退到 Open API 处理定时任务 (#2617)
+- **Thinking 模型工具防护** - 修复使用 thinking 模型时的工具防护问题 (#2631)
+- **迁移异常处理** - 改进迁移过程的异常处理 (#2618)
+- **anyio 版本锁定** - 锁定 anyio 版本以避免 busy-wait 循环 (#2634)
+- **聊天记忆加载** - 优化变量命名和记忆加载逻辑 (#2638)
+- **企业微信心跳重连** - 回退心跳失败时的重连修复 (#2641)
+
+---
+
+### v1.0.0 正式版
 
 #### Multi-Agent System
 - **Background Task Support** - Agent 间通信的后台执行模式，支持任务追踪、状态轮询和取消，通过 CLI `--background` 标志启用 (#2345)
@@ -55,7 +77,7 @@
 - **Expanded Multi-Language Support** - 更多控制台 UI 组件支持多语言 (#2478, #2508)
 
 #### Bug 修复
-- **WeCom Heartbeat Reconnection** - WebSocket 心跳失败时自动重连，防止永久断连 (#2515)
+- **WeCom Heartbeat Reconnection** - WebSocket 心跳失败时自动重连，防止永久断连 (#2515)（v1.0.0.post1 已回退）
 - **Feishu WebSocket Reconnection** - 指数退避自动重连、静默断连健康监控、过期消息过滤 (#2311, #2376)
 - **Feishu Multi-Instance Message Routing** - 序列化 WebSocket 启动和 app_id 验证，防止多实例跨工作区消息错误路由 (#2244)
 - **Discord Duplicate Messages** - 有界缓存已处理消息 ID，防止 WebSocket 重连后重复处理 (#2253)
