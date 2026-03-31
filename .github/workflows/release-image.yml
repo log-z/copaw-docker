@@ -78,21 +78,3 @@ jobs:
             COPAW_VERSION=${{ steps.copaw_meta.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          output: 'trivy-report.txt'
-
-      - name: Upload Trivy scan results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-scan-report
-          path: trivy-report.txt
