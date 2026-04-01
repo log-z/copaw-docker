@@ -540,6 +540,27 @@ docker compose restart
 
 ## 新功能支持
 
+### v1.0.0.post3 补丁修复
+
+> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
+
+#### 重要变更
+- **移除源码仓库 AGENTS.md** - 项目源码中移除 AGENTS.md 开发指南，用户工作区不受影响
+
+#### 新功能
+- **技能批量操作** - 支持批量删除、广播和下载技能
+- **暗黑模式系统选项** - 暗黑模式切换增加跟随系统选项
+- **飞书 DONE 反应（工作区路径）** - 工作区追踪器路径支持 DONE 表情反应
+- **钉钉 AI 卡片（工作区路径）** - 工作区追踪器路径支持 AI 卡片
+- **Agent 禁用时停止服务** - 禁用 Agent 自动停止相关服务
+
+#### Bug 修复
+- **钉钉白名单** - 修复钉钉频道白名单问题
+- **CoPaw Local GPU** - 本地模型默认使用 GPU，修复探测图片和 Windows 下载
+- **企业微信 Windows 守护进程** - 修复 WebSocket 线程 stdio 流问题
+
+---
+
 ### v1.0.0.post2 补丁修复
 
 > 详见 [docs/copaw-info.md](docs/copaw-info.md)。
