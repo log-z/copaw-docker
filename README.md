@@ -156,7 +156,6 @@ copaw/
 ├── scripts/
 │   ├── entrypoint.sh          # 容器启动脚本（自动初始化检查）
 │   ├── healthcheck.sh         # 健康检查脚本（Docker HEALTHCHECK）
-│   ├── migration-helper.sh    # 数据迁移辅助脚本
 │   └── test-startup.sh        # 启动流程测试脚本
 ├── .dockerignore              # Docker 构建忽略文件
 ├── .env.example               # 环境变量配置示例

@@ -45,9 +45,6 @@ log_info "Working directory: ${COPAW_WORKING_DIR}"
 log_info "Log level: ${COPAW_LOG_LEVEL}"
 log_info "Port: ${COPAW_PORT}"
 
-# 运行迁移辅助脚本，创建软链接以兼容 CoPaw 迁移代码
-/usr/local/bin/migration-helper.sh "${COPAW_WORKING_DIR}"
-
 # 检查是否需要初始化
 if [ ! -f "${COPAW_WORKING_DIR}/config.json" ]; then
     log_warn "Configuration file not found. Initializing CoPaw..."

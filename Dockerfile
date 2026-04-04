@@ -133,10 +133,9 @@ WORKDIR /data/copaw
 # 复制启动脚本和健康检查脚本
 COPY --chown=copaw:copaw scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chown=copaw:copaw scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
-COPY --chown=copaw:copaw scripts/migration-helper.sh /usr/local/bin/migration-helper.sh
 
 # 设置脚本权限
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/migration-helper.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh
 
 # 切换到非 root 用户
 USER copaw
