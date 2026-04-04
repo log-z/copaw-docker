@@ -15,7 +15,14 @@ services:
     # 端口映射（v0.0.5 安全更新：仅绑定本地回环地址）
     # 注意：如果修改 COPAW_PORT，需要同步修改左侧端口号
     ports:
+      # CoPaw Console
       - "127.0.0.1:${COPAW_PORT:-8088}:${COPAW_PORT:-8088}"
+
+      # OneBot 频道（反向 WS）
+      # 用于接入 NapCat/go-cqhttp/Lagrange 等 QQ 协议端
+      # 如在此 compose 中运行 OneBot 服务，可直接用容器名 copaw 连接 ws://copaw:6199/ws，无需映射此端口
+      # 详细用法请参考官方文档：https://copaw.agentscope.io/docs/channels/#OneBot-v11NapCat--QQ-%E5%AE%8C%E6%95%B4%E5%8D%8F%E8%AE%AE
+      # - "127.0.0.1:6199:6199"
 
     # 环境变量
     environment:
