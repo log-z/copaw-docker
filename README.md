@@ -258,6 +258,7 @@ docker compose exec copaw copaw models config-key lmstudio     # 配置 LM Studi
 docker compose exec copaw copaw models config-key deepseek     # 配置 DeepSeek（v0.1.0+）
 docker compose exec copaw copaw models config-key minimax      # 配置 MiniMax（v0.1.0+）
 docker compose exec copaw copaw models config-key kimi         # 配置 Kimi（v0.1.0+）
+docker compose exec copaw copaw models config-key zhipu         # 配置智谱（v1.0.1+）
 docker compose exec copaw copaw models config-key custom       # 配置自定义提供商
 docker compose exec copaw copaw models set-llm                 # 切换活跃模型
 
@@ -366,6 +367,7 @@ docker compose exec copaw copaw message send        # 向代理发送请求
 | `DEEPSEEK_API_KEY` | DeepSeek API Key（v0.1.0+ 新增） |
 | `MINIMAX_API_KEY` | MiniMax API Key（v0.1.0+ 新增） |
 | `KIMI_API_KEY` | Kimi API Key（v0.1.0+ 新增） |
+| `ZHIPU_API_KEY` | 智谱 API Key（v1.0.1+ 新增） |
 
 ### Web 认证配置（v0.1.0+ 新增）
 
@@ -432,6 +434,7 @@ docker compose exec copaw copaw message send        # 向代理发送请求
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 企业微信 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 微信 iLink | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
+| OneBot v11 / NapCat (v1.0.1+) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | iMessage | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ |
 | QQ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 | 🚧 |
@@ -540,137 +543,34 @@ docker compose restart
 
 ## 新功能支持
 
-### v1.0.0.post3 补丁修复
+> 历史版本更新详见 [docs/copaw-info.md](docs/copaw-info.md)。
 
-> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
-
-#### 重要变更
-- **移除源码仓库 AGENTS.md** - 项目源码中移除 AGENTS.md 开发指南，用户工作区不受影响
+### v1.0.1 更新（最新）
 
 #### 新功能
-- **技能批量操作** - 支持批量删除、广播和下载技能
-- **暗黑模式系统选项** - 暗黑模式切换增加跟随系统选项
-- **飞书 DONE 反应（工作区路径）** - 工作区追踪器路径支持 DONE 表情反应
-- **钉钉 AI 卡片（工作区路径）** - 工作区追踪器路径支持 AI 卡片
-- **Agent 禁用时停止服务** - 禁用 Agent 自动停止相关服务
-
-#### Bug 修复
-- **钉钉白名单** - 修复钉钉频道白名单问题
-- **CoPaw Local GPU** - 本地模型默认使用 GPU，修复探测图片和 Windows 下载
-- **企业微信 Windows 守护进程** - 修复 WebSocket 线程 stdio 流问题
-
----
-
-### v1.0.0.post2 补丁修复
-
-> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
-
-#### 新功能
-- **Console MCP** - 控制台支持 MCP 配置
+- **智谱 AI 提供商** - 内置支持智谱 AI（Zhipu）模型
+- **OneBot v11 频道** - 新增 NapCat/QQ 频道，支持个人账号和群消息
+- **Agent 拖拽排序** - 拖放界面持久化调整 Agent 顺序
+- **聊天会话状态指示器** - 显示活跃/非活跃状态
+- **首选会话置顶** - 自动将首选会话移到列表顶部
+- **模型级生成参数** - 每个模型可单独配置生成参数
+- **CoPaw Local 自动更新** - 本地模型提供商自动更新机制
+- **企业微信服务端二维码** - 替换 JS SDK 为服务端二维码生成
+- **微信文件上传与输入指示** - 改进文件上传可靠性，新增输入指示器
+- **手动压缩附加指令** - `/compact` 命令支持提供额外上下文
 
 #### 优化
-- **技能启动迁移优化** - 避免每次启动时重复迁移技能
-- **技能池工作区同步移除** - 提高运行效率
-- **技能列表刷新优化** - 优化技能列表加载性能
-- **网站界面优化** - 改善列表标记可见性、控制台语言选项排序
+- **网站界面现代化** - 重大视觉更新和用户体验改进
+- **技能卡片与列表视图** - 增强技能管理 UI
+- **MCP 控制台 UI 刷新** - 重新设计 MCP 客户端卡片
+- **国际化时间显示** - 使用 dayjs 支持正确的多语言时间
 
 #### Bug 修复
-- **企业微信心跳重连** - 心跳失败时在独立任务中调度重连，避免阻塞
-- **异步工具状态** - 修复异步工具状态显示问题
-- **Provider 下载检查** - 下载前检查仓库是否存在
-- **本地模型修复** - 修复本地模型相关问题
-
----
-
-### v1.0.0.post1 补丁修复
-
-> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
-
-#### 新功能
-- **Console 选择 Agent** - 控制台支持选择特定 Agent 进行对话
-- **多模态视频分析** - 多模态模型支持视频分析能力
-- **运行时健壮性改进** - 提升运行时稳定性和可靠性
-
-#### Bug 修复
-- **暗黑模式斜杠命令对比度** - 修复暗黑模式下斜杠命令菜单的文字对比度
-- **技能签名缓存** - 修复技能签名缓存，支持 requires 字段列表格式
-- **Llama.cpp Windows GPU** - 修复 Windows 下 Nvidia GPU 支持，安装前检查 macOS 版本
-- **钉钉定时任务** - sessionWebhook 过期时回退到 Open API
-- **Thinking 模型工具防护** - 修复使用 thinking 模型时的工具防护问题
-- **Windows Shell 命令** - 修复 Windows 下 shell 命令中的 `\n` 转义
-- **anyio 版本锁定** - 避免 busy-wait 循环
-
----
-
-### v1.0.0 新增功能
-
-> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
-
-#### Multi-Agent System
-- **Background Task Support** - Agent 间通信后台执行，支持任务追踪和取消（`--background` 标志）
-- **Agent Enable/Disable Toggle** - 通过控制台 UI 和 API 启用/禁用 Agent
-- **Unified Priority Queue & `/stop`** - 按频道/会话的优先级队列，`/stop` 取消运行中任务
-
-#### Providers and Models
-- **CoPaw Local Model** - 内置本地模型提供商，基于 llama.cpp，自动下载配置
-- **Scoped Active Model** - 活跃模型可全局设置或按 Agent 单独设置
-- **Global LLM Rate Limiter** - QPM 滑动窗口限速、并发控制、全局 429 协调
-
-#### Security
-- **System Reboot & Service Protection** - 阻止系统重启、关机、提权等危险命令
-- **Chinese Prompt Injection Detection** - 中文正则模式检测提示注入
-
-#### Channels
-- **WeChat iLink Bot** - 新增微信个人频道（iLink Bot API）
-- **Custom Channel HTTP Routes** - 自定义频道可注册 FastAPI 路由
-- **Discord Bot Message Filtering** - 可配置是否处理其他 Bot 消息
-- **DingTalk Widescreen Cards** - 钉钉宽屏 AI 卡片布局
-- **WeCom Media Upload** - WebSocket 媒体上传，提高可靠性
-
-#### Tools & Skills
-- **Async Tool Execution** - 按工具粒度异步执行，自动注册后台任务辅助工具
-- **Skill Pool Architecture** - 双层技能系统（共享池 + 按工作区技能）
-- **Browser CDP Support** - Chrome DevTools Protocol 集成
-- **Multi-Workspace Cookie Management** - 按工作区 Cookie 隔离和持久化
-
-#### Console & UI
-- **Multimodal Preview** - 图片/音频/视频/文件附件预览
-- **Chat Session Labels** - 聊天会话显示频道标签和图标
-- **Command Suggestions** - `/clear`、`/compact`、`/approve`、`/deny` 命令建议
-- **Console Visual Refresh** - 控制台样式全面更新
-- **Download Page** - 桌面安装包下载页面
-
-#### Context & Memory
-- **Context Management v2.0** - 上下文和记忆管理重大重构
-- **Improved Truncation Logic** - 50KB Markdown 保护，更清晰的截断提示
-
----
-
-### v0.2.0 新增功能
-
-> 详见 [docs/copaw-info.md](docs/copaw-info.md)。
-
-#### Agent
-- **Inter-Agent Communication** - `copaw agents` 和 `copaw message` CLI 命令，支持代理间通信
-- **Built-in QA Agent** - 内置 QA 代理，回答 CoPaw 安装使用问题
-- **Config Auto-Repair** - config.json 损坏时自动修复
-
-#### Security
-- **File Access Guard** - 敏感文件/目录访问保护
-- **Tool Guard Enhanced** - 并行工具执行时的正确防护
-
-#### Channels
-- **Feishu SDK Migration** - 迁移到官方 lark-oapi SDK，支持区域选择器（中国/国际版）
-- **XiaoYi File & Image** - 小艺频道支持文件和图片
-
-#### Console & UI
-- **Audio, Video & Speech Input** - 控制台支持发送和显示音频、视频、语音附件
-- **Stream Reconnection** - 页面刷新自动重连流式会话
-- **Web Account Management** - 侧边栏更改用户名密码
-
-#### 其他
-- **Faster CLI Startup** - CLI 命令延迟加载，启动更快
-- **Stable Prompts for KV Cache** - 提高 LLM KV 缓存命中率
+- **钉钉定时任务 Webhook** - sessionWebhook 过期自动回退
+- **企业微信 WebSocket** - 修复心跳重连和 Windows 守护进程
+- **QQ 重连状态重置** - 修复 WebSocket 恢复时状态管理
+- **Llama.cpp Windows GPU** - 修复 Windows 下 NVIDIA GPU 支持
+- **Thinking 模型工具防护** - 修复工具防护兼容性
 
 ---
 

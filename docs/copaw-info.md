@@ -4,13 +4,91 @@
 >
 > 官方文档：http://copaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-04-01
+> **更新日期**: 2026-04-04
 
 ---
 
-## 重要更新 (2026-04-01)
+## 重要更新 (2026-04-04)
 
-### v1.0.0.post3 补丁修复 (最新)
+### v1.0.1 (最新)
+
+#### 新功能
+
+**模型与提供商**
+- **Zhipu 模型提供商** - 内置支持智谱 AI 模型 (#2858)
+- **多模态视频分析** - 多模态模型扩展支持视频文件，自动提取和分析 (#2627)
+- **模型级生成参数** - 通过模型设置为每个模型单独配置生成参数 (#2892)
+- **CoPaw Local 自动更新** - 本地模型提供商自动更新机制，含版本检查和下载 (#2889)
+- **宽松工具调用解析器** - 放宽工具调用解析，处理格式错误的 JSON，提高 LLM 输出兼容性 (#2832)
+
+**控制台与 UI**
+- **Agent 拖拽排序** - 通过拖放界面持久化调整 Agent 顺序 (#2695)
+- **聊天会话状态指示器** - 显示每个聊天会话的活跃/非活跃状态 (#2803)
+- **首选会话置顶** - 自动将首选聊天会话移到会话列表顶部 (#2864)
+- **暗黑模式系统选项** - 暗黑模式切换增加跟随系统偏好选项 (#2678)
+- **自动切换默认 Agent** - 所选 Agent 被删除或禁用时自动切换到默认 Agent (#2640)
+
+**技能与工具**
+- **技能批量操作** - 支持跨 Agent 批量删除、下载和广播技能 (#2743)
+- **禁用 Agent 时停止服务** - 禁用 Agent 时自动停止后台服务释放资源 (#2746)
+- **技能 requires 列表格式** - 技能 requires 字段支持列表格式 (#2504)
+
+**频道**
+- **OneBot v11 频道** - 新增 NapCat/QQ 频道，反向 WebSocket 服务器，完整 QQ 协议支持，包括个人账号和群消息 (#2870)
+- **钉钉 AI 卡片（工作区追踪器）** - 工作区追踪器路径下支持 AI 卡片，重构共享核心 (#2741)
+- **飞书 DONE 表情反应** - 工作区路径下支持飞书 DONE 表情反应 (#2727)
+- **统一无文本防抖** - 工作区追踪器和传统路径统一防抖逻辑 (#2724)
+- **企业微信服务端二维码** - 替换 JavaScript SDK 弹窗为服务端二维码生成和通用 OAuth 提供商模式 (#2891)
+- **微信文件上传与输入指示** - 改进微信频道的文件上传可靠性和输入指示器 (#2597)
+
+**上下文与记忆**
+- **手动压缩附加指令** - 通过 `/compact` 命令手动触发记忆压缩时支持提供额外上下文 (#2694)
+
+#### 优化
+
+**控制台与 UI**
+- **网站界面现代化** - 重大视觉更新，改进国际化、现代化样式和用户体验 (#2645, #2722)
+- **语言选择器排序** - 重新排列下拉语言选项以改善用户体验 (#2673)
+- **国际化时间显示** - 使用 dayjs relativeTime 替换自定义时间格式，支持正确的国际化 (#2800)
+- **技能卡片与列表视图** - 增强技能管理 UI，卡片布局和暗黑模式支持 (#2714, #2794)
+- **MCP 控制台 UI 刷新** - 重新设计 MCP 客户端卡片和技能池界面 (#2652)
+
+#### Bug 修复
+
+**频道**
+- **钉钉定时任务 Webhook** - 修复 sessionWebhook 过期处理，自动回退到 Open API (#2617)
+- **钉钉白名单** - 修复频道白名单过滤 (#2718)
+- **企业微信 WebSocket 可靠性** - 修复心跳重连的任务调度和 Windows 守护进程 stdio 流 (#2651, #2760)
+- **QQ 重连状态重置** - 修复 WebSocket 会话恢复时的重连状态管理 (#2827)
+
+**控制台与 UI**
+- **斜杠命令菜单对比度** - 修复暗黑模式文字对比度 (#2600)
+- **模型选择器消息通知** - 修复模型选择器组件中缺失的消息通知 (#2612)
+- **控制台 None 输出防护** - 防止 None 值发送到控制台频道 (#2608)
+- **文件时间戳显示** - 修复工作区文件时间戳显示 "NaNd ago" 错误 (#2793)
+- **聊天会话标题保持** - 修复流式消息时标题被覆盖的问题 (#2847)
+- **控制台本地化** - 修复控制台组件本地化问题 (#2662)
+- **Google Fonts 加载** - 使用 Google Fonts CDN 修复 Inter、Lato 和 Newsreader 字体加载 (#2867)
+
+**技能与工具**
+- **技能需求解析** - 使用安全格式化器解析需求，防止格式化错误 (#2630)
+- **Windows 工具兼容性** - 修复浏览器启动参数和 Windows 平台 shell 命令换行处理 (#2635, #2861)
+- **浏览器空闲看门狗** - 修复 browser_use 空闲看门狗自取消问题 (#2843)
+- **Thinking 模型工具防护** - 修复使用 thinking 模型时的工具防护兼容性 (#2631)
+
+**提供商**
+- **CoPaw Local 改进** - 修复 GPU 默认设置、探测图片检测、仓库验证和 Windows 模型下载 (#2688, #2735)
+- **Llama.cpp Windows NVIDIA GPU** - 修复 Windows 下 llama.cpp 使用 NVIDIA GPU 和安装前 macOS 版本检查 (#2625)
+
+#### 文档
+- **README 锚点链接** - 修复 README 目录中的锚点链接 (#2614)
+- **CoPaw-Flash 部署 FAQ** - 改进 CoPaw-Flash 部署常见问题 (#2661)
+- **技能文档** - 更新技能文档以反映技能池架构变更 (#2767)
+- **WebView2 安装说明** - 添加 Windows WebView2 安装说明和 Web 认证详情 (#2836)
+
+---
+
+### v1.0.0.post3 补丁修复
 
 #### 重要变更
 - **移除源码仓库 AGENTS.md** - 项目源码中移除 AGENTS.md 开发指南，用户工作区不受影响 (#2745)
@@ -410,6 +488,7 @@
 - `copaw models config-key deepseek` - 配置 DeepSeek (v0.1.0)
 - `copaw models config-key kimi` - 配置 Kimi (v0.1.0)
 - `copaw models config-key lmstudio` - 配置 LM Studio (v0.0.7)
+- `copaw models config-key zhipu` - 配置智谱 (v1.0.1)
 - `copaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
 - `copaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
 - `copaw channels install/add/remove` - 自定义频道管理
@@ -663,6 +742,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | **telegram** | Telegram 机器人 | `bot_token` (v0.0.5+ 支持 CLI 配置) |
 | **wecom** | 企业微信 (v0.1.0 新增) | 企业微信 AI Bot SDK 配置 |
 | **wechat-ilink** | 微信 iLink Bot (v1.0.0 新增) | iLink Bot API 配置 |
+| **onebot-v11** | OneBot v11 / NapCat QQ (v1.0.1 新增) | 反向 WebSocket 服务器配置，支持个人账号和群消息 |
 | **xiaoyi** | 小艺 (v0.1.0 新增) | 华为 A2A 协议配置 |
 | **mqtt** | MQTT 消息队列 (v0.0.6 新增) | `host`, `port`, `transport`, `qos`, `subscribe_topic`, `publish_topic` |
 | **twilio voice** | Twilio 语音 (v0.0.5 新增) | `account_sid`, `auth_token`, `phone_number` |
@@ -687,6 +767,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | 飞书 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 企业微信 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 微信 iLink (v1.0.0) | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
+| OneBot v11 / NapCat (v1.0.1) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
 | QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
@@ -718,6 +799,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | MiniMax (v0.1.0 新增) | `minimax` | 国际版/中国版分离端点 |
 | Kimi (v0.1.0 新增) | `kimi` | 中国版/国际版分离端点 |
 | CoPaw Local Model (v1.0.0 新增) | `copaw-local` | 本地 llama.cpp 引擎 |
+| Zhipu / 智谱 (v1.0.1 新增) | `zhipu` | `https://open.bigmodel.cn/api/paas/v4` |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
 | 自定义 | `custom` | （你自己填） |
 

@@ -119,7 +119,7 @@ Key variables (see [.env.example](.env.example) for full list):
 | `COPAW_AUTO_INIT` | Auto initialization (default: true) |
 | `COPAW_LLM_MAX_RETRIES` | LLM API retry attempts (v0.0.7+) |
 | `EMBEDDING_API_KEY` | Vector memory search |
-| `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` | LLM provider keys |
+| `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` / `ZHIPU_API_KEY` | LLM provider keys |
 
 ---
 
