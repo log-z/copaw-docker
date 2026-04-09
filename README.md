@@ -186,6 +186,7 @@ copaw-data:/
     │   └── default/           # 默认代理工作区
     │       ├── active_skills/ # 当前激活的技能
     │       ├── customized_skills/ # 用户自定义技能
+    │       ├── plugins/       # 插件扩展（v1.0.2+）
     │       ├── AGENTS.md      # 详细工作流程与指南（必填）
     │       ├── PROFILE.md     # 身份和用户画像
     │       ├── SOUL.md        # Agent 核心身份与行为原则（必填）
@@ -258,6 +259,7 @@ docker compose exec copaw copaw models config-key deepseek     # 配置 DeepSeek
 docker compose exec copaw copaw models config-key minimax      # 配置 MiniMax（v0.1.0+）
 docker compose exec copaw copaw models config-key kimi         # 配置 Kimi（v0.1.0+）
 docker compose exec copaw copaw models config-key zhipu         # 配置智谱（v1.0.1+）
+docker compose exec copaw copaw models config-key siliconflow  # 配置 SiliconFlow（v1.0.2+）
 docker compose exec copaw copaw models config-key custom       # 配置自定义提供商
 docker compose exec copaw copaw models set-llm                 # 切换活跃模型
 
@@ -317,6 +319,9 @@ docker compose exec copaw copaw agents enable <agent>  # 启用代理（v1.0.0+�
 docker compose exec copaw copaw agents disable <agent> # 禁用代理（v1.0.0+）
 docker compose exec copaw copaw message push        # 向频道推送消息
 docker compose exec copaw copaw message send        # 向代理发送请求
+
+# 任务执行（v1.0.2+）
+docker compose exec copaw copaw task <prompt>      # 运行一次性任务，无需 Web 服务
 ```
 
 ---
@@ -367,6 +372,7 @@ docker compose exec copaw copaw message send        # 向代理发送请求
 | `MINIMAX_API_KEY` | MiniMax API Key（v0.1.0+ 新增） |
 | `KIMI_API_KEY` | Kimi API Key（v0.1.0+ 新增） |
 | `ZHIPU_API_KEY` | 智谱 API Key（v1.0.1+ 新增） |
+| `SILICONFLOW_API_KEY` | SiliconFlow API Key（v1.0.2+ 新增） |
 
 ### Web 认证配置（v0.1.0+ 新增）
 
@@ -408,6 +414,7 @@ docker compose exec copaw copaw message send        # 向代理发送请求
 - `workspaces/default/` - 默认代理工作区（v0.1.0+）
   - `active_skills/` - 当前激活的技能
   - `customized_skills/` - 用户自定义技能
+  - `plugins/` - 插件扩展（v1.0.2+）
   - `AGENTS.md` - 详细的工作流程、规则和指南
   - `PROFILE.md` - 身份和用户画像
   - `SOUL.md` - 核心身份与行为原则
@@ -436,7 +443,7 @@ docker compose exec copaw copaw message send        # 向代理发送请求
 | OneBot v11 / NapCat (v1.0.1+) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | iMessage | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ |
-| QQ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 | 🚧 |
+| QQ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 | ✓ (v1.0.2+) |
 | Telegram | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Twilio Voice | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
 | MQTT | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
@@ -544,32 +551,37 @@ docker compose restart
 
 > 历史版本更新详见 [docs/copaw-info.md](docs/copaw-info.md)。
 
-### v1.0.1 更新（最新）
+### v1.0.2 更新（最新）
 
 #### 新功能
-- **智谱 AI 提供商** - 内置支持智谱 AI（Zhipu）模型
-- **OneBot v11 频道** - 新增 NapCat/QQ 频道，支持个人账号和群消息
-- **Agent 拖拽排序** - 拖放界面持久化调整 Agent 顺序
-- **聊天会话状态指示器** - 显示活跃/非活跃状态
-- **首选会话置顶** - 自动将首选会话移到列表顶部
-- **模型级生成参数** - 每个模型可单独配置生成参数
-- **CoPaw Local 自动更新** - 本地模型提供商自动更新机制
-- **企业微信服务端二维码** - 替换 JS SDK 为服务端二维码生成
-- **微信文件上传与输入指示** - 改进文件上传可靠性，新增输入指示器
-- **手动压缩附加指令** - `/compact` 命令支持提供额外上下文
+- **插件系统** - 从工作区 `plugins/` 文件夹安装扩展
+- **`copaw task` 命令** - 从终端运行一次性任务，无需启动 Web 服务
+- **`/model` 聊天命令** - 在聊天中切换模型、列出可用模型、恢复默认、查看模型详情
+- **SiliconFlow 提供商** - 内置 SiliconFlow API，提供中国和国际端点
+- **密钥加密存储** - API Key 等敏感值在磁盘上加密，密钥存储在操作系统钥匙串
+- **聊天搜索** - 跨会话搜索消息文本
+- **置顶会话** - 置顶对话使其保持在列表顶部
+- **聊天输入历史** - 使用上下箭头键浏览之前的用户输入
+- **每 Agent 聊天记忆** - 切换 Agent 时恢复上次打开的聊天
+- **技能命令** - `/skills` 查看已启用技能，`/<技能名>` 直接调用
+- **技能池标签** - 使用标签组织共享技能池
+- **MCP 工具发现** - 通过 HTTP API 查询 MCP 服务器工具信息
+- **QQ 富媒体发送** - 在各种消息类型中一致地发送文件和富媒体
+- **企业微信引用上下文** - 收到的消息保留引用/回复上下文
 
 #### 优化
-- **网站界面现代化** - 重大视觉更新和用户体验改进
-- **技能卡片与列表视图** - 增强技能管理 UI
-- **MCP 控制台 UI 刷新** - 重新设计 MCP 客户端卡片
-- **国际化时间显示** - 使用 dayjs 支持正确的多语言时间
+- 时区选择器跟随 UI 语言
+- 控制台全面使用人类可读的文件大小格式
+- 较重的设置页面按需加载，首屏更快
+- 内置工具图标和提供商 Logo 显示
 
 #### Bug 修复
-- **钉钉定时任务 Webhook** - sessionWebhook 过期自动回退
-- **企业微信 WebSocket** - 修复心跳重连和 Windows 守护进程
-- **QQ 重连状态重置** - 修复 WebSocket 恢复时状态管理
-- **Llama.cpp Windows GPU** - 修复 Windows 下 NVIDIA GPU 支持
-- **Thinking 模型工具防护** - 修复工具防护兼容性
+- iMessage 私聊遵循 DM 策略和白名单
+- Discord 长回复不再破坏 Markdown 代码块
+- 飞书重连和多 Agent 运行不再因共享锁出错
+- MCP 关闭/重连后不再导致 CPU 飙升
+- 浏览器自动化点击重复元素时选择正确目标
+- Shell 工具保留引用文本中的换行符
 
 ---
 
@@ -579,17 +591,17 @@ docker compose restart
 
 | 组 | 功能 | 说明 |
 |----|------|------|
-| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+）、选择 Agent 对话（v1.0.0.post1+） |
+| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+）、选择 Agent 对话（v1.0.0.post1+）、聊天搜索（v1.0.2+）、置顶会话（v1.0.2+）、输入历史（v1.0.2+） |
 | 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
 | 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器 |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+） |
-| 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端、控制台 MCP 配置（v1.0.0.post2+） |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+）、技能命令 `/<skill>` （v1.0.2+）、技能池标签（v1.0.2+） |
+| 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端、控制台 MCP 配置（v1.0.0.post2+）、MCP 工具发现（v1.0.2+） |
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度、LLM 重试配置（v0.2.0+） |
 | 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置 |
 | 智能体 | 工具 | 启用/禁用内置工具、批量切换、glob_search/grep_search |
-| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、CoPaw Local Model（v1.0.0+）、视频分析（v1.0.0.post1+） |
+| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、CoPaw Local Model（v1.0.0+）、视频分析（v1.0.0.post1+）、`/model` 聊天命令（v1.0.2+） |
 | 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩） |
 | 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+）、系统重启/服务保护（v1.0.0+）、中文提示注入检测（v1.0.0+） |
 | 设置 | Token 使用 | 追踪各提供商 token 使用量 |

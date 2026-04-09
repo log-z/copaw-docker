@@ -4,13 +4,69 @@
 >
 > 官方文档：http://copaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-04-04
+> **更新日期**: 2026-04-09
 
 ---
 
-## 重要更新 (2026-04-04)
+## 重要更新 (2026-04-09)
 
-### v1.0.1 (最新)
+### v1.0.2 (最新)
+
+#### 新功能
+
+**核心**
+- **插件系统** - 从工作区 `plugins/` 文件夹安装扩展 (#3101, #3131, #3132)
+- **`copaw task` 命令** - 从终端运行一次性任务，无需启动 Web 服务 (#3031)
+- **`/model` 聊天命令** - 在聊天中切换模型、列出可用模型、恢复默认、查看模型详情，无需打开设置页 (#3133)
+
+**模型与提供商**
+- **SiliconFlow** - 内置 SiliconFlow OpenAI 兼容 API，提供中国和国际端点 (#2886)
+- **CoPaw Local 改进** - 支持图像和视频模型、更丰富的控制台设置、Windows 上更可靠的下载和能力检测 (#3021, #3087, #3140)
+
+**安全**
+- **密钥加密存储** - API Key 等敏感值在磁盘上加密；加密密钥尽可能存储在操作系统钥匙串中 (#3025)
+
+**控制台与 UI**
+- **聊天输入历史** - 使用上下箭头键浏览之前的用户输入 (#2466)
+- **聊天搜索** - 跨会话搜索消息文本 (#2842)
+- **置顶会话** - 置顶对话使其保持在列表顶部 (#3137)
+- **每 Agent 聊天记忆** - 切换 Agent 时恢复上次打开的聊天 (#3155)
+- **视觉优化** - 内置工具图标和提供商 Logo 显示在模型旁 (#3061, #3130)
+
+**技能与工具**
+- **技能命令** - `/skills` 显示频道已启用的技能；输入 `/<技能名>` 打开或运行技能 (#3150)
+- **技能池标签** - 使用标签组织共享技能池 (#2837, #3069)
+- **MCP 工具发现** - 通过 HTTP API 查询已连接 MCP 服务器的工具名称、描述和参数 (#3149)
+
+**频道**
+- **QQ 富媒体发送** - 在各种消息类型中一致地发送文件和富媒体 (#3012)
+- **企业微信引用上下文** - 收到的消息保留引用/回复上下文，Agent 可看到引用内容 (#3024)
+
+#### 优化
+
+- **时区选择器** - 区域名称跟随所选 UI 语言 (#2497)
+- **文件大小显示** - 控制台中全面使用人类可读的文件大小格式 (#2808)
+- **控制台启动** - 较重的设置页面按需加载，首屏打开更快 (#3122)
+- **大量技能列表** - 拥有多个技能池技能时滚动和交互更流畅 (#3141, #3158)
+- **提供商连接测试** - 状态消息使用用户语言显示 (#2913)
+- **错误码统一** - 频道、API 和 CLI 间更一致的错误码 (#3110)
+
+#### Bug 修复
+
+**频道**
+- **iMessage** - 私聊现在正确遵循 DM 策略和白名单 (#2491)
+- **Discord** - 长回复不再破坏 Markdown 代码块 (#2976)
+- **飞书** - 重连和运行多个 Agent 不再因共享锁或事件循环混乱而出错 (#3095, #3145)
+
+**工具与技能**
+- **MCP** - 关闭或重连客户端后不再导致 CPU 飙升 (#3106)
+- **浏览器自动化** - 存在重复元素时点击正确目标；文档更清晰地解释选择器 (#3023)
+- **Shell 工具** - 包含引用文本的命令保留换行符 (#3070)
+- **技能** - 损坏或非对象的技能元数据不再导致需求解析崩溃 (#3072)
+
+---
+
+### v1.0.1
 
 #### 新功能
 
@@ -488,6 +544,7 @@
 - `copaw models config-key deepseek` - 配置 DeepSeek (v0.1.0)
 - `copaw models config-key kimi` - 配置 Kimi (v0.1.0)
 - `copaw models config-key lmstudio` - 配置 LM Studio (v0.0.7)
+- `copaw models config-key siliconflow` - 配置 SiliconFlow (v1.0.2)
 - `copaw models config-key zhipu` - 配置智谱 (v1.0.1)
 - `copaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
 - `copaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
@@ -696,7 +753,8 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 │       ├── AGENTS.md        # （必需）详细的工作流程、规则和指南
 │       ├── PROFILE.md       # 身份和用户画像
 │       ├── active_skills/   # 当前激活的技能
-│       └── customized_skills/ # 用户自定义的技能
+│       ├── customized_skills/ # 用户自定义的技能
+│       └── plugins/          # 插件扩展 (v1.0.2+)
 ├── HEARTBEAT.md             # 心跳每次要问 CoPaw 的内容
 ├── jobs.json                # 定时任务列表
 ├── chats.json               # 会话列表（文件存储模式）
@@ -770,7 +828,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | OneBot v11 / NapCat (v1.0.1) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🚧 | 🚧 |
 | Discord | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) |
 | iMessage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✓ (v0.0.5+) | ✗ |
-| QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | 🚧 |
+| QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | ✓ (v1.0.2+) |
 | Telegram | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Twilio Voice | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
 | MQTT | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
@@ -799,6 +857,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | MiniMax (v0.1.0 新增) | `minimax` | 国际版/中国版分离端点 |
 | Kimi (v0.1.0 新增) | `kimi` | 中国版/国际版分离端点 |
 | CoPaw Local Model (v1.0.0 新增) | `copaw-local` | 本地 llama.cpp 引擎 |
+| SiliconFlow (v1.0.2 新增) | `siliconflow` | 中国版/国际版分离端点 |
 | Zhipu / 智谱 (v1.0.1 新增) | `zhipu` | `https://open.bigmodel.cn/api/paas/v4` |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
 | 自定义 | `custom` | （你自己填） |
@@ -900,6 +959,7 @@ copaw models config-key lmstudio     # 配置 LM Studio (v0.0.7+)
 copaw models config-key deepseek     # 配置 DeepSeek (v0.1.0+)
 copaw models config-key minimax      # 配置 MiniMax (v0.1.0+)
 copaw models config-key kimi         # 配置 Kimi (v0.1.0+)
+copaw models config-key siliconflow  # 配置 SiliconFlow (v1.0.2+)
 copaw models set-llm                 # 切换活跃模型
 copaw models download <repo_id>      # 下载本地模型
 copaw models local                   # 查看已下载模型
@@ -921,6 +981,7 @@ copaw agents enable/disable <agent>  # 启用/禁用代理 (v1.0.0 新增)
 copaw message push <channel> <user>  # 向频道推送消息
 copaw message send <agent> <msg>     # 向代理发送请求
 copaw message send <agent> <msg> --background  # 后台发送请求 (v1.0.0 新增)
+copaw task <prompt>                  # 运行一次性任务，无需 Web 服务 (v1.0.2 新增)
 ```
 
 ### 桌面应用 (v0.0.6 新增)

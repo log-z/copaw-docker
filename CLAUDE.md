@@ -62,6 +62,7 @@ docker compose exec copaw copaw channels config   # Configure channels
 docker compose exec copaw copaw agents list       # List all agents (v0.2.0+)
 docker compose exec copaw copaw agents enable <agent>  # Enable agent (v1.0.0+)
 docker compose exec copaw copaw message push      # Push message to channel (v0.2.0+)
+docker compose exec copaw copaw task <prompt>     # Run one-off task, no web server (v1.0.2+)
 ```
 
 ### Data Management
@@ -103,6 +104,7 @@ All data stored in Docker volume `copaw-data` at `/data/copaw`:
 |----------------|---------|
 | `config.json` | Root configuration (v0.1.0+) |
 | `workspaces/default/` | Default agent workspace (v0.1.0+) |
+| `workspaces/default/plugins/` | Plugin extensions (v1.0.2+) |
 | `.runtime/` | SECRET_DIR: providers.json, envs.json, auth.json |
 
 See [docs/copaw-info.md](docs/copaw-info.md) for complete directory structure.
@@ -119,7 +121,7 @@ Key variables (see [.env.example](.env.example) for full list):
 | `COPAW_AUTO_INIT` | Auto initialization (default: true) |
 | `COPAW_LLM_MAX_RETRIES` | LLM API retry attempts (v0.0.7+) |
 | `EMBEDDING_API_KEY` | Vector memory search |
-| `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` / `ZHIPU_API_KEY` | LLM provider keys |
+| `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` / `ZHIPU_API_KEY` / `SILICONFLOW_API_KEY` | LLM provider keys |
 
 ---
 

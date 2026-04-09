@@ -75,6 +75,9 @@ services:
       # Zhipu / 智谱 (v1.0.1 新增)
       - ZHIPU_API_KEY=${ZHIPU_API_KEY:-}
 
+      # SiliconFlow (v1.0.2 新增)
+      - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY:-}
+
       # LLM 重试配置 (v0.0.7 新增)
       - COPAW_LLM_MAX_RETRIES=${COPAW_LLM_MAX_RETRIES:-3}
       - COPAW_LLM_BACKOFF_BASE=${COPAW_LLM_BACKOFF_BASE:-1.0}
