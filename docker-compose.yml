@@ -25,72 +25,12 @@ services:
       # - "127.0.0.1:6199:6199"
 
     # 环境变量
+    env_file:
+      - path: .env
+        required: false
     environment:
-      # CoPaw 基础配置
-      - COPAW_CONFIG_FILE=config.json
-      - COPAW_LOG_LEVEL=INFO
       - COPAW_PORT=${COPAW_PORT:-8088}
       - TZ=${TZ:-Asia/Shanghai}
-
-      # Web 认证配置 (v0.1.0 新增)
-      # 启用后首次访问显示注册页面，本地请求自动绕过认证
-      - COPAW_AUTH_ENABLED=${COPAW_AUTH_ENABLED:-false}
-      # 自动注册管理员账户（可选，适用于自动化部署）
-      - COPAW_AUTH_USERNAME=${COPAW_AUTH_USERNAME:-}
-      - COPAW_AUTH_PASSWORD=${COPAW_AUTH_PASSWORD:-}
-
-      # Embedding 服务配置（需同时设置 API_KEY、BASE_URL、MODEL_NAME 才能启用向量搜索）
-      - EMBEDDING_API_KEY=${EMBEDDING_API_KEY:-}
-      - EMBEDDING_BASE_URL=${EMBEDDING_BASE_URL:-}
-      - EMBEDDING_MODEL_NAME=${EMBEDDING_MODEL_NAME:-}
-      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS:-1024}
-      - EMBEDDING_CACHE_ENABLED=${EMBEDDING_CACHE_ENABLED:-true}
-      - FTS_ENABLED=${FTS_ENABLED:-true}
-
-      # 记忆存储配置
-      - MEMORY_STORE_BACKEND=${MEMORY_STORE_BACKEND:-auto}
-      - COPAW_MEMORY_COMPACT_THRESHOLD=${COPAW_MEMORY_COMPACT_THRESHOLD:-100000}
-      - COPAW_MEMORY_COMPACT_KEEP_RECENT=${COPAW_MEMORY_COMPACT_KEEP_RECENT:-3}
-      - COPAW_MEMORY_COMPACT_RATIO=${COPAW_MEMORY_COMPACT_RATIO:-0.7}
-
-      # DashScope (灵积) - 后备方案，建议通过 WebUI 配置
-      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:-}
-      - DASHSCOPE_BASE_URL=${DASHSCOPE_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
-
-      # Anthropic (v0.0.5 新增)
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-
-      # Gemini (v0.0.6 新增)
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-
-      # DeepSeek (v0.1.0 新增)
-      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
-
-      # MiniMax (v0.1.0 新增)
-      - MINIMAX_API_KEY=${MINIMAX_API_KEY:-}
-
-      # Kimi (v0.1.0 新增)
-      - KIMI_API_KEY=${KIMI_API_KEY:-}
-
-      # Zhipu / 智谱 (v1.0.1 新增)
-      - ZHIPU_API_KEY=${ZHIPU_API_KEY:-}
-
-      # SiliconFlow (v1.0.2 新增)
-      - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY:-}
-
-      # LLM 重试配置 (v0.0.7 新增)
-      - COPAW_LLM_MAX_RETRIES=${COPAW_LLM_MAX_RETRIES:-3}
-      - COPAW_LLM_BACKOFF_BASE=${COPAW_LLM_BACKOFF_BASE:-1.0}
-      - COPAW_LLM_BACKOFF_CAP=${COPAW_LLM_BACKOFF_CAP:-60.0}
-
-      # Tavily 搜索 (用于网络搜索技能)
-      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
-
-      # CORS 配置
-      - COPAW_CORS_ORIGINS=${COPAW_CORS_ORIGINS:-}
-
-      # 自动初始化
-      - COPAW_AUTO_INIT=${COPAW_AUTO_INIT:-true}
 
     # 数据卷挂载
     volumes:
