@@ -28,11 +28,11 @@ jobs:
         run: |
           cat > docker-compose.override.yml <<'EOF'
           services:
-            copaw:
+            qwenpaw:
               build:
                 context: .
                 dockerfile: Dockerfile
-              image: copaw:testing
+              image: qwenpaw:testing
           EOF
 
       - name: Verify merged config

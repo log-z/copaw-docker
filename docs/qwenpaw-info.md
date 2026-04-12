@@ -1,6 +1,6 @@
-# CoPaw 官方文档信息汇总
+# QwenPaw 官方文档信息汇总
 
-> 本文档汇总了 CoPaw 官方文档的关键信息，方便后续调整需求时快速获取。
+> 本文档汇总了 QwenPaw 官方文档的关键信息，方便后续调整需求时快速获取。
 >
 > 官方文档：http://copaw.agentscope.io/docs/
 >
@@ -16,12 +16,12 @@
 
 **核心**
 - **插件系统** - 从工作区 `plugins/` 文件夹安装扩展 (#3101, #3131, #3132)
-- **`copaw task` 命令** - 从终端运行一次性任务，无需启动 Web 服务 (#3031)
+- **`qwenpaw task` 命令** - 从终端运行一次性任务，无需启动 Web 服务 (#3031)
 - **`/model` 聊天命令** - 在聊天中切换模型、列出可用模型、恢复默认、查看模型详情，无需打开设置页 (#3133)
 
 **模型与提供商**
 - **SiliconFlow** - 内置 SiliconFlow OpenAI 兼容 API，提供中国和国际端点 (#2886)
-- **CoPaw Local 改进** - 支持图像和视频模型、更丰富的控制台设置、Windows 上更可靠的下载和能力检测 (#3021, #3087, #3140)
+- **QwenPaw Local 改进** - 支持图像和视频模型、更丰富的控制台设置、Windows 上更可靠的下载和能力检测 (#3021, #3087, #3140)
 
 **安全**
 - **密钥加密存储** - API Key 等敏感值在磁盘上加密；加密密钥尽可能存储在操作系统钥匙串中 (#3025)
@@ -74,7 +74,7 @@
 - **Zhipu 模型提供商** - 内置支持智谱 AI 模型 (#2858)
 - **多模态视频分析** - 多模态模型扩展支持视频文件，自动提取和分析 (#2627)
 - **模型级生成参数** - 通过模型设置为每个模型单独配置生成参数 (#2892)
-- **CoPaw Local 自动更新** - 本地模型提供商自动更新机制，含版本检查和下载 (#2889)
+- **QwenPaw Local 自动更新** - 本地模型提供商自动更新机制，含版本检查和下载 (#2889)
 - **宽松工具调用解析器** - 放宽工具调用解析，处理格式错误的 JSON，提高 LLM 输出兼容性 (#2832)
 
 **控制台与 UI**
@@ -133,12 +133,12 @@
 - **Thinking 模型工具防护** - 修复使用 thinking 模型时的工具防护兼容性 (#2631)
 
 **提供商**
-- **CoPaw Local 改进** - 修复 GPU 默认设置、探测图片检测、仓库验证和 Windows 模型下载 (#2688, #2735)
+- **QwenPaw Local 改进** - 修复 GPU 默认设置、探测图片检测、仓库验证和 Windows 模型下载 (#2688, #2735)
 - **Llama.cpp Windows NVIDIA GPU** - 修复 Windows 下 llama.cpp 使用 NVIDIA GPU 和安装前 macOS 版本检查 (#2625)
 
 #### 文档
 - **README 锚点链接** - 修复 README 目录中的锚点链接 (#2614)
-- **CoPaw-Flash 部署 FAQ** - 改进 CoPaw-Flash 部署常见问题 (#2661)
+- **QwenPaw-Flash 部署 FAQ** - 改进 QwenPaw-Flash 部署常见问题 (#2661)
 - **技能文档** - 更新技能文档以反映技能池架构变更 (#2767)
 - **WebView2 安装说明** - 添加 Windows WebView2 安装说明和 Web 认证详情 (#2836)
 
@@ -159,9 +159,9 @@
 
 #### Bug 修复
 - **钉钉白名单** - 修复钉钉频道白名单问题 (#2718)
-- **CoPaw Local GPU 默认启用** - 修复本地模型默认使用 GPU、探测图片问题和 Windows 桌面模型下载 (#2735)
+- **QwenPaw Local GPU 默认启用** - 修复本地模型默认使用 GPU、探测图片问题和 Windows 桌面模型下载 (#2735)
 - **企业微信 Windows 守护进程** - 修复 Windows 守护进程下企业微信 WebSocket 线程的 stdio 流问题 (#2760)
-- **copaw 命令（exe）** - 修复 exe 中无 copaw 命令的问题 (#2759)
+- **qwenpaw 命令（exe）** - 修复 exe 中无 qwenpaw 命令的问题 (#2759)
 - **技能名称样式** - 修复技能名称显示问题 (#2765)
 
 #### 样式优化
@@ -190,7 +190,7 @@
 - **reme-ai** - 更新至 0.3.1.8 (#2654)
 
 #### 文档
-- **CoPaw-Flash 部署 FAQ** - 改进 CoPaw-Flash 部署常见问题 (#2661)
+- **QwenPaw-Flash 部署 FAQ** - 改进 QwenPaw-Flash 部署常见问题 (#2661)
 
 ---
 
@@ -224,7 +224,7 @@
 - **Unified Priority Queue System & `/stop` Command** - 按频道、按会话的优先级队列系统，`/stop` 命令可取消运行中的任务并清除队列中的消息 (#2411)
 
 #### Providers and Models
-- **CoPaw Local Model** - 内置本地模型提供商，使用 llama.cpp 引擎，支持自动下载、配置和自定义仓库 (#2419, #2476)
+- **QwenPaw Local Model** - 内置本地模型提供商，使用 llama.cpp 引擎，支持自动下载、配置和自定义仓库 (#2419, #2476)
 - **Scoped Active Model Selection** - 活跃模型可在 Settings 全局设置或在 Chat 中按 Agent 单独设置 (#2278)
 - **Global LLM Rate Limiter** - QPM（每分钟查询数）滑动窗口限速、并发信号量控制、全局 429 暂停协调和防惊群抖动 (#2282)
 
@@ -299,11 +299,11 @@
 ### v0.2.0 新增功能
 
 #### Agent
-- **Inter-Agent Communication** - 添加 `copaw agents` 和 `copaw message` CLI 命令，用于列出代理、向频道推送消息、在代理之间发送请求
-- **Built-in QA Agent** - 预配置的 QA 代理，用于回答 CoPaw 安装和使用问题
+- **Inter-Agent Communication** - 添加 `qwenpaw agents` 和 `qwenpaw message` CLI 命令，用于列出代理、向频道推送消息、在代理之间发送请求
+- **Built-in QA Agent** - 预配置的 QA 代理，用于回答 QwenPaw 安装和使用问题
 - **Configurable LLM Auto-Retry** - LLM 重试行为现在可以在控制台设置页面为每个代理单独配置
 - **Summarization Improvements** - 当代理达到最大迭代次数并进入摘要模式时，会追加"round ended"通知来引导用户
-- **Config Auto-Repair** - 如果 `config.json` 损坏或有轻微语法错误，会在加载时自动修复；无法恢复的文件会用唯一后缀备份，CoPaw 以默认设置启动
+- **Config Auto-Repair** - 如果 `config.json` 损坏或有轻微语法错误，会在加载时自动修复；无法恢复的文件会用唯一后缀备份，QwenPaw 以默认设置启动
 
 #### Security
 - **File Access Guard** - 添加可配置的敏感文件和目录拒绝列表，启用后代理的工具将被阻止读取或写入这些路径
@@ -330,7 +330,7 @@
 
 #### Core & Lifecycle
 - **Stable Prompts for KV Cache** - 环境上下文只包含当前日期而不是完整时间戳，提高 LLM KV 缓存命中率
-- **Faster CLI Startup** - CLI 命令现在延迟加载，`copaw --help` 和子命令启动更快
+- **Faster CLI Startup** - CLI 命令现在延迟加载，`qwenpaw --help` 和子命令启动更快
 
 #### Channels 优化
 - **QQ Channel Refactor** - 简化 QQ 频道实现并添加全面单元测试
@@ -343,7 +343,7 @@
 - **Anthropic Overloaded Retry** - Anthropic "overloaded" 响应（HTTP 529）现在自动重试
 - **Channel Message Processing Leak** - 修复频道消息处理中可能导致错误后消息停止处理的锁泄漏
 - **Agent List** - 修复代理列表为空时的崩溃
-- **Console Static Files** - 修复从不同工作目录启动 CoPaw 时控制台 UI 无法加载的问题
+- **Console Static Files** - 修复从不同工作目录启动 QwenPaw 时控制台 UI 无法加载的问题
 - **Token Usage Lock** - 修复并发请求下可能导致事件循环冻结的阻塞锁
 - **Memory Timezone** - 内存摘要现在使用用户配置的时区进行每日笔记命名
 - **Cron Job Cancellation** - 取消的定时任务现在正确报告其终止状态
@@ -392,7 +392,7 @@
 - **LobeHub 技能导入** - 从 LobeHub 直接导入技能
 - **ModelScope Skill Hub** - 从 ModelScope 技能中心导入技能
 - **内置技能版本同步** - 自动同步更新同时保留用户自定义
-- **Guidance 技能** - 回答 CoPaw 安装配置问题的内置技能
+- **Guidance 技能** - 回答 QwenPaw 安装配置问题的内置技能
 - **ZIP 技能导入** - 上传 ZIP 包导入技能
 - **内置工具** - 新增 `glob_search` 和 `grep_search` 文件搜索工具
 - **view_image 工具** - LLM 可分析本地图片进行多模态对话
@@ -409,7 +409,7 @@
 - **Kimi Provider** - 内置 Kimi 支持（中国版和国际版分离端点）
 
 #### CLI 与部署
-- **`copaw update` 命令** - 自动检测环境并从 PyPI 升级 CoPaw
+- **`qwenpaw update` 命令** - 自动检测环境并从 PyPI 升级 QwenPaw
 - **Docker Compose** - 官方支持 docker-compose.yml 部署
 - **Docker 镜像** - 包含额外频道依赖
 
@@ -438,7 +438,7 @@
 - **QQ 图片消息** - 通过 `[Image: url]` 标签发送图片
 
 #### 模型与 AI 功能
-- **模型重试** - LLM API 调用在瞬态错误时自动重试，指数退避，通过 `COPAW_LLM_MAX_RETRIES`、`COPAW_LLM_BACKOFF_BASE`、`COPAW_LLM_BACKOFF_CAP` 配置
+- **模型重试** - LLM API 调用在瞬态错误时自动重试，指数退避，通过 `QWENPAW_LLM_MAX_RETRIES`、`QWENPAW_LLM_BACKOFF_BASE`、`QWENPAW_LLM_BACKOFF_CAP` 配置
 - **LM Studio 提供商** - 新增内置模型提供商，含配置 UI
 - **Token 使用追踪** - 端到端 token 追踪，含 Token Usage 设置页面、API 和 `get_token_usage` 工具
 - **提供商高级配置** - `generate_kwargs` 编辑器用于自定义生成参数；无 API Key 的提供商（Ollama、LM Studio）正确显示为已配置
@@ -466,7 +466,7 @@
 
 #### 桌面应用
 - **原生桌面安装包** - Windows 一键安装程序和 macOS `.app` 应用包
-- **`copaw desktop` 命令** - 在原生 webview 窗口中打开 CoPaw，自动启动服务
+- **`qwenpaw desktop` 命令** - 在原生 webview 窗口中打开 QwenPaw，自动启动服务
 
 #### 国际化
 - **俄语支持** - 完整的控制台 UI、Agent 配置文件翻译
@@ -506,7 +506,7 @@
 - **Anthropic 提供商** - 新增内置模型提供商
 - **DeepSeek Reasoner 支持** - 保留 reasoning_content 用于推理模式
 - **版本更新通知** - 自动版本检测与更新提示
-- **Daemon 模式** - `copaw daemon` CLI 管理后台服务
+- **Daemon 模式** - `qwenpaw daemon` CLI 管理后台服务
 - **Agent 中断 API** - `interrupt()` 方法取消活跃回复任务
 - **MCP 客户端自动恢复** - 自动重连关闭的 MCP 会话
 - **Windows 一键安装** - `install.bat` 脚本支持
@@ -519,7 +519,7 @@
 - **Telegram 频道支持** - 新增 Telegram 机器人频道
 - **OpenAI & Azure OpenAI** - 新增内置模型提供商
 - **阿里云 coding-plan 提供商** - 新增模型提供商
-- **CORS 配置** - 新增 `COPAW_CORS_ORIGINS` 环境变量
+- **CORS 配置** - 新增 `QWENPAW_CORS_ORIGINS` 环境变量
 - **心跳监控面板** - 控制台新增监控 UI
 - **音频文件支持** - 钉钉和飞书频道支持音频文件
 
@@ -531,50 +531,50 @@
 - **控制台功能增强** - 技能导入/创建、工作区上传下载、运行配置
 
 ### CLI 新增命令
-- `copaw agents list` - 列出所有代理 (v0.2.0)
-- `copaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
-- `copaw message push/send` - 推送消息/发送请求 (v0.2.0)
-- `copaw message send --background` - 后台发送代理请求 (v1.0.0)
-- `copaw update` - 自动更新 CoPaw (v0.1.0)
-- `copaw auth reset-password` - 重置 Web UI 密码 (v0.1.0)
-- `copaw desktop` - 打开桌面应用窗口 (v0.0.6)
-- `copaw daemon` - 管理后台服务 (v0.0.5)
-- `copaw models config-key gemini` - 配置 Gemini (v0.0.6)
-- `copaw models config-key minimax` - 配置 MiniMax (v0.1.0)
-- `copaw models config-key deepseek` - 配置 DeepSeek (v0.1.0)
-- `copaw models config-key kimi` - 配置 Kimi (v0.1.0)
-- `copaw models config-key lmstudio` - 配置 LM Studio (v0.0.7)
-- `copaw models config-key siliconflow` - 配置 SiliconFlow (v1.0.2)
-- `copaw models config-key zhipu` - 配置智谱 (v1.0.1)
-- `copaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
-- `copaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
-- `copaw channels install/add/remove` - 自定义频道管理
-- `copaw cron get/pause/resume/state` - 定时任务状态管理
-- `copaw chats create/update/delete` - 会话管理
+- `qwenpaw agents list` - 列出所有代理 (v0.2.0)
+- `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
+- `qwenpaw message push/send` - 推送消息/发送请求 (v0.2.0)
+- `qwenpaw message send --background` - 后台发送代理请求 (v1.0.0)
+- `qwenpaw update` - 自动更新 QwenPaw (v0.1.0)
+- `qwenpaw auth reset-password` - 重置 Web UI 密码 (v0.1.0)
+- `qwenpaw desktop` - 打开桌面应用窗口 (v0.0.6)
+- `qwenpaw daemon` - 管理后台服务 (v0.0.5)
+- `qwenpaw models config-key gemini` - 配置 Gemini (v0.0.6)
+- `qwenpaw models config-key minimax` - 配置 MiniMax (v0.1.0)
+- `qwenpaw models config-key deepseek` - 配置 DeepSeek (v0.1.0)
+- `qwenpaw models config-key kimi` - 配置 Kimi (v0.1.0)
+- `qwenpaw models config-key lmstudio` - 配置 LM Studio (v0.0.7)
+- `qwenpaw models config-key siliconflow` - 配置 SiliconFlow (v1.0.2)
+- `qwenpaw models config-key zhipu` - 配置智谱 (v1.0.1)
+- `qwenpaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
+- `qwenpaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
+- `qwenpaw channels install/add/remove` - 自定义频道管理
+- `qwenpaw cron get/pause/resume/state` - 定时任务状态管理
+- `qwenpaw chats create/update/delete` - 会话管理
 
 ---
 
 ## 项目概述
 
-### CoPaw 是什么？
+### QwenPaw 是什么？
 
-CoPaw 是一款**个人助理型产品**，部署在你自己的环境中。
+QwenPaw 是一款**个人助理型产品**，部署在你自己的环境中。
 
 - **多通道对话** — 通过钉钉、飞书、QQ、Discord、iMessage、Telegram、Twilio Voice、MQTT、Mattermost、Matrix、微信 iLink 等与你对话
 - **定时执行** — 按你的配置自动运行任务
 - **能力由 Skills 决定** — 内置定时任务、PDF 与表单、Word/Excel/PPT 文档处理、新闻摘要、文件阅读等，还可在 Skills 中自定义扩展
 - **数据全在本地** — 不依赖第三方托管
 
-### 你怎么用 CoPaw？
+### 你怎么用 QwenPaw？
 
 使用方式可以概括为两类：
 
-1. **在聊天软件里对话** — 在钉钉、飞书、QQ、Discord、iMessage、Telegram、Twilio Voice、MQTT、Mattermost、Matrix 或微信 iLink 里发消息，CoPaw 在同一 app 内回复
+1. **在聊天软件里对话** — 在钉钉、飞书、QQ、Discord、iMessage、Telegram、Twilio Voice、MQTT、Mattermost、Matrix 或微信 iLink 里发消息，QwenPaw 在同一 app 内回复
 2. **定时自动执行** — 按设定时间自动运行任务
 
 ### 技术基础
 
-CoPaw 由 [AgentScope 团队](https://github.com/agentscope-ai) 基于以下项目构建：
+QwenPaw 由 [AgentScope 团队](https://github.com/agentscope-ai) 基于以下项目构建：
 - [AgentScope](https://github.com/agentscope-ai/agentscope)
 - [AgentScope Runtime](https://github.com/agentscope-ai/agentscope-runtime)
 - [ReMe](https://github.com/agentscope-ai/ReMe)
@@ -627,14 +627,14 @@ bash install.sh --extras ollama      # Ollama（需 Ollama 服务运行）
 #### 方式二：pip 安装
 
 ```bash
-pip install copaw
+pip install qwenpaw
 ```
 
 可选：先创建并激活虚拟环境再安装（`python -m venv .venv`，Linux/macOS 下 `source .venv/bin/activate`，Windows 下 `.venv\Scripts\Activate.ps1`）。
 
 #### 方式三：桌面应用 (v0.0.6 新增，Beta)
 
-如果你不习惯使用命令行，可以下载并使用 CoPaw 的桌面应用版本，无需手动配置 Python 环境或执行命令。
+如果你不习惯使用命令行，可以下载并使用 QwenPaw 的桌面应用版本，无需手动配置 Python 环境或执行命令。
 
 **特点**：
 - ✅ **零配置**：下载后双击即可运行，无需安装 Python 或配置环境变量
@@ -649,9 +649,9 @@ pip install copaw
 #### 方式四：魔搭创空间一键配置（无需安装）
 
 1. 前往 [魔搭](https://modelscope.cn/register) 注册并登录
-2. 打开 [CoPaw 创空间](https://modelscope.cn/studios/fork?target=AgentScope/CoPaw)，一键配置即可使用
+2. 打开 [QwenPaw 创空间](https://modelscope.cn/studios/fork?target=AgentScope/CoPaw)，一键配置即可使用
 
-> **重要**：使用创空间请将空间设为**非公开**，否则你的 CoPaw 可能被他人操纵。
+> **重要**：使用创空间请将空间设为**非公开**，否则你的 QwenPaw 可能被他人操纵。
 
 #### 方式五：Docker
 
@@ -661,27 +661,27 @@ pip install copaw
 
 ```bash
 docker pull agentscope/copaw:latest
-docker run -p 127.0.0.1:8088:8088 -v copaw-data:/app/working agentscope/copaw:latest
+docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/copaw:latest
 ```
 
 > **安全更新**：v0.0.5 起，默认端口绑定改为 `127.0.0.1` 以提高安全性。
 
-然后在浏览器打开 http://127.0.0.1:8088/ 进入控制台。配置、记忆与 Skills 保存在 `copaw-data` 卷中。
+然后在浏览器打开 http://127.0.0.1:8088/ 进入控制台。配置、记忆与 Skills 保存在 `qwenpaw-data` 卷中。
 
 #### 方式六：部署到阿里云 ECS
 
-打开 [CoPaw 阿里云 ECS 部署链接](https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=service-1ed84201799f40879884)，按页面提示填写部署参数。
+打开 [QwenPaw 阿里云 ECS 部署链接](https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=service-1ed84201799f40879884)，按页面提示填写部署参数。
 
 ### 初始化
 
 **方式 1：快速用默认配置（不交互）**
 ```bash
-copaw init --defaults
+qwenpaw init --defaults
 ```
 
 **方式 2：交互式初始化**
 ```bash
-copaw init
+qwenpaw init
 ```
 
 交互流程按顺序配置：
@@ -698,31 +698,31 @@ copaw init
 
 ```bash
 # 默认 127.0.0.1:8088
-copaw app
+qwenpaw app
 
 # 自定义地址
-copaw app --host 0.0.0.0 --port 9090
+qwenpaw app --host 0.0.0.0 --port 9090
 
 # 代码改动自动重载（开发用）
-copaw app --reload
+qwenpaw app --reload
 
 # 多 worker 模式
-copaw app --workers 4
+qwenpaw app --workers 4
 
 # 详细日志
-copaw app --log-level debug
+qwenpaw app --log-level debug
 ```
 
 ### Daemon 模式 (v0.0.5 新增)
 
-管理后台 CoPaw 服务：
+管理后台 QwenPaw 服务：
 
 ```bash
-copaw daemon status      # 状态（配置、工作目录、记忆服务）
-copaw daemon restart     # 打印说明（在对话中用 /daemon restart 可进程内重载）
-copaw daemon reload-config # 重新读取并校验配置
-copaw daemon version     # 版本与路径
-copaw daemon logs [-n N]  # 最近 N 行日志（默认 100）
+qwenpaw daemon status      # 状态（配置、工作目录、记忆服务）
+qwenpaw daemon restart     # 打印说明（在对话中用 /daemon restart 可进程内重载）
+qwenpaw daemon reload-config # 重新读取并校验配置
+qwenpaw daemon version     # 版本与路径
+qwenpaw daemon logs [-n N]  # 最近 N 行日志（默认 100）
 ```
 
 ### 控制台
@@ -741,10 +741,10 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 
 ## 工作目录结构
 
-默认工作目录：`~/.copaw`
+默认工作目录：`~/.qwenpaw`
 
 ```
-~/.copaw/
+~/.qwenpaw/
 ├── config.json              # 根配置，包含代理引用 (v0.1.0+)
 ├── workspaces/              # 多代理工作区目录 (v0.1.0+)
 │   └── default/             # 默认代理工作区
@@ -755,7 +755,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 │       ├── active_skills/   # 当前激活的技能
 │       ├── customized_skills/ # 用户自定义的技能
 │       └── plugins/          # 插件扩展 (v1.0.2+)
-├── HEARTBEAT.md             # 心跳每次要问 CoPaw 的内容
+├── HEARTBEAT.md             # 心跳每次要问 QwenPaw 的内容
 ├── jobs.json                # 定时任务列表
 ├── chats.json               # 会话列表（文件存储模式）
 ├── providers.json           # LLM 提供商配置（v0.0.5+ 迁移到 SECRET_DIR）
@@ -779,8 +779,8 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 
 | 文件 | 旧位置 | 新位置 (SECRET_DIR) |
 |------|--------|---------------------|
-| providers.json | `~/.copaw/` | `{SECRET_DIR}/providers.json` |
-| envs.json | `~/.copaw/` | `{SECRET_DIR}/envs.json` |
+| providers.json | `~/.qwenpaw/` | `{SECRET_DIR}/providers.json` |
+| envs.json | `~/.qwenpaw/` | `{SECRET_DIR}/envs.json` |
 
 自动迁移逻辑会在首次启动时执行，旧文件会被软链接到新位置。
 
@@ -856,7 +856,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | DeepSeek (v0.1.0 新增) | `deepseek` | `https://api.deepseek.com` |
 | MiniMax (v0.1.0 新增) | `minimax` | 国际版/中国版分离端点 |
 | Kimi (v0.1.0 新增) | `kimi` | 中国版/国际版分离端点 |
-| CoPaw Local Model (v1.0.0 新增) | `copaw-local` | 本地 llama.cpp 引擎 |
+| QwenPaw Local Model (v1.0.0 新增) | `qwenpaw-local` | 本地 llama.cpp 引擎 |
 | SiliconFlow (v1.0.2 新增) | `siliconflow` | 中国版/国际版分离端点 |
 | Zhipu / 智谱 (v1.0.1 新增) | `zhipu` | `https://open.bigmodel.cn/api/paas/v4` |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
@@ -868,21 +868,21 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 
 ```bash
 # 安装后端
-pip install 'copaw[llamacpp]'  # llama.cpp（跨平台）
-pip install 'copaw[mlx]'       # MLX（Apple Silicon）
+pip install 'qwenpaw[llamacpp]'  # llama.cpp（跨平台）
+pip install 'qwenpaw[mlx]'       # MLX（Apple Silicon）
 
 # 下载模型
-copaw models download Qwen/Qwen3-4B-GGUF
-copaw models download Qwen/Qwen3-4B --backend mlx
+qwenpaw models download Qwen/Qwen3-4B-GGUF
+qwenpaw models download Qwen/Qwen3-4B --backend mlx
 
 # 从 ModelScope 下载
-copaw models download Qwen/Qwen2-0.5B-Instruct-GGUF --source modelscope
+qwenpaw models download Qwen/Qwen2-0.5B-Instruct-GGUF --source modelscope
 
 # 查看已下载模型
-copaw models local
+qwenpaw models local
 
 # 删除已下载模型
-copaw models remove-local <model_id>
+qwenpaw models remove-local <model_id>
 ```
 
 **选项说明**：
@@ -898,28 +898,28 @@ Ollama 集成本地 Ollama 守护进程，动态加载其中的模型。
 
 **前置条件**：
 - 从 [ollama.com](https://ollama.com/) 安装 Ollama
-- 安装 Ollama SDK：`pip install 'copaw[ollama]'`
+- 安装 Ollama SDK：`pip install 'qwenpaw[ollama]'`
 
 ```bash
 # 下载 Ollama 模型
-copaw models ollama-pull mistral:7b
-copaw models ollama-pull qwen2.5:3b
+qwenpaw models ollama-pull mistral:7b
+qwenpaw models ollama-pull qwen2.5:3b
 
 # 查看 Ollama 模型
-copaw models ollama-list
+qwenpaw models ollama-list
 
 # 删除 Ollama 模型
-copaw models ollama-remove mistral:7b
+qwenpaw models ollama-remove mistral:7b
 
 # 在配置流程中使用
-copaw models config           # 选择 Ollama → 从模型列表中选择
-copaw models set-llm          # 切换到其他 Ollama 模型
+qwenpaw models config           # 选择 Ollama → 从模型列表中选择
+qwenpaw models set-llm          # 切换到其他 Ollama 模型
 ```
 
 **与本地模型的区别**：
-- 模型来自 Ollama 守护进程（不由 CoPaw 下载）
+- 模型来自 Ollama 守护进程（不由 QwenPaw 下载）
 - 使用 `ollama-pull` / `ollama-remove` 而非 `download` / `remove-local`
-- 通过 Ollama CLI 或 CoPaw 添加/删除模型时，模型列表自动更新
+- 通过 Ollama CLI 或 QwenPaw 添加/删除模型时，模型列表自动更新
 
 支持的热门模型：`mistral:7b`、`qwen3:8b` 等
 
@@ -931,104 +931,104 @@ copaw models set-llm          # 切换到其他 Ollama 模型
 
 ```bash
 # 初始化
-copaw init --defaults   # 不交互，用默认值
-copaw init              # 交互式初始化
+qwenpaw init --defaults   # 不交互，用默认值
+qwenpaw init              # 交互式初始化
 
 # 启动服务
-copaw app
+qwenpaw app
 ```
 
 ### Daemon 模式 (v0.0.5 新增)
 
 ```bash
-copaw daemon status          # 状态（配置、工作目录、记忆服务）
-copaw daemon restart         # 打印说明
-copaw daemon reload-config   # 重新读取并校验配置
-copaw daemon version         # 版本与路径
-copaw daemon logs [-n 50]    # 最近 N 行日志（默认 100）
+qwenpaw daemon status          # 状态（配置、工作目录、记忆服务）
+qwenpaw daemon restart         # 打印说明
+qwenpaw daemon reload-config   # 重新读取并校验配置
+qwenpaw daemon version         # 版本与路径
+qwenpaw daemon logs [-n 50]    # 最近 N 行日志（默认 100）
 ```
 
 ### 模型管理
 
 ```bash
-copaw models list                    # 查看所有提供商
-copaw models config                  # 完整交互式配置
-copaw models config-key <provider>   # 配置 API Key
-copaw models config-key gemini       # 配置 Gemini API Key (v0.0.6+)
-copaw models config-key lmstudio     # 配置 LM Studio (v0.0.7+)
-copaw models config-key deepseek     # 配置 DeepSeek (v0.1.0+)
-copaw models config-key minimax      # 配置 MiniMax (v0.1.0+)
-copaw models config-key kimi         # 配置 Kimi (v0.1.0+)
-copaw models config-key siliconflow  # 配置 SiliconFlow (v1.0.2+)
-copaw models set-llm                 # 切换活跃模型
-copaw models download <repo_id>      # 下载本地模型
-copaw models local                   # 查看已下载模型
-copaw models ollama-pull <model>     # 下载 Ollama 模型
+qwenpaw models list                    # 查看所有提供商
+qwenpaw models config                  # 完整交互式配置
+qwenpaw models config-key <provider>   # 配置 API Key
+qwenpaw models config-key gemini       # 配置 Gemini API Key (v0.0.6+)
+qwenpaw models config-key lmstudio     # 配置 LM Studio (v0.0.7+)
+qwenpaw models config-key deepseek     # 配置 DeepSeek (v0.1.0+)
+qwenpaw models config-key minimax      # 配置 MiniMax (v0.1.0+)
+qwenpaw models config-key kimi         # 配置 Kimi (v0.1.0+)
+qwenpaw models config-key siliconflow  # 配置 SiliconFlow (v1.0.2+)
+qwenpaw models set-llm                 # 切换活跃模型
+qwenpaw models download <repo_id>      # 下载本地模型
+qwenpaw models local                   # 查看已下载模型
+qwenpaw models ollama-pull <model>     # 下载 Ollama 模型
 ```
 
 ### 更新与认证 (v0.1.0 新增)
 
 ```bash
-copaw update                         # 自动更新 CoPaw
-copaw auth reset-password            # 重置 Web UI 密码
+qwenpaw update                         # 自动更新 QwenPaw
+qwenpaw auth reset-password            # 重置 Web UI 密码
 ```
 
 ### Agent 与消息 (v0.2.0 新增)
 
 ```bash
-copaw agents list                    # 列出所有代理
-copaw agents enable/disable <agent>  # 启用/禁用代理 (v1.0.0 新增)
-copaw message push <channel> <user>  # 向频道推送消息
-copaw message send <agent> <msg>     # 向代理发送请求
-copaw message send <agent> <msg> --background  # 后台发送请求 (v1.0.0 新增)
-copaw task <prompt>                  # 运行一次性任务，无需 Web 服务 (v1.0.2 新增)
+qwenpaw agents list                    # 列出所有代理
+qwenpaw agents enable/disable <agent>  # 启用/禁用代理 (v1.0.0 新增)
+qwenpaw message push <channel> <user>  # 向频道推送消息
+qwenpaw message send <agent> <msg>     # 向代理发送请求
+qwenpaw message send <agent> <msg> --background  # 后台发送请求 (v1.0.0 新增)
+qwenpaw task <prompt>                  # 运行一次性任务，无需 Web 服务 (v1.0.2 新增)
 ```
 
 ### 桌面应用 (v0.0.6 新增)
 
 ```bash
-copaw desktop                        # 打开 CoPaw 桌面应用窗口
+qwenpaw desktop                        # 打开 QwenPaw 桌面应用窗口
 ```
 
 ### 频道管理
 
 ```bash
-copaw channels list                  # 查看所有频道（密钥脱敏）
-copaw channels config                # 交互式配置
-copaw channels install <key>         # 安装自定义频道模块
-copaw channels add <key>             # 添加频道到 config
-copaw channels remove <key>          # 删除自定义频道（--keep-config 保留配置）
+qwenpaw channels list                  # 查看所有频道（密钥脱敏）
+qwenpaw channels config                # 交互式配置
+qwenpaw channels install <key>         # 安装自定义频道模块
+qwenpaw channels add <key>             # 添加频道到 config
+qwenpaw channels remove <key>          # 删除自定义频道（--keep-config 保留配置）
 ```
 
 ### 定时任务
 
 ```bash
-copaw cron list                      # 列出所有任务
-copaw cron get <job_id>              # 查看任务配置详情
-copaw cron create --type text --name "每日早安" --cron "0 9 * * *" \
+qwenpaw cron list                      # 列出所有任务
+qwenpaw cron get <job_id>              # 查看任务配置详情
+qwenpaw cron create --type text --name "每日早安" --cron "0 9 * * *" \
   --channel dingtalk --target-user "xxx" --text "早上好！"
-copaw cron state <job_id>            # 查看运行状态
-copaw cron delete <job_id>           # 删除任务
-copaw cron pause <job_id>            # 暂停任务
-copaw cron resume <job_id>           # 恢复任务
-copaw cron run <job_id>              # 立即执行一次
+qwenpaw cron state <job_id>            # 查看运行状态
+qwenpaw cron delete <job_id>           # 删除任务
+qwenpaw cron pause <job_id>            # 暂停任务
+qwenpaw cron resume <job_id>           # 恢复任务
+qwenpaw cron run <job_id>              # 立即执行一次
 ```
 
 ### 会话管理
 
 ```bash
-copaw chats list                     # 列出所有会话
-copaw chats get <id>                 # 查看会话详情
-copaw chats create --session-id "xxx" --user-id "xxx" --name "My Chat"
-copaw chats update <id> --name "新名称"
-copaw chats delete <id>              # 删除会话
+qwenpaw chats list                     # 列出所有会话
+qwenpaw chats get <id>                 # 查看会话详情
+qwenpaw chats create --session-id "xxx" --user-id "xxx" --name "My Chat"
+qwenpaw chats update <id> --name "新名称"
+qwenpaw chats delete <id>              # 删除会话
 ```
 
 ### 技能管理
 
 ```bash
-copaw skills list                    # 看有哪些技能
-copaw skills config                  # 交互式开关
+qwenpaw skills list                    # 看有哪些技能
+qwenpaw skills config                  # 交互式开关
 ```
 
 ---
@@ -1037,7 +1037,7 @@ copaw skills config                  # 交互式开关
 
 | 页面 | 说明 | 链接 |
 |------|------|------|
-| 项目介绍 | CoPaw 是什么、能做什么 | http://copaw.agentscope.io/docs/intro |
+| 项目介绍 | QwenPaw 是什么、能做什么 | http://copaw.agentscope.io/docs/intro |
 | 快速开始 | 安装和启动指南 | http://copaw.agentscope.io/docs/quickstart |
 | 桌面应用 | 桌面应用使用指南 (v0.0.6+) | http://copaw.agentscope.io/docs/desktop |
 | 控制台 | 控制台使用说明 | http://copaw.agentscope.io/docs/console |
@@ -1056,7 +1056,7 @@ copaw skills config                  # 交互式开关
 
 ## 相关项目
 
-- [CoPaw 官方仓库](https://github.com/agentscope-ai/CoPaw) - CoPaw 主项目
+- [QwenPaw 官方仓库](https://github.com/agentscope-ai/CoPaw) - QwenPaw 主项目
 - [AgentScope](https://github.com/agentscope-ai/agentscope)
 - [AgentScope Runtime](https://github.com/agentscope-ai/agentscope-runtime)
 - [ReMe](https://github.com/agentscope-ai/ReMe)
@@ -1067,11 +1067,11 @@ copaw skills config                  # 交互式开关
 
 ## 官方 Docker 镜像
 
-CoPaw 官方也提供 Docker 镜像，可直接使用：
+QwenPaw 官方也提供 Docker 镜像，可直接使用：
 
 ```bash
 docker pull agentscope/copaw:latest
-docker run -p 127.0.0.1:8088:8088 -v copaw-data:/app/working agentscope/copaw:latest
+docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/copaw:latest
 ```
 
 > **注**：本项目（copaw-docker）与官方镜像的主要区别在于：
@@ -1094,4 +1094,4 @@ docker run -p 127.0.0.1:8088:8088 -v copaw-data:/app/working agentscope/copaw:la
 
 ## License
 
-CoPaw 采用 [Apache License 2.0](https://github.com/agentscope-ai/CoPaw/blob/main/LICENSE) 开源许可。
+QwenPaw 采用 [Apache License 2.0](https://github.com/agentscope-ai/CoPaw/blob/main/LICENSE) 开源许可。

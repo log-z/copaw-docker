@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Docker deployment project for CoPaw, a personal assistant product based on AgentScope. CoPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT, Mattermost, Matrix, WeChat iLink) and runs locally with user-configured LLM providers.
+This is a Docker deployment project for QwenPaw, a personal assistant product based on AgentScope. QwenPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT, Mattermost, Matrix, WeChat iLink) and runs locally with user-configured LLM providers.
 
 **Key Technologies**: Python 3.12, Docker, Docker Compose, AgentScope framework
 
@@ -12,7 +12,7 @@ This is a Docker deployment project for CoPaw, a personal assistant product base
 
 **Official Repository**: https://github.com/agentscope-ai/CoPaw
 
-**Detailed Feature Reference**: [docs/copaw-info.md](docs/copaw-info.md)
+**Detailed Feature Reference**: [docs/qwenpaw-info.md](docs/qwenpaw-info.md)
 
 ---
 
@@ -20,13 +20,13 @@ This is a Docker deployment project for CoPaw, a personal assistant product base
 
 ### Security Warning
 
-> **CoPaw v0.1.0+ supports optional Web authentication. For versions prior to v0.1.0 or when authentication is disabled, NEVER expose the service port to the public internet!**
+> **QwenPaw v1.1.0+ supports optional Web authentication. For versions prior to v1.1.0 or when authentication is disabled, NEVER expose the service port to the public internet!**
 
-- **v0.1.0+**: Set `COPAW_AUTH_ENABLED=true` to enable Web authentication (disabled by default)
+- **v1.1.0+**: Set `QWENPAW_AUTH_ENABLED=true` to enable Web authentication (disabled by default)
   - First access shows registration page
   - Local requests (127.0.0.1) automatically bypass authentication
-  - Auto-register admin via environment variables: `COPAW_AUTH_USERNAME` and `COPAW_AUTH_PASSWORD`
-  - Password reset: `docker compose exec copaw copaw auth reset-password`
+  - Auto-register admin via environment variables: `QWENPAW_AUTH_USERNAME` and `QWENPAW_AUTH_PASSWORD`
+  - Password reset: `docker compose exec qwenpaw qwenpaw auth reset-password`
 - **v0.0.x or when authentication disabled**:
   - The WebUI management interface has **no login authentication**
   - Default port `8088` should only be accessed in **trusted internal networks**
@@ -35,7 +35,7 @@ This is a Docker deployment project for CoPaw, a personal assistant product base
 
 ### Data Volume Compatibility
 
-> The `copaw-data` storage volume is **NOT compatible** with the official CoPaw image due to different file permission settings.
+> The `qwenpaw-data` storage volume is **NOT compatible** with the official CoPaw image due to different file permission settings.
 
 ---
 
@@ -45,9 +45,9 @@ This is a Docker deployment project for CoPaw, a personal assistant product base
 
 ```bash
 docker compose build                              # Build the image
-docker compose build --build-arg COPAW_VERSION=0.1.0  # Build with specific version
+docker compose build --build-arg QWENPAW_VERSION=1.1.0  # Build with specific version
 docker compose up -d                              # Start the service
-docker compose logs -f copaw                      # View logs
+docker compose logs -f qwenpaw                    # View logs
 docker compose stop / restart                     # Stop/Restart
 docker compose down                               # Stop and remove containers
 ```
@@ -55,26 +55,26 @@ docker compose down                               # Stop and remove containers
 ### Container Interaction
 
 ```bash
-docker compose exec copaw bash                    # Enter container shell
-docker compose exec copaw copaw init --defaults   # Initialize with defaults
-docker compose exec copaw copaw models config     # Configure LLM provider
-docker compose exec copaw copaw channels config   # Configure channels
-docker compose exec copaw copaw agents list       # List all agents (v0.2.0+)
-docker compose exec copaw copaw agents enable <agent>  # Enable agent (v1.0.0+)
-docker compose exec copaw copaw message push      # Push message to channel (v0.2.0+)
-docker compose exec copaw copaw task <prompt>     # Run one-off task, no web server (v1.0.2+)
+docker compose exec qwenpaw bash                    # Enter container shell
+docker compose exec qwenpaw qwenpaw init --defaults   # Initialize with defaults
+docker compose exec qwenpaw qwenpaw models config     # Configure LLM provider
+docker compose exec qwenpaw qwenpaw channels config   # Configure channels
+docker compose exec qwenpaw qwenpaw agents list       # List all agents (v0.2.0+)
+docker compose exec qwenpaw qwenpaw agents enable <agent>  # Enable agent (v1.0.0+)
+docker compose exec qwenpaw qwenpaw message push      # Push message to channel (v0.2.0+)
+docker compose exec qwenpaw qwenpaw task <prompt>     # Run one-off task, no web server (v1.0.2+)
 ```
 
 ### Data Management
 
 ```bash
 # Backup data
-docker run --rm -v copaw-data:/data -v $(pwd):/backup \
-    alpine tar czf /backup/copaw-backup-$(date +%Y%m%d).tar.gz -C /data .
+docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+    alpine tar czf /backup/qwenpaw-backup-$(date +%Y%m%d).tar.gz -C /data .
 
 # Restore data
-docker run --rm -v copaw-data:/data -v $(pwd):/backup \
-    alpine tar xzf /backup/copaw-backup-YYYYMMDD.tar.gz -C /data
+docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+    alpine tar xzf /backup/qwenpaw-backup-YYYYMMDD.tar.gz -C /data
 ```
 
 ---
@@ -83,22 +83,22 @@ docker run --rm -v copaw-data:/data -v $(pwd):/backup \
 
 ### Dockerfile Structure (Multi-stage Build)
 
-- **Builder stage**: `python:3.12-slim`, installs build tools and `pip install copaw`
-  - Supports `COPAW_VERSION` build argument (default: `latest`)
-- **Runtime stage**: Runtime dependencies only, runs as non-root user `copaw`
+- **Builder stage**: `python:3.12-slim`, installs build tools and `pip install qwenpaw`
+  - Supports `QWENPAW_VERSION` build argument (default: `latest`)
+- **Runtime stage**: Runtime dependencies only, runs as non-root user `qwenpaw`
 
 ### Container Startup Flow
 
 ```
 docker compose up → entrypoint.sh → check config.json
-    → (if missing) copaw init --defaults
+    → (if missing) qwenpaw init --defaults
     → validate SOUL.md, AGENTS.md
-    → copaw app --host 0.0.0.0 → listens on 0.0.0.0:8088
+    → qwenpaw app --host 0.0.0.0 → listens on 0.0.0.0:8088
 ```
 
 ### Data Persistence
 
-All data stored in Docker volume `copaw-data` at `/data/copaw`:
+All data stored in Docker volume `qwenpaw-data` at `/data/qwenpaw`:
 
 | File/Directory | Purpose |
 |----------------|---------|
@@ -107,7 +107,7 @@ All data stored in Docker volume `copaw-data` at `/data/copaw`:
 | `workspaces/default/plugins/` | Plugin extensions (v1.0.2+) |
 | `.runtime/` | SECRET_DIR: providers.json, envs.json, auth.json |
 
-See [docs/copaw-info.md](docs/copaw-info.md) for complete directory structure.
+See [docs/qwenpaw-info.md](docs/qwenpaw-info.md) for complete directory structure.
 
 ### Environment Variables
 
@@ -115,11 +115,11 @@ Key variables (see [.env.example](.env.example) for full list):
 
 | Variable | Description |
 |----------|-------------|
-| `COPAW_AUTH_ENABLED` | Enable Web authentication (default: `false`, v0.1.0+) |
-| `COPAW_AUTH_USERNAME` | Auto-register admin username (v0.1.0+) |
-| `COPAW_AUTH_PASSWORD` | Auto-register admin password (v0.1.0+) |
-| `COPAW_AUTO_INIT` | Auto initialization (default: true) |
-| `COPAW_LLM_MAX_RETRIES` | LLM API retry attempts (v0.0.7+) |
+| `QWENPAW_AUTH_ENABLED` | Enable Web authentication (default: `false`, v1.1.0+) |
+| `QWENPAW_AUTH_USERNAME` | Auto-register admin username (v1.1.0+) |
+| `QWENPAW_AUTH_PASSWORD` | Auto-register admin password (v1.1.0+) |
+| `QWENPAW_AUTO_INIT` | Auto initialization (default: true) |
+| `QWENPAW_LLM_MAX_RETRIES` | LLM API retry attempts (v0.0.7+) |
 | `EMBEDDING_API_KEY` | Vector memory search |
 | `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` / `ZHIPU_API_KEY` / `SILICONFLOW_API_KEY` | LLM provider keys |
 
@@ -137,12 +137,12 @@ Key variables (see [.env.example](.env.example) for full list):
 
 ## Image Information
 
-- **Repository**: `ghcr.io/log-z/copaw-docker:latest`
+- **Repository**: `ghcr.io/log-z/qwenpaw-docker:latest`
 - **Base**: `python:3.12-slim`
 - **Node.js**: 24.x LTS (MCP support)
 - **Browser**: Chromium headless (MCP browser automation)
-- **Working dir**: `/data/copaw`
-- **User**: `copaw` (non-root)
+- **Working dir**: `/data/qwenpaw`
+- **User**: `qwenpaw` (non-root)
 - **Port**: 8088
 
 ---
@@ -151,7 +151,7 @@ Key variables (see [.env.example](.env.example) for full list):
 
 | File | Purpose |
 |------|---------|
-| [docs/copaw-info.md](docs/copaw-info.md) | CoPaw documentation reference |
+| [docs/qwenpaw-info.md](docs/qwenpaw-info.md) | QwenPaw documentation reference |
 | [.env.example](.env.example) | Environment variable template |
 | [Dockerfile](Dockerfile) | Multi-stage image definition |
 | [docker-compose.yml](docker-compose.yml) | Docker Compose configuration |

@@ -6,6 +6,7 @@
 # ==================== Docker 相关 ====================
 # Docker volumes 数据（避免提交用户数据）
 copaw-data/
+qwenpaw-data/
 data/
 
 # Docker 构建缓存

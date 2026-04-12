@@ -1,15 +1,15 @@
 <div align="center">
 
-# CoPaw Docker 部署方案
+# QwenPaw Docker 部署方案
 
-[![GitHub Container Registry](https://img.shields.io/badge/GHCR-ghcr.io%2Flog--z%2Fcopaw--docker-blue?logo=docker&logoColor=white)](https://github.com/log-z/copaw-docker/pkgs/container/copaw-docker)
-[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-logz2%2Fcopaw-blue?logo=docker&logoColor=white)](https://hub.docker.com/r/logz2/copaw)
+[![GitHub Container Registry](https://img.shields.io/badge/GHCR-ghcr.io%2Flog--z%2Fqwenpaw--docker-blue?logo=docker&logoColor=white)](https://github.com/log-z/qwenpaw-docker/pkgs/container/qwenpaw-docker)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-logz2%2Fqwenpaw-blue?logo=docker&logoColor=white)](https://hub.docker.com/r/logz2/qwenpaw)
 
 **支持一键构建和运行，相比官方镜像更小**
 
 </div>
 
-CoPaw 是一款个人 AI 助手，部署在你自己的环境中，支持多种聊天平台接入，具备强大的扩展能力。
+QwenPaw 是一款个人 AI 助手，部署在你自己的环境中，支持多种聊天平台接入，具备强大的扩展能力。
 
 更多信息请看官方仓库：[agentscope-ai/CoPaw](https://github.com/agentscope-ai/CoPaw)
 
@@ -17,29 +17,29 @@ CoPaw 是一款个人 AI 助手，部署在你自己的环境中，支持多种�
 
 ## ⚠️ 安全警告 ⚠️
 
-> **CoPaw v0.1.0+ 支持可选的 Web 认证功能。对于 v0.1.0 之前的版本或未启用认证时，切勿将服务端口暴露到公网！**
+> **QwenPaw v0.1.0+ 支持可选的 Web 认证功能。对于 v0.1.0 之前的版本或未启用认证时，切勿将服务端口暴露到公网！**
 
 <details>
 <summary><strong>v0.1.0+ Web 认证</strong>（推荐启用）</summary>
 
-设置 `COPAW_AUTH_ENABLED=true` 启用 Web 认证：
+设置 `QWENPAW_AUTH_ENABLED=true` 启用 Web 认证：
 - 首次访问显示注册页面
 - 本地请求 (127.0.0.1) 自动绕过认证
 - 支持环境变量自动注册（适用于自动化部署）
-- 密码重置：`docker compose exec copaw copaw auth reset-password`
+- 密码重置：`docker compose exec qwenpaw qwenpaw auth reset-password`
 
 ```bash
 # 在 .env 文件中启用
-COPAW_AUTH_ENABLED=true
+QWENPAW_AUTH_ENABLED=true
 
 # 可选：自动注册管理员账户（首次启动时生效）
-COPAW_AUTH_USERNAME=admin
-COPAW_AUTH_PASSWORD=your_secure_password
+QWENPAW_AUTH_USERNAME=admin
+QWENPAW_AUTH_PASSWORD=your_secure_password
 ```
 </details>
 
 <details>
-<summary><strong>v0.0.x 或未启用认证时</strong>，WebUI 管理界面<strong>没有登录验证机制</strong>，任何能访问该端口的人都可以完全控制你的 CoPaw 实例。点击展开安全建议。</summary>
+<summary><strong>v0.0.x 或未启用认证时</strong>，WebUI 管理界面<strong>没有登录验证机制</strong>，任何能访问该端口的人都可以完全控制你的 QwenPaw 实例。点击展开安全建议。</summary>
 
 - 默认端口 `8088` 仅应在**受信任的内网环境**或通过**反向代理 + 认证**等方式访问
 - 如果必须远程访问，请使用以下安全措施之一：
@@ -64,11 +64,11 @@ COPAW_AUTH_PASSWORD=your_secure_password
 最简单的方式，直接使用 docker run 命令启动，适合快速体验。
 
 ```bash
-docker run -d --name copaw \
+docker run -d --name qwenpaw \
   -p 127.0.0.1:8088:8088 \
-  -v copaw-data:/data/copaw \
+  -v qwenpaw-data:/data/qwenpaw \
   --restart unless-stopped \
-  ghcr.io/log-z/copaw-docker:latest
+  ghcr.io/log-z/qwenpaw-docker:latest
 ```
 
 访问控制台：http://localhost:8088
@@ -99,7 +99,7 @@ docker compose up -d     # 后台启动服务
 ##### 3. 查看日志
 
 ```bash
-docker compose logs -f copaw
+docker compose logs -f qwenpaw
 ```
 
 ##### 4. 访问控制台
@@ -121,12 +121,12 @@ docker compose logs -f copaw
 编辑 `docker-compose.yml`，注释掉预构建镜像配置，取消注释构建配置：
 
 ```yaml
-copaw:
-  # image: ghcr.io/log-z/copaw-docker:latest  # 注释预构建镜像
+qwenpaw:
+  # image: ghcr.io/log-z/qwenpaw-docker:latest  # 注释预构建镜像
   build:                                     # 取消注释构建配置
     context: .
     dockerfile: Dockerfile
-  image: copaw:latest
+  image: qwenpaw:latest
 ```
 
 ##### 3. 构建镜像
@@ -144,7 +144,7 @@ docker compose build
 ## 项目结构
 
 ```
-copaw/
+qwenpaw-docker/
 ├── .github/
 │   └── workflows/
 │       ├── dev-test.yml       # 开发环境测试工作流
@@ -152,7 +152,7 @@ copaw/
 │       ├── release-image.yml  # 发布镜像工作流
 │       └── trivy-scan.yml     # Trivy 漏洞扫描工作流
 ├── docs/
-│   └── copaw-info.md          # CoPaw 官方文档信息汇总
+│   └── qwenpaw-info.md        # QwenPaw 官方文档信息汇总
 ├── scripts/
 │   ├── entrypoint.sh          # 容器启动脚本（自动初始化检查）
 │   ├── healthcheck.sh         # 健康检查脚本（Docker HEALTHCHECK）
@@ -172,9 +172,9 @@ copaw/
 ### 数据卷结构（运行时生成）
 
 ```
-copaw-data:/
-├── copaw.secret -> copaw/.runtime    # 软链接指向 .runtime（兼容 SECRET_DIR）
-└── copaw/
+qwenpaw-data:/
+├── qwenpaw.secret -> qwenpaw/.runtime    # 软链接指向 .runtime（兼容 SECRET_DIR）
+└── qwenpaw/
     ├── .runtime/              # 敏感配置目录
     │   ├── auth.json          # Web 认证数据（v0.1.0+）
     │   ├── envs.json          # 环境变量配置
@@ -216,10 +216,10 @@ docker compose stop
 docker compose restart
 
 # 查看日志
-docker compose logs -f copaw
+docker compose logs -f qwenpaw
 
 # 进入容器
-docker compose exec copaw bash
+docker compose exec qwenpaw bash
 
 # 停止并删除容器
 docker compose down
@@ -229,119 +229,119 @@ docker compose down
 
 ```bash
 # 查看数据卷
-docker volume inspect copaw-data
+docker volume inspect qwenpaw-data
 
 # 备份数据
-docker run --rm -v copaw-data:/data -v $(pwd):/backup \
-    alpine tar czf /backup/copaw-backup-$(date +%Y%m%d).tar.gz -C /data .
+docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+    alpine tar czf /backup/qwenpaw-backup-$(date +%Y%m%d).tar.gz -C /data .
 
 # 恢复数据
-docker run --rm -v copaw-data:/data -v $(pwd):/backup \
-    alpine tar xzf /backup/copaw-backup-YYYYMMDD.tar.gz -C /data
+docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+    alpine tar xzf /backup/qwenpaw-backup-YYYYMMDD.tar.gz -C /data
 ```
 
-### CoPaw 命令（在容器内执行）
+### QwenPaw 命令（在容器内执行）
 
 ```bash
 # 初始化
-docker compose exec copaw copaw init --defaults   # 默认配置（不交互）
-docker compose exec copaw copaw init              # 交互式初始化
+docker compose exec qwenpaw qwenpaw init --defaults   # 默认配置（不交互）
+docker compose exec qwenpaw qwenpaw init              # 交互式初始化
 
 # 模型管理（云端提供商）
-docker compose exec copaw copaw models list                    # 查看所有提供商
-docker compose exec copaw copaw models config                  # 交互式配置
-docker compose exec copaw copaw models config-key modelscope   # 配置 ModelScope API Key
-docker compose exec copaw copaw models config-key dashscope    # 配置 DashScope API Key
-docker compose exec copaw copaw models config-key anthropic    # 配置 Anthropic API Key（v0.0.5+）
-docker compose exec copaw copaw models config-key gemini       # 配置 Gemini API Key（v0.0.6+）
-docker compose exec copaw copaw models config-key lmstudio     # 配置 LM Studio（v0.0.7+）
-docker compose exec copaw copaw models config-key deepseek     # 配置 DeepSeek（v0.1.0+）
-docker compose exec copaw copaw models config-key minimax      # 配置 MiniMax（v0.1.0+）
-docker compose exec copaw copaw models config-key kimi         # 配置 Kimi（v0.1.0+）
-docker compose exec copaw copaw models config-key zhipu         # 配置智谱（v1.0.1+）
-docker compose exec copaw copaw models config-key siliconflow  # 配置 SiliconFlow（v1.0.2+）
-docker compose exec copaw copaw models config-key custom       # 配置自定义提供商
-docker compose exec copaw copaw models set-llm                 # 切换活跃模型
+docker compose exec qwenpaw qwenpaw models list                    # 查看所有提供商
+docker compose exec qwenpaw qwenpaw models config                  # 交互式配置
+docker compose exec qwenpaw qwenpaw models config-key modelscope   # 配置 ModelScope API Key
+docker compose exec qwenpaw qwenpaw models config-key dashscope    # 配置 DashScope API Key
+docker compose exec qwenpaw qwenpaw models config-key anthropic    # 配置 Anthropic API Key（v0.0.5+）
+docker compose exec qwenpaw qwenpaw models config-key gemini       # 配置 Gemini API Key（v0.0.6+）
+docker compose exec qwenpaw qwenpaw models config-key lmstudio     # 配置 LM Studio（v0.0.7+）
+docker compose exec qwenpaw qwenpaw models config-key deepseek     # 配置 DeepSeek（v0.1.0+）
+docker compose exec qwenpaw qwenpaw models config-key minimax      # 配置 MiniMax（v0.1.0+）
+docker compose exec qwenpaw qwenpaw models config-key kimi         # 配置 Kimi（v0.1.0+）
+docker compose exec qwenpaw qwenpaw models config-key zhipu         # 配置智谱（v1.0.1+）
+docker compose exec qwenpaw qwenpaw models config-key siliconflow  # 配置 SiliconFlow（v1.0.2+）
+docker compose exec qwenpaw qwenpaw models config-key custom       # 配置自定义提供商
+docker compose exec qwenpaw qwenpaw models set-llm                 # 切换活跃模型
 
 # 模型管理（本地模型 - 需额外依赖）
-docker compose exec copaw copaw models download <repo_id>      # 下载本地模型 (llama.cpp/MLX)
-docker compose exec copaw copaw models local                   # 查看已下载模型
-docker compose exec copaw copaw models remove-local <model_id> # 删除已下载模型
-docker compose exec copaw copaw models ollama-pull <model>     # 拉取 Ollama 模型
-docker compose exec copaw copaw models ollama-list             # 列出 Ollama 模型
+docker compose exec qwenpaw qwenpaw models download <repo_id>      # 下载本地模型 (llama.cpp/MLX)
+docker compose exec qwenpaw qwenpaw models local                   # 查看已下载模型
+docker compose exec qwenpaw qwenpaw models remove-local <model_id> # 删除已下载模型
+docker compose exec qwenpaw qwenpaw models ollama-pull <model>     # 拉取 Ollama 模型
+docker compose exec qwenpaw qwenpaw models ollama-list             # 列出 Ollama 模型
 
 # 频道管理
-docker compose exec copaw copaw channels list       # 查看所有频道
-docker compose exec copaw copaw channels config     # 交互式配置
-docker compose exec copaw copaw channels install <key>    # 安装自定义频道
-docker compose exec copaw copaw channels add <key>        # 添加频道到配置
-docker compose exec copaw copaw channels remove <key>     # 删除自定义频道
+docker compose exec qwenpaw qwenpaw channels list       # 查看所有频道
+docker compose exec qwenpaw qwenpaw channels config     # 交互式配置
+docker compose exec qwenpaw qwenpaw channels install <key>    # 安装自定义频道
+docker compose exec qwenpaw qwenpaw channels add <key>        # 添加频道到配置
+docker compose exec qwenpaw qwenpaw channels remove <key>     # 删除自定义频道
 
 # 技能管理
-docker compose exec copaw copaw skills list         # 查看所有技能
-docker compose exec copaw copaw skills config       # 交互式启用/禁用
+docker compose exec qwenpaw qwenpaw skills list         # 查看所有技能
+docker compose exec qwenpaw qwenpaw skills config       # 交互式启用/禁用
 
 # 定时任务
-docker compose exec copaw copaw cron list           # 列出所有任务
-docker compose exec copaw copaw cron create ...     # 创建任务
-docker compose exec copaw copaw cron state <job_id> # 查看任务状态
-docker compose exec copaw copaw cron pause <job_id> # 暂停任务
-docker compose exec copaw copaw cron resume <job_id># 恢复任务
-docker compose exec copaw copaw cron run <job_id>   # 立即执行一次
+docker compose exec qwenpaw qwenpaw cron list           # 列出所有任务
+docker compose exec qwenpaw qwenpaw cron create ...     # 创建任务
+docker compose exec qwenpaw qwenpaw cron state <job_id> # 查看任务状态
+docker compose exec qwenpaw qwenpaw cron pause <job_id> # 暂停任务
+docker compose exec qwenpaw qwenpaw cron resume <job_id># 恢复任务
+docker compose exec qwenpaw qwenpaw cron run <job_id>   # 立即执行一次
 
 # 环境变量
-docker compose exec copaw copaw env list            # 列出所有变量
-docker compose exec copaw copaw env set KEY VALUE   # 设置变量
-docker compose exec copaw copaw env delete KEY      # 删除变量
+docker compose exec qwenpaw qwenpaw env list            # 列出所有变量
+docker compose exec qwenpaw qwenpaw env set KEY VALUE   # 设置变量
+docker compose exec qwenpaw qwenpaw env delete KEY      # 删除变量
 
 # 会话管理
-docker compose exec copaw copaw chats list          # 列出所有会话
-docker compose exec copaw copaw chats get <id>      # 查看会话详情
-docker compose exec copaw copaw chats create ...    # 创建新会话
-docker compose exec copaw copaw chats update <id> --name "新名称"  # 重命名会话
-docker compose exec copaw copaw chats delete <id>   # 删除会话
+docker compose exec qwenpaw qwenpaw chats list          # 列出所有会话
+docker compose exec qwenpaw qwenpaw chats get <id>      # 查看会话详情
+docker compose exec qwenpaw qwenpaw chats create ...    # 创建新会话
+docker compose exec qwenpaw qwenpaw chats update <id> --name "新名称"  # 重命名会话
+docker compose exec qwenpaw qwenpaw chats delete <id>   # 删除会话
 
 # 维护
-docker compose exec copaw copaw clean               # 清空工作目录（交互确认）
-docker compose exec copaw copaw clean --yes         # 不确认直接清空
+docker compose exec qwenpaw qwenpaw clean               # 清空工作目录（交互确认）
+docker compose exec qwenpaw qwenpaw clean --yes         # 不确认直接清空
 
 # 配置重载（无需重启容器，v0.0.5+）
-docker compose exec copaw copaw daemon reload-config # 重新加载配置
-docker compose exec copaw copaw daemon version      # 查看 CoPaw 版本
+docker compose exec qwenpaw qwenpaw daemon reload-config # 重新加载配置
+docker compose exec qwenpaw qwenpaw daemon version      # 查看 QwenPaw 版本
 
 # 更新与认证（v0.1.0+）
-docker compose exec copaw copaw update              # 更新 CoPaw 到最新版本（在容器中更新无意义）
-docker compose exec copaw copaw auth reset-password # 重置 Web UI 密码
+docker compose exec qwenpaw qwenpaw update              # 更新 QwenPaw 到最新版本（在容器中更新无意义）
+docker compose exec qwenpaw qwenpaw auth reset-password # 重置 Web UI 密码
 
 # Agent 与消息（v0.2.0+）
-docker compose exec copaw copaw agents list         # 列出所有代理
-docker compose exec copaw copaw agents enable <agent>  # 启用代理（v1.0.0+）
-docker compose exec copaw copaw agents disable <agent> # 禁用代理（v1.0.0+）
-docker compose exec copaw copaw message push        # 向频道推送消息
-docker compose exec copaw copaw message send        # 向代理发送请求
+docker compose exec qwenpaw qwenpaw agents list         # 列出所有代理
+docker compose exec qwenpaw qwenpaw agents enable <agent>  # 启用代理（v1.0.0+）
+docker compose exec qwenpaw qwenpaw agents disable <agent> # 禁用代理（v1.0.0+）
+docker compose exec qwenpaw qwenpaw message push        # 向频道推送消息
+docker compose exec qwenpaw qwenpaw message send        # 向代理发送请求
 
 # 任务执行（v1.0.2+）
-docker compose exec copaw copaw task <prompt>      # 运行一次性任务，无需 Web 服务
+docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务，无需 Web 服务
 ```
 
 ---
 
 ## 环境变量说明
 
-### CoPaw 基础配置
+### QwenPaw 基础配置
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `COPAW_WORKING_DIR` | `/data/copaw` | 工作目录（固定不可修改） |
-| `COPAW_CONFIG_FILE` | `config.json` | 配置文件名 |
-| `COPAW_HEARTBEAT_FILE` | `HEARTBEAT.md` | 心跳问题文件名 |
-| `COPAW_JOBS_FILE` | `jobs.json` | 定时任务文件名 |
-| `COPAW_CHATS_FILE` | `chats.json` | 会话列表文件名 |
-| `COPAW_LOG_LEVEL` | `info` | 日志级别（debug/info/warning/error/critical） |
-| `COPAW_MEMORY_COMPACT_THRESHOLD` | `100000` | 触发记忆压缩的字符阈值 |
-| `COPAW_MEMORY_COMPACT_KEEP_RECENT` | `3` | 压缩后保留的最近消息数 |
-| `COPAW_MEMORY_COMPACT_RATIO` | `0.7` | 触发压缩的阈值比例（相对于上下文窗口大小） |
-| `COPAW_AUTO_INIT` | `true` | 是否自动初始化 |
+| `QWENPAW_WORKING_DIR` | `/data/qwenpaw` | 工作目录（固定不可修改） |
+| `QWENPAW_CONFIG_FILE` | `config.json` | 配置文件名 |
+| `QWENPAW_HEARTBEAT_FILE` | `HEARTBEAT.md` | 心跳问题文件名 |
+| `QWENPAW_JOBS_FILE` | `jobs.json` | 定时任务文件名 |
+| `QWENPAW_CHATS_FILE` | `chats.json` | 会话列表文件名 |
+| `QWENPAW_LOG_LEVEL` | `info` | 日志级别（debug/info/warning/error/critical） |
+| `QWENPAW_MEMORY_COMPACT_THRESHOLD` | `100000` | 触发记忆压缩的字符阈值 |
+| `QWENPAW_MEMORY_COMPACT_KEEP_RECENT` | `3` | 压缩后保留的最近消息数 |
+| `QWENPAW_MEMORY_COMPACT_RATIO` | `0.7` | 触发压缩的阈值比例（相对于上下文窗口大小） |
+| `QWENPAW_AUTO_INIT` | `true` | 是否自动初始化 |
 
 ### Embedding 服务配置
 
@@ -378,32 +378,32 @@ docker compose exec copaw copaw task <prompt>      # 运行一次性任务，无
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `COPAW_AUTH_ENABLED` | `false` | 是否启用 Web 认证（启用后首次访问显示注册页面） |
-| `COPAW_AUTH_USERNAME` | （空） | 自动注册管理员用户名（仅首次启动时生效） |
-| `COPAW_AUTH_PASSWORD` | （空） | 自动注册管理员密码（仅首次启动时生效） |
+| `QWENPAW_AUTH_ENABLED` | `false` | 是否启用 Web 认证（启用后首次访问显示注册页面） |
+| `QWENPAW_AUTH_USERNAME` | （空） | 自动注册管理员用户名（仅首次启动时生效） |
+| `QWENPAW_AUTH_PASSWORD` | （空） | 自动注册管理员密码（仅首次启动时生效） |
 
 ### 模型重试配置（v0.0.7+ 新增）
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `COPAW_LLM_MAX_RETRIES` | `3` | LLM API 调用最大重试次数 |
-| `COPAW_LLM_BACKOFF_BASE` | `1.0` | 重试退避基准时间（秒） |
-| `COPAW_LLM_BACKOFF_CAP` | `30.0` | 最大退避时间上限（秒） |
+| `QWENPAW_LLM_MAX_RETRIES` | `3` | LLM API 调用最大重试次数 |
+| `QWENPAW_LLM_BACKOFF_BASE` | `1.0` | 重试退避基准时间（秒） |
+| `QWENPAW_LLM_BACKOFF_CAP` | `30.0` | 最大退避时间上限（秒） |
 
 ### Web 服务配置
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `COPAW_CORS_ORIGINS` | `*` | CORS 允许的来源（v0.0.4+ 新增） |
-| `COPAW_RUNNING_IN_CONTAINER` | `true` | 是否在容器内运行（自动检测，通常无需手动设置） |
+| `QWENPAW_CORS_ORIGINS` | `*` | CORS 允许的来源（v0.0.4+ 新增） |
+| `QWENPAW_RUNNING_IN_CONTAINER` | `true` | 是否在容器内运行（自动检测，通常无需手动设置） |
 
 ---
 
 ## 数据持久化
 
-> **⚠️ 重要提示**：本项目的 `copaw-data` 存储卷与 CoPaw 官方镜像的存储卷**不能通用**，原因是文件权限设置不一致。官方镜像可能使用不同的用户权限运行，直接挂载可能导致权限问题。
+> **⚠️ 重要提示**：本项目的 `qwenpaw-data` 存储卷与 CoPaw 官方镜像的存储卷**不能通用**，原因是文件权限设置不一致。官方镜像可能使用不同的用户权限运行，直接挂载可能导致权限问题。
 
-本项目使用 Docker 数据卷 `copaw-data` 持久化以下内容：
+本项目使用 Docker 数据卷 `qwenpaw-data` 持久化以下内容：
 
 - `.runtime/` - 敏感配置目录
   - `auth.json` - Web 认证数据（v0.1.0+）
@@ -457,11 +457,11 @@ docker compose exec copaw copaw task <prompt>      # 运行一次性任务，无
 
 ## 端口说明
 
-> ⚠️ **安全提醒**：v0.1.0 之前或未启用认证时，请勿将端口暴露到公网！环境变量启用 `COPAW_AUTH_ENABLED=true` 后可降低风险。
+> ⚠️ **安全提醒**：v0.1.0 之前或未启用认证时，请勿将端口暴露到公网！环境变量启用 `QWENPAW_AUTH_ENABLED=true` 后可降低风险。
 
 | 容器端口 | 主机端口 | 说明 |
 |----------|----------|------|
-| `8088` | `127.0.0.1:8088` | CoPaw Web 服务端口（v0.0.5+ 默认绑定 127.0.0.1） |
+| `8088` | `127.0.0.1:8088` | QwenPaw Web 服务端口（v0.0.5+ 默认绑定 127.0.0.1） |
 
 如需修改主机端口，编辑 `docker-compose.yml`：
 
@@ -478,12 +478,12 @@ ports:
 
 ## 网络配置
 
-默认使用 `copaw-network` 桥接网络。如需连接其他容器，可以：
+默认使用 `qwenpaw-network` 桥接网络。如需连接其他容器，可以：
 
 ```yaml
 # 在 docker-compose.yml 中添加外部网络
 networks:
-  copaw-network:
+  qwenpaw-network:
     name: your-existing-network
     external: true
 ```
@@ -497,7 +497,7 @@ networks:
 检查日志：
 
 ```bash
-docker compose logs copaw
+docker compose logs qwenpaw
 ```
 
 ### 2. 健康检查失败
@@ -516,7 +516,7 @@ curl http://localhost:8088/
 检查卷状态：
 
 ```bash
-docker volume ls | grep copaw
+docker volume ls | grep qwenpaw
 ```
 
 ### 4. API Key 无效
@@ -533,8 +533,8 @@ docker compose restart
 
 ### 预构建镜像
 
-- **镜像地址**: `ghcr.io/log-z/copaw-docker:latest`
-- **拉取命令**: `docker pull ghcr.io/log-z/copaw-docker:latest`
+- **镜像地址**: `ghcr.io/log-z/qwenpaw-docker:latest`
+- **拉取命令**: `docker pull ghcr.io/log-z/qwenpaw-docker:latest`
 - **更新频率**: 随 CoPaw 官方版本更新
 
 ### 自行构建
@@ -542,20 +542,20 @@ docker compose restart
 - **基础镜像**: `python:3.12-slim`
 - **Python 版本**: 3.12
 - **Node.js 版本**: 24.x LTS（用于 MCP 功能）
-- **工作目录**: `/data/copaw`
-- **运行用户**: `copaw`（非 root）
+- **工作目录**: `/data/qwenpaw`
+- **运行用户**: `qwenpaw`（非 root）
 
 ---
 
 ## 新功能支持
 
-> 历史版本更新详见 [docs/copaw-info.md](docs/copaw-info.md)。
+> 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
 ### v1.0.2 更新（最新）
 
 #### 新功能
 - **插件系统** - 从工作区 `plugins/` 文件夹安装扩展
-- **`copaw task` 命令** - 从终端运行一次性任务，无需启动 Web 服务
+- **`qwenpaw task` 命令** - 从终端运行一次性任务，无需启动 Web 服务
 - **`/model` 聊天命令** - 在聊天中切换模型、列出可用模型、恢复默认、查看模型详情
 - **SiliconFlow 提供商** - 内置 SiliconFlow API，提供中国和国际端点
 - **密钥加密存储** - API Key 等敏感值在磁盘上加密，密钥存储在操作系统钥匙串
@@ -591,7 +591,7 @@ docker compose restart
 
 | 组 | 功能 | 说明 |
 |----|------|------|
-| 聊天 | 聊天 | 和 CoPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+）、选择 Agent 对话（v1.0.0.post1+）、聊天搜索（v1.0.2+）、置顶会话（v1.0.2+）、输入历史（v1.0.2+） |
+| 聊天 | 聊天 | 和 QwenPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+）、选择 Agent 对话（v1.0.0.post1+）、聊天搜索（v1.0.2+）、置顶会话（v1.0.2+）、输入历史（v1.0.2+） |
 | 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
@@ -621,7 +621,7 @@ docker compose restart
 
 - [CoPaw 官方仓库](https://github.com/agentscope-ai/CoPaw) - 官方 GitHub 仓库
 - [CoPaw 官方文档](http://copaw.agentscope.io/docs/)
-- [docs/copaw-info.md](docs/copaw-info.md) - CoPaw 官方文档信息汇总
+- [docs/qwenpaw-info.md](docs/qwenpaw-info.md) - QwenPaw 官方文档信息汇总
 - [AgentScope](https://github.com/agentscope-ai/agentscope) - CoPaw 基础框架
 
 ---

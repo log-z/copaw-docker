@@ -6,8 +6,8 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
     inputs:
-      copaw_version:
-        description: "CoPaw version (e.g. 1.2.3)"
+      qwenpaw_version:
+        description: "QwenPaw version (e.g. 1.2.3)"
         required: true
         type: string
 
@@ -15,7 +15,7 @@ env:
   GHCR_REGISTRY: ghcr.io
   DOCKERHUB_REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}
-  DOCKERHUB_IMAGE: logz2/copaw
+  DOCKERHUB_IMAGE: logz2/qwenpaw
 
 jobs:
   build:
@@ -57,11 +57,11 @@ jobs:
             type=ref,event=tag
             type=sha,prefix=
 
-      - name: Extract CoPaw metadata
-        id: copaw_meta
+      - name: Extract QwenPaw metadata
+        id: qwenpaw_meta
         run: |
-          if [ -n "${{ inputs.copaw_version }}" ]; then
-            echo "version=${{ inputs.copaw_version }}" >> $GITHUB_OUTPUT
+          if [ -n "${{ inputs.qwenpaw_version }}" ]; then
+            echo "version=${{ inputs.qwenpaw_version }}" >> $GITHUB_OUTPUT
           else
             echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
           fi
@@ -75,6 +75,6 @@ jobs:
           tags: ${{ steps.image_meta.outputs.tags }}
           labels: ${{ steps.image_meta.outputs.labels }}
           build-args: |
-            COPAW_VERSION=${{ steps.copaw_meta.outputs.version }}
+            QWENPAW_VERSION=${{ steps.qwenpaw_meta.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

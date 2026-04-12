@@ -1,5 +1,5 @@
 #!/bin/bash
-# CoPaw Docker 启动测试脚本
+# QwenPaw Docker 启动测试脚本
 
 set -e
 
@@ -56,7 +56,7 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 # 切换到项目目录
 cd "$PROJECT_DIR"
 
-log_section "CoPaw Docker 启动测试"
+log_section "QwenPaw Docker 启动测试"
 echo ""
 
 # 1. 清理旧容器
@@ -91,7 +91,7 @@ echo ""
 
 # 3. 启动服务
 log_section "3. 启动服务"
-log_info "启动 CoPaw 容器..."
+log_info "启动 QwenPaw 容器..."
 if docker compose up -d; then
     log_info "容器启动成功"
 else
@@ -106,7 +106,7 @@ log_info "等待容器启动（最多 60 秒）..."
 TIMEOUT=60
 ELAPSED=0
 while [ $ELAPSED -lt $TIMEOUT ]; do
-    if docker compose ps | grep -q "copaw.*Up"; then
+    if docker compose ps | grep -q "qwenpaw.*Up"; then
         log_info "容器已启动"
         break
     fi
@@ -129,7 +129,7 @@ log_info "等待健康检查通过（最多 120 秒）..."
 TIMEOUT=120
 ELAPSED=0
 while [ $ELAPSED -lt $TIMEOUT ]; do
-    HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' copaw 2>/dev/null || echo "starting")
+    HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' qwenpaw 2>/dev/null || echo "starting")
     if [ "$HEALTH_STATUS" = "healthy" ]; then
         log_info "健康检查通过"
         break
@@ -180,28 +180,28 @@ echo ""
 
 # 8. 显示日志摘要
 log_section "8. 日志摘要（最近 30 行）"
-docker compose logs --tail=30 copaw
+docker compose logs --tail=30 qwenpaw
 echo ""
 
 # 9. 进入容器测试
 log_section "9. 容器内部测试"
-log_info "测试 CoPaw 命令..."
-docker compose exec -T copaw copaw --version 2>/dev/null || log_warn "无法获取版本信息"
-docker compose exec -T copaw ls -la /data/copaw 2>/dev/null || log_warn "无法列出数据目录"
+log_info "测试 QwenPaw 命令..."
+docker compose exec -T qwenpaw qwenpaw --version 2>/dev/null || log_warn "无法获取版本信息"
+docker compose exec -T qwenpaw ls -la /data/qwenpaw 2>/dev/null || log_warn "无法列出数据目录"
 
 # 在 CI 模式下，显示容器环境信息
 if [ "$CI_MODE" = true ]; then
     log_info "CI 模式：检查容器环境..."
-    docker compose exec -T copaw env | sort || log_warn "无法获取环境变量"
+    docker compose exec -T qwenpaw env | sort || log_warn "无法获取环境变量"
 fi
 echo ""
 
 # 10. 数据持久化验证
 log_section "10. 数据持久化验证"
-VOLUME_CONTENTS=$(docker run --rm -v copaw-data:/data alpine ls -la /data/copaw 2>/dev/null | wc -l)
+VOLUME_CONTENTS=$(docker run --rm -v qwenpaw-data:/data alpine ls -la /data/qwenpaw 2>/dev/null | wc -l)
 if [ "$VOLUME_CONTENTS" -gt 0 ]; then
     log_info "数据卷中有 $VOLUME_CONTENTS 项内容"
-    docker run --rm -v copaw-data:/data alpine ls -la /data/copaw
+    docker run --rm -v qwenpaw-data:/data alpine ls -la /data/qwenpaw
 else
     log_warn "数据卷为空（首次启动正常）"
 fi
@@ -217,8 +217,8 @@ echo "  - Web 界面: http://localhost:8088"
 echo "  - API 端点: http://localhost:8088/api"
 echo ""
 log_info "常用命令："
-echo "  - 查看日志: docker compose logs -f copaw"
-echo "  - 进入容器: docker compose exec copaw bash"
+echo "  - 查看日志: docker compose logs -f qwenpaw"
+echo "  - 进入容器: docker compose exec qwenpaw bash"
 echo "  - 停止服务: docker compose stop"
 echo "  - 重启服务: docker compose restart"
 echo "  - 删除容器: docker compose down"

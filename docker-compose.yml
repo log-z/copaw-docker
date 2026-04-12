@@ -1,26 +1,26 @@
 services:
-  copaw:
+  qwenpaw:
     # 使用预构建镜像（推荐）
-    image: ghcr.io/log-z/copaw-docker:latest
+    image: ghcr.io/log-z/qwenpaw-docker:latest
 
     # 如需自行构建镜像，请注释上面的 image 配置，并取消注释下面的 build 配置：
     # build:
     #   context: .
     #   dockerfile: Dockerfile
     #   args:
-    #     COPAW_VERSION: ${COPAW_VERSION:-latest}
-    # image: copaw:latest
-    container_name: copaw
+    #     QWENPAW_VERSION: ${QWENPAW_VERSION:-latest}
+    # image: qwenpaw:latest
+    container_name: qwenpaw
 
     # 端口映射（v0.0.5 安全更新：仅绑定本地回环地址）
-    # 注意：如果修改 COPAW_PORT，需要同步修改左侧端口号
+    # 注意：如果修改 QWENPAW_PORT，需要同步修改左侧端口号
     ports:
-      # CoPaw Console
-      - "127.0.0.1:${COPAW_PORT:-8088}:${COPAW_PORT:-8088}"
+      # QwenPaw Console
+      - "127.0.0.1:${QWENPAW_PORT:-8088}:${QWENPAW_PORT:-8088}"
 
       # OneBot 频道（反向 WS）
       # 用于接入 NapCat/go-cqhttp/Lagrange 等 QQ 协议端
-      # 如在此 compose 中运行 OneBot 服务，可直接用容器名 copaw 连接 ws://copaw:6199/ws，无需映射此端口
+      # 如在此 compose 中运行 OneBot 服务，可直接用容器名 qwenpaw 连接 ws://qwenpaw:6199/ws，无需映射此端口
       # 详细用法请参考官方文档：https://copaw.agentscope.io/docs/channels/#OneBot-v11NapCat--QQ-%E5%AE%8C%E6%95%B4%E5%8D%8F%E8%AE%AE
       # - "127.0.0.1:6199:6199"
 
@@ -29,19 +29,19 @@ services:
       - path: .env
         required: false
     environment:
-      - COPAW_PORT=${COPAW_PORT:-8088}
+      - QWENPAW_PORT=${QWENPAW_PORT:-8088}
       - TZ=${TZ:-Asia/Shanghai}
 
     # 数据卷挂载
     volumes:
       # 持久化工作目录
-      - copaw-data:/data/copaw
+      - qwenpaw-data:/data/qwenpaw
 
       # 可选：挂载自定义技能目录
-      # - ./customized_skills:/data/copaw/customized_skills:ro
+      # - ./customized_skills:/data/qwenpaw/customized_skills:ro
 
       # 可选：挂载本地配置文件
-      # - ./config/config.json:/data/copaw/config.json:ro
+      # - ./config/config.json:/data/qwenpaw/config.json:ro
 
     # 重启策略
     restart: unless-stopped
@@ -63,16 +63,16 @@ services:
 
     # 网络配置
     networks:
-      - copaw-network
+      - qwenpaw-network
 
 # 数据卷定义
 volumes:
-  copaw-data:
+  qwenpaw-data:
     driver: local
-    name: copaw-data
+    name: qwenpaw-data
 
 # 网络定义
 networks:
-  copaw-network:
+  qwenpaw-network:
     driver: bridge
-    name: copaw-network
+    name: qwenpaw-network
