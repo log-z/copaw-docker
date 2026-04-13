@@ -13,6 +13,9 @@ QwenPaw（原 CoPaw 项目）是一款个人 AI 助手，部署在你自己的�
 
 更多信息请看官方仓库：[agentscope-ai/QwenPaw](https://github.com/agentscope-ai/QwenPaw)
 
+> [!NOTE]
+> 如果你正在使用旧版 CoPaw 镜像，请参阅 [如何从 CoPaw 迁移到 QwenPaw](docs/migrate-from-copaw.md)。
+
 ---
 
 ## ⚠️ 安全警告 ⚠️
@@ -123,7 +126,7 @@ docker compose logs -f qwenpaw
 ```yaml
 qwenpaw:
   # image: ghcr.io/log-z/qwenpaw:latest  # 注释预构建镜像
-  build:                                     # 取消注释构建配置
+  build:                                 # 取消注释构建配置
     context: .
     dockerfile: Dockerfile
   image: qwenpaw:latest
@@ -258,7 +261,7 @@ docker compose exec qwenpaw qwenpaw models config-key lmstudio     # 配置 LM S
 docker compose exec qwenpaw qwenpaw models config-key deepseek     # 配置 DeepSeek（v0.1.0+）
 docker compose exec qwenpaw qwenpaw models config-key minimax      # 配置 MiniMax（v0.1.0+）
 docker compose exec qwenpaw qwenpaw models config-key kimi         # 配置 Kimi（v0.1.0+）
-docker compose exec qwenpaw qwenpaw models config-key zhipu         # 配置智谱（v1.0.1+）
+docker compose exec qwenpaw qwenpaw models config-key zhipu        # 配置智谱（v1.0.1+）
 docker compose exec qwenpaw qwenpaw models config-key siliconflow  # 配置 SiliconFlow（v1.0.2+）
 docker compose exec qwenpaw qwenpaw models config-key custom       # 配置自定义提供商
 docker compose exec qwenpaw qwenpaw models set-llm                 # 切换活跃模型
@@ -271,23 +274,23 @@ docker compose exec qwenpaw qwenpaw models ollama-pull <model>     # 拉取 Olla
 docker compose exec qwenpaw qwenpaw models ollama-list             # 列出 Ollama 模型
 
 # 频道管理
-docker compose exec qwenpaw qwenpaw channels list       # 查看所有频道
-docker compose exec qwenpaw qwenpaw channels config     # 交互式配置
-docker compose exec qwenpaw qwenpaw channels install <key>    # 安装自定义频道
-docker compose exec qwenpaw qwenpaw channels add <key>        # 添加频道到配置
-docker compose exec qwenpaw qwenpaw channels remove <key>     # 删除自定义频道
+docker compose exec qwenpaw qwenpaw channels list           # 查看所有频道
+docker compose exec qwenpaw qwenpaw channels config         # 交互式配置
+docker compose exec qwenpaw qwenpaw channels install <key>  # 安装自定义频道
+docker compose exec qwenpaw qwenpaw channels add <key>      # 添加频道到配置
+docker compose exec qwenpaw qwenpaw channels remove <key>   # 删除自定义频道
 
 # 技能管理
 docker compose exec qwenpaw qwenpaw skills list         # 查看所有技能
 docker compose exec qwenpaw qwenpaw skills config       # 交互式启用/禁用
 
 # 定时任务
-docker compose exec qwenpaw qwenpaw cron list           # 列出所有任务
-docker compose exec qwenpaw qwenpaw cron create ...     # 创建任务
-docker compose exec qwenpaw qwenpaw cron state <job_id> # 查看任务状态
-docker compose exec qwenpaw qwenpaw cron pause <job_id> # 暂停任务
-docker compose exec qwenpaw qwenpaw cron resume <job_id># 恢复任务
-docker compose exec qwenpaw qwenpaw cron run <job_id>   # 立即执行一次
+docker compose exec qwenpaw qwenpaw cron list            # 列出所有任务
+docker compose exec qwenpaw qwenpaw cron create ...      # 创建任务
+docker compose exec qwenpaw qwenpaw cron state <job_id>  # 查看任务状态
+docker compose exec qwenpaw qwenpaw cron pause <job_id>  # 暂停任务
+docker compose exec qwenpaw qwenpaw cron resume <job_id> # 恢复任务
+docker compose exec qwenpaw qwenpaw cron run <job_id>    # 立即执行一次
 
 # 环境变量
 docker compose exec qwenpaw qwenpaw env list            # 列出所有变量
@@ -307,18 +310,18 @@ docker compose exec qwenpaw qwenpaw clean --yes         # 不确认直接清空
 
 # 配置重载（无需重启容器，v0.0.5+）
 docker compose exec qwenpaw qwenpaw daemon reload-config # 重新加载配置
-docker compose exec qwenpaw qwenpaw daemon version      # 查看 QwenPaw 版本
+docker compose exec qwenpaw qwenpaw daemon version       # 查看 QwenPaw 版本
 
 # 更新与认证（v0.1.0+）
 docker compose exec qwenpaw qwenpaw update              # 更新 QwenPaw 到最新版本（在容器中更新无意义）
 docker compose exec qwenpaw qwenpaw auth reset-password # 重置 Web UI 密码
 
 # Agent 与消息（v0.2.0+）
-docker compose exec qwenpaw qwenpaw agents list         # 列出所有代理
+docker compose exec qwenpaw qwenpaw agents list            # 列出所有代理
 docker compose exec qwenpaw qwenpaw agents enable <agent>  # 启用代理（v1.0.0+）
 docker compose exec qwenpaw qwenpaw agents disable <agent> # 禁用代理（v1.0.0+）
-docker compose exec qwenpaw qwenpaw message push        # 向频道推送消息
-docker compose exec qwenpaw qwenpaw message send        # 向代理发送请求
+docker compose exec qwenpaw qwenpaw message push           # 向频道推送消息
+docker compose exec qwenpaw qwenpaw message send           # 向代理发送请求
 
 # 任务执行（v1.0.2+）
 docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务，无需 Web 服务
