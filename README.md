@@ -2,16 +2,16 @@
 
 # QwenPaw Docker 部署方案
 
-[![GitHub Container Registry](https://img.shields.io/badge/GHCR-ghcr.io%2Flog--z%2Fqwenpaw--docker-blue?logo=docker&logoColor=white)](https://github.com/log-z/qwenpaw-docker/pkgs/container/qwenpaw-docker)
+[![GitHub Container Registry](https://img.shields.io/badge/GHCR-ghcr.io%2Flog--z%2Fqwenpaw-blue?logo=docker&logoColor=white)](https://github.com/log-z/copaw-docker/pkgs/container/qwenpaw)
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-logz2%2Fqwenpaw-blue?logo=docker&logoColor=white)](https://hub.docker.com/r/logz2/qwenpaw)
 
 **支持一键构建和运行，相比官方镜像更小**
 
 </div>
 
-QwenPaw 是一款个人 AI 助手，部署在你自己的环境中，支持多种聊天平台接入，具备强大的扩展能力。
+QwenPaw（原 CoPaw 项目）是一款个人 AI 助手，部署在你自己的环境中，支持多种聊天平台接入，具备强大的扩展能力。
 
-更多信息请看官方仓库：[agentscope-ai/CoPaw](https://github.com/agentscope-ai/CoPaw)
+更多信息请看官方仓库：[agentscope-ai/QwenPaw](https://github.com/agentscope-ai/QwenPaw)
 
 ---
 
@@ -66,9 +66,9 @@ QWENPAW_AUTH_PASSWORD=your_secure_password
 ```bash
 docker run -d --name qwenpaw \
   -p 127.0.0.1:8088:8088 \
-  -v qwenpaw-data:/data/qwenpaw \
+  -v copaw-data:/data/qwenpaw \
   --restart unless-stopped \
-  ghcr.io/log-z/qwenpaw-docker:latest
+  ghcr.io/log-z/qwenpaw:latest
 ```
 
 访问控制台：http://localhost:8088
@@ -122,7 +122,7 @@ docker compose logs -f qwenpaw
 
 ```yaml
 qwenpaw:
-  # image: ghcr.io/log-z/qwenpaw-docker:latest  # 注释预构建镜像
+  # image: ghcr.io/log-z/qwenpaw:latest  # 注释预构建镜像
   build:                                     # 取消注释构建配置
     context: .
     dockerfile: Dockerfile
@@ -144,7 +144,7 @@ docker compose build
 ## 项目结构
 
 ```
-qwenpaw-docker/
+copaw-docker/
 ├── .github/
 │   └── workflows/
 │       ├── dev-test.yml       # 开发环境测试工作流
@@ -172,7 +172,7 @@ qwenpaw-docker/
 ### 数据卷结构（运行时生成）
 
 ```
-qwenpaw-data:/
+copaw-data:/
 ├── qwenpaw.secret -> qwenpaw/.runtime    # 软链接指向 .runtime（兼容 SECRET_DIR）
 └── qwenpaw/
     ├── .runtime/              # 敏感配置目录
@@ -229,14 +229,14 @@ docker compose down
 
 ```bash
 # 查看数据卷
-docker volume inspect qwenpaw-data
+docker volume inspect copaw-data
 
 # 备份数据
-docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+docker run --rm -v copaw-data:/data -v $(pwd):/backup \
     alpine tar czf /backup/qwenpaw-backup-$(date +%Y%m%d).tar.gz -C /data .
 
 # 恢复数据
-docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+docker run --rm -v copaw-data:/data -v $(pwd):/backup \
     alpine tar xzf /backup/qwenpaw-backup-YYYYMMDD.tar.gz -C /data
 ```
 
@@ -401,9 +401,9 @@ docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务�
 
 ## 数据持久化
 
-> **⚠️ 重要提示**：本项目的 `qwenpaw-data` 存储卷与 CoPaw 官方镜像的存储卷**不能通用**，原因是文件权限设置不一致。官方镜像可能使用不同的用户权限运行，直接挂载可能导致权限问题。
+> **⚠️ 重要提示**：本项目的 `copaw-data` 存储卷与 QwenPaw 官方镜像的存储卷**不能通用**，原因是文件权限设置不一致。官方镜像可能使用不同的用户权限运行，直接挂载可能导致权限问题。
 
-本项目使用 Docker 数据卷 `qwenpaw-data` 持久化以下内容：
+本项目使用 Docker 数据卷 `copaw-data` 持久化以下内容：
 
 - `.runtime/` - 敏感配置目录
   - `auth.json` - Web 认证数据（v0.1.0+）
@@ -533,9 +533,9 @@ docker compose restart
 
 ### 预构建镜像
 
-- **镜像地址**: `ghcr.io/log-z/qwenpaw-docker:latest`
-- **拉取命令**: `docker pull ghcr.io/log-z/qwenpaw-docker:latest`
-- **更新频率**: 随 CoPaw 官方版本更新
+- **镜像地址**: `ghcr.io/log-z/qwenpaw:latest`
+- **拉取命令**: `docker pull ghcr.io/log-z/qwenpaw:latest`
+- **更新频率**: 随 QwenPaw 官方版本更新
 
 ### 自行构建
 
@@ -601,7 +601,7 @@ docker compose restart
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度、LLM 重试配置（v0.2.0+） |
 | 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置 |
 | 智能体 | 工具 | 启用/禁用内置工具、批量切换、glob_search/grep_search |
-| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、CoPaw Local Model（v1.0.0+）、视频分析（v1.0.0.post1+）、`/model` 聊天命令（v1.0.2+） |
+| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、QwenPaw Local Model（v1.0.0+）、视频分析（v1.0.0.post1+）、`/model` 聊天命令（v1.0.2+） |
 | 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩） |
 | 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+）、系统重启/服务保护（v1.0.0+）、中文提示注入检测（v1.0.0+） |
 | 设置 | Token 使用 | 追踪各提供商 token 使用量 |
@@ -619,13 +619,13 @@ docker compose restart
 
 ### 相关链接
 
-- [CoPaw 官方仓库](https://github.com/agentscope-ai/CoPaw) - 官方 GitHub 仓库
-- [CoPaw 官方文档](http://copaw.agentscope.io/docs/)
+- [QwenPaw 官方仓库](https://github.com/agentscope-ai/QwenPaw) - 官方 GitHub 仓库
+- [QwenPaw 官方文档](http://qwenpaw.agentscope.io/docs/)
 - [docs/qwenpaw-info.md](docs/qwenpaw-info.md) - QwenPaw 官方文档信息汇总
-- [AgentScope](https://github.com/agentscope-ai/agentscope) - CoPaw 基础框架
+- [AgentScope](https://github.com/agentscope-ai/agentscope) - QwenPaw 基础框架
 
 ---
 
 ## License
 
-本项目基于 CoPaw 的官方部署方案构建。CoPaw 由 [AgentScope 团队](https://github.com/agentscope-ai) 开发，采用 [Apache License 2.0](https://github.com/agentscope-ai/CoPaw/blob/main/LICENSE) 开源许可。
+本项目基于 QwenPaw 的官方部署方案构建。QwenPaw 由 [AgentScope 团队](https://github.com/agentscope-ai) 开发，采用 [Apache License 2.0](https://github.com/agentscope-ai/QwenPaw/blob/main/LICENSE) 开源许可。

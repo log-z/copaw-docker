@@ -1,7 +1,7 @@
 services:
   qwenpaw:
     # 使用预构建镜像（推荐）
-    image: ghcr.io/log-z/qwenpaw-docker:latest
+    image: ghcr.io/log-z/qwenpaw:latest
 
     # 如需自行构建镜像，请注释上面的 image 配置，并取消注释下面的 build 配置：
     # build:
@@ -21,7 +21,7 @@ services:
       # OneBot 频道（反向 WS）
       # 用于接入 NapCat/go-cqhttp/Lagrange 等 QQ 协议端
       # 如在此 compose 中运行 OneBot 服务，可直接用容器名 qwenpaw 连接 ws://qwenpaw:6199/ws，无需映射此端口
-      # 详细用法请参考官方文档：https://copaw.agentscope.io/docs/channels/#OneBot-v11NapCat--QQ-%E5%AE%8C%E6%95%B4%E5%8D%8F%E8%AE%AE
+      # 详细用法请参考官方文档：https://qwenpaw.agentscope.io/docs/channels/#OneBot-v11NapCat--QQ-%E5%AE%8C%E6%95%B4%E5%8D%8F%E8%AE%AE
       # - "127.0.0.1:6199:6199"
 
     # 环境变量

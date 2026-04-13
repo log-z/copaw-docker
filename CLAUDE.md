@@ -8,9 +8,9 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 **Key Technologies**: Python 3.12, Docker, Docker Compose, AgentScope framework
 
-**Official Documentation**: http://copaw.agentscope.io/docs/
+**Official Documentation**: http://qwenpaw.agentscope.io/docs/
 
-**Official Repository**: https://github.com/agentscope-ai/CoPaw
+**Official Repository**: https://github.com/agentscope-ai/QwenPaw
 
 **Detailed Feature Reference**: [docs/qwenpaw-info.md](docs/qwenpaw-info.md)
 
@@ -35,7 +35,7 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 ### Data Volume Compatibility
 
-> The `qwenpaw-data` storage volume is **NOT compatible** with the official CoPaw image due to different file permission settings.
+> The `copaw-data` storage volume is **NOT compatible** with the official QwenPaw image due to different file permission settings.
 
 ---
 
@@ -69,11 +69,11 @@ docker compose exec qwenpaw qwenpaw task <prompt>     # Run one-off task, no web
 
 ```bash
 # Backup data
-docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+docker run --rm -v copaw-data:/data -v $(pwd):/backup \
     alpine tar czf /backup/qwenpaw-backup-$(date +%Y%m%d).tar.gz -C /data .
 
 # Restore data
-docker run --rm -v qwenpaw-data:/data -v $(pwd):/backup \
+docker run --rm -v copaw-data:/data -v $(pwd):/backup \
     alpine tar xzf /backup/qwenpaw-backup-YYYYMMDD.tar.gz -C /data
 ```
 
@@ -98,7 +98,7 @@ docker compose up → entrypoint.sh → check config.json
 
 ### Data Persistence
 
-All data stored in Docker volume `qwenpaw-data` at `/data/qwenpaw`:
+All data stored in Docker volume `copaw-data` at `/data/qwenpaw`:
 
 | File/Directory | Purpose |
 |----------------|---------|
@@ -137,7 +137,7 @@ Key variables (see [.env.example](.env.example) for full list):
 
 ## Image Information
 
-- **Repository**: `ghcr.io/log-z/qwenpaw-docker:latest`
+- **Repository**: `ghcr.io/log-z/qwenpaw:latest`
 - **Base**: `python:3.12-slim`
 - **Node.js**: 24.x LTS (MCP support)
 - **Browser**: Chromium headless (MCP browser automation)

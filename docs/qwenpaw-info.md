@@ -2,7 +2,7 @@
 
 > 本文档汇总了 QwenPaw 官方文档的关键信息，方便后续调整需求时快速获取。
 >
-> 官方文档：http://copaw.agentscope.io/docs/
+> 官方文档：http://qwenpaw.agentscope.io/docs/
 >
 > **更新日期**: 2026-04-09
 
@@ -597,17 +597,17 @@ QwenPaw 由 [AgentScope 团队](https://github.com/agentscope-ai) 基于以下�
 
 **macOS / Linux：**
 ```bash
-curl -fsSL https://copaw.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 ```
 
 **Windows（CMD）：**
 ```cmd
-curl -fsSL https://copaw.agentscope.io/install.bat -o install.bat && install.bat
+curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat
 ```
 
 **Windows（PowerShell）：**
 ```powershell
-irm https://copaw.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 ```
 
 **可选参数：**
@@ -642,26 +642,26 @@ pip install qwenpaw
 - ✅ **可视化**：自动打开浏览器界面，无需手动输入地址
 - ⚠️ **Beta 阶段**：功能持续完善中，欢迎反馈问题
 
-**下载地址**：[GitHub Releases](https://github.com/agentscope-ai/CoPaw/releases)
-- Windows: `CoPaw-Setup-<version>.exe`
-- macOS: `CoPaw-<version>-macOS.zip`
+**下载地址**：[GitHub Releases](https://github.com/agentscope-ai/QwenPaw/releases)
+- Windows: `QwenPaw-Setup-<version>.exe`
+- macOS: `QwenPaw-<version>-macOS.zip`
 
 #### 方式四：魔搭创空间一键配置（无需安装）
 
 1. 前往 [魔搭](https://modelscope.cn/register) 注册并登录
-2. 打开 [QwenPaw 创空间](https://modelscope.cn/studios/fork?target=AgentScope/CoPaw)，一键配置即可使用
+2. 打开 [QwenPaw 创空间](https://modelscope.cn/studios/fork?target=AgentScope/QwenPaw)，一键配置即可使用
 
 > **重要**：使用创空间请将空间设为**非公开**，否则你的 QwenPaw 可能被他人操纵。
 
 #### 方式五：Docker
 
-镜像在 **Docker Hub**（`agentscope/copaw`）。镜像 tag：`latest`（稳定版）、`pre`（PyPI 预发布版）。
+镜像在 **Docker Hub**（`agentscope/qwenpaw`）。镜像 tag：`latest`（稳定版）、`pre`（PyPI 预发布版）。
 
-国内用户也可选用阿里云 ACR：`agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/copaw`（tag 相同）。
+国内用户也可选用阿里云 ACR：`agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/qwenpaw`（tag 相同）。
 
 ```bash
-docker pull agentscope/copaw:latest
-docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/copaw:latest
+docker pull agentscope/qwenpaw:latest
+docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/qwenpaw:latest
 ```
 
 > **安全更新**：v0.0.5 起，默认端口绑定改为 `127.0.0.1` 以提高安全性。
@@ -1037,26 +1037,26 @@ qwenpaw skills config                  # 交互式开关
 
 | 页面 | 说明 | 链接 |
 |------|------|------|
-| 项目介绍 | QwenPaw 是什么、能做什么 | http://copaw.agentscope.io/docs/intro |
-| 快速开始 | 安装和启动指南 | http://copaw.agentscope.io/docs/quickstart |
-| 桌面应用 | 桌面应用使用指南 (v0.0.6+) | http://copaw.agentscope.io/docs/desktop |
-| 控制台 | 控制台使用说明 | http://copaw.agentscope.io/docs/console |
-| 频道配置 | 钉钉/飞书/QQ/Discord/iMessage/Telegram/Twilio/MQTT 配置 | http://copaw.agentscope.io/docs/channels |
-| Skills | 技能扩展说明 | http://copaw.agentscope.io/docs/skills |
-| MCP | MCP 客户端配置 | http://copaw.agentscope.io/docs/mcp |
-| 记忆 | 记忆系统说明 | http://copaw.agentscope.io/docs/memory |
-| 心跳 | 心跳配置说明 | http://copaw.agentscope.io/docs/heartbeat |
-| 配置与工作目录 | 详细配置说明 | http://copaw.agentscope.io/docs/config |
-| CLI | 命令行工具说明 | http://copaw.agentscope.io/docs/cli |
-| FAQ 常见问题 | 社区常见问题汇总 | http://copaw.agentscope.io/docs/faq |
-| 问题反馈与交流 | 社区支持 | http://copaw.agentscope.io/docs/community |
-| 开源与贡献 | 贡献指南 | http://copaw.agentscope.io/docs/contributing |
+| 项目介绍 | QwenPaw 是什么、能做什么 | http://qwenpaw.agentscope.io/docs/intro |
+| 快速开始 | 安装和启动指南 | http://qwenpaw.agentscope.io/docs/quickstart |
+| 桌面应用 | 桌面应用使用指南 (v0.0.6+) | http://qwenpaw.agentscope.io/docs/desktop |
+| 控制台 | 控制台使用说明 | http://qwenpaw.agentscope.io/docs/console |
+| 频道配置 | 钉钉/飞书/QQ/Discord/iMessage/Telegram/Twilio/MQTT 配置 | http://qwenpaw.agentscope.io/docs/channels |
+| Skills | 技能扩展说明 | http://qwenpaw.agentscope.io/docs/skills |
+| MCP | MCP 客户端配置 | http://qwenpaw.agentscope.io/docs/mcp |
+| 记忆 | 记忆系统说明 | http://qwenpaw.agentscope.io/docs/memory |
+| 心跳 | 心跳配置说明 | http://qwenpaw.agentscope.io/docs/heartbeat |
+| 配置与工作目录 | 详细配置说明 | http://qwenpaw.agentscope.io/docs/config |
+| CLI | 命令行工具说明 | http://qwenpaw.agentscope.io/docs/cli |
+| FAQ 常见问题 | 社区常见问题汇总 | http://qwenpaw.agentscope.io/docs/faq |
+| 问题反馈与交流 | 社区支持 | http://qwenpaw.agentscope.io/docs/community |
+| 开源与贡献 | 贡献指南 | http://qwenpaw.agentscope.io/docs/contributing |
 
 ---
 
 ## 相关项目
 
-- [QwenPaw 官方仓库](https://github.com/agentscope-ai/CoPaw) - QwenPaw 主项目
+- [QwenPaw 官方仓库](https://github.com/agentscope-ai/QwenPaw) - QwenPaw 主项目
 - [AgentScope](https://github.com/agentscope-ai/agentscope)
 - [AgentScope Runtime](https://github.com/agentscope-ai/agentscope-runtime)
 - [ReMe](https://github.com/agentscope-ai/ReMe)
@@ -1070,8 +1070,8 @@ qwenpaw skills config                  # 交互式开关
 QwenPaw 官方也提供 Docker 镜像，可直接使用：
 
 ```bash
-docker pull agentscope/copaw:latest
-docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/copaw:latest
+docker pull agentscope/qwenpaw:latest
+docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/qwenpaw:latest
 ```
 
 > **注**：本项目（copaw-docker）与官方镜像的主要区别在于：
@@ -1088,10 +1088,10 @@ docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/copaw:
 |------|------|
 | Discord | [加入 Discord 社区](https://discord.gg/agentscope) |
 | 钉钉 | 搜索群组加入 |
-| GitHub Issues | [提交问题](https://github.com/agentscope-ai/CoPaw/issues) |
+| GitHub Issues | [提交问题](https://github.com/agentscope-ai/QwenPaw/issues) |
 
 ---
 
 ## License
 
-QwenPaw 采用 [Apache License 2.0](https://github.com/agentscope-ai/CoPaw/blob/main/LICENSE) 开源许可。
+QwenPaw 采用 [Apache License 2.0](https://github.com/agentscope-ai/QwenPaw/blob/main/LICENSE) 开源许可。
