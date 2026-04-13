@@ -126,7 +126,8 @@ RUN mkdir -p /data/qwenpaw/.runtime && \
 # 兼容旧版 CoPaw 命名（因为从 v1.1.0 开始 CoPaw 改名为 QwenPaw）
 RUN ln -sf /usr/local/bin/qwenpaw /usr/local/bin/copaw && \
     ln -sf /usr/local/lib/python3.12/site-packages/qwenpaw /usr/local/lib/python3.12/site-packages/copaw && \
-    ln -sf /data/qwenpaw /data/copaw
+    ln -sf /data/qwenpaw /data/copaw && \
+    ln -sf /data/qwenpaw/.runtime /data/copaw.secret
 
 # 设置目录所有权
 RUN chown -R qwenpaw:qwenpaw /usr/local/lib/python3.12/site-packages/qwenpaw && \
@@ -138,9 +139,10 @@ WORKDIR /data/qwenpaw
 # 复制启动脚本和健康检查脚本
 COPY --chown=qwenpaw:qwenpaw scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chown=qwenpaw:qwenpaw scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY --chown=qwenpaw:qwenpaw scripts/migrate-legacy-dir.sh /usr/local/bin/migrate-legacy-dir.sh
 
 # 设置脚本权限
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/migrate-legacy-dir.sh
 
 # 切换到非 root 用户
 USER qwenpaw

@@ -45,6 +45,9 @@ log_info "Working directory: ${QWENPAW_WORKING_DIR}"
 log_info "Log level: ${QWENPAW_LOG_LEVEL}"
 log_info "Port: ${QWENPAW_PORT}"
 
+# 迁移 legacy .copaw 目录（因为从 v1.1.0 开始 CoPaw 改名为 QwenPaw）
+/usr/local/bin/migrate-legacy-dir.sh "${QWENPAW_WORKING_DIR}"
+
 # 检查是否需要初始化
 if [ ! -f "${QWENPAW_WORKING_DIR}/config.json" ]; then
     log_warn "Configuration file not found. Initializing QwenPaw..."
