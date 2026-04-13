@@ -18,8 +18,8 @@ jobs:
         run: |
           SHA=$(echo ${{ github.event.workflow_run.head_sha }} | cut -c1-7)
           echo "Pulling production image with SHA: ${SHA}"
-          docker pull ghcr.io/${{ github.repository }}:${SHA}
-          docker tag ghcr.io/${{ github.repository }}:${SHA} qwenpaw:testing
+          docker pull ghcr.io/${{ github.repository_owner }}/qwenpaw:sha-${SHA}
+          docker tag ghcr.io/${{ github.repository_owner }}/qwenpaw:sha-${SHA} qwenpaw:testing
 
       - name: Create docker-compose override for pulled image
         run: |

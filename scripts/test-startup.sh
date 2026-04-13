@@ -198,10 +198,10 @@ echo ""
 
 # 10. 数据持久化验证
 log_section "10. 数据持久化验证"
-VOLUME_CONTENTS=$(docker run --rm -v qwenpaw-data:/data alpine ls -la /data/qwenpaw 2>/dev/null | wc -l)
+VOLUME_CONTENTS=$(docker run --rm -v copaw-data:/data/qwenpaw alpine ls -la /data/qwenpaw 2>/dev/null | wc -l)
 if [ "$VOLUME_CONTENTS" -gt 0 ]; then
     log_info "数据卷中有 $VOLUME_CONTENTS 项内容"
-    docker run --rm -v qwenpaw-data:/data alpine ls -la /data/qwenpaw
+    docker run --rm -v copaw-data:/data/qwenpaw alpine ls -la /data/qwenpaw
 else
     log_warn "数据卷为空（首次启动正常）"
 fi

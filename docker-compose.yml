@@ -35,7 +35,7 @@ services:
     # 数据卷挂载
     volumes:
       # 持久化工作目录
-      - qwenpaw-data:/data/qwenpaw
+      - copaw-data:/data/qwenpaw
 
       # 可选：挂载自定义技能目录
       # - ./customized_skills:/data/qwenpaw/customized_skills:ro
@@ -67,9 +67,9 @@ services:
 
 # 数据卷定义
 volumes:
-  qwenpaw-data:
+  copaw-data:
     driver: local
-    name: qwenpaw-data
+    name: copaw-data
 
 # 网络定义
 networks:

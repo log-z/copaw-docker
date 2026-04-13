@@ -123,6 +123,11 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 RUN mkdir -p /data/qwenpaw/.runtime && \
     ln -sf /data/qwenpaw/.runtime /data/qwenpaw.secret
 
+# 兼容旧版 CoPaw 命名（因为从 v1.1.0 开始 CoPaw 改名为 QwenPaw）
+RUN ln -sf /usr/local/bin/qwenpaw /usr/local/bin/copaw && \
+    ln -sf /usr/local/lib/python3.12/site-packages/qwenpaw /usr/local/lib/python3.12/site-packages/copaw && \
+    ln -sf /data/qwenpaw /data/copaw
+
 # 设置目录所有权
 RUN chown -R qwenpaw:qwenpaw /usr/local/lib/python3.12/site-packages/qwenpaw && \
     chown -R qwenpaw:qwenpaw /data/qwenpaw
