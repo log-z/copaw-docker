@@ -14,11 +14,12 @@
 
 | 镜像来源 | 迁移 | 说明 |
 |----------|------|------|
-| `ghcr.io/log-z/copaw-docker` | ✓ | 旧版镜像，需要迁移 |
-| `logz2/copaw` | ✓ | 旧版镜像，需要迁移 |
-| `ghcr.io/log-z/qwenpaw` | ✗ | 新版镜像，无需迁移 |
-| `agentscope/copaw` | ✗ | 官方镜像不适用于此项目 |
-| `agentscope/qwenpaw` | ✗ | 官方镜像不适用于此项目 |
+| `ghcr.io/log-z/copaw-docker` | ✅ | 旧版镜像，需要迁移 |
+| `logz2/copaw` | ✅ | 旧版镜像，需要迁移 |
+| `ghcr.io/log-z/qwenpaw` | ❌ | 新版镜像，无需迁移 |
+| `logz2/qwenpaw` | ❌ | 新版镜像，无需迁移 |
+| `agentscope/copaw` | ❌ | 官方镜像不适用于此项目 |
+| `agentscope/qwenpaw` | ❌ | 官方镜像不适用于此项目 |
 
 简而言之：如果你的 `docker-compose.yml` 中 `image` 字段包含 `copaw`，就需要迁移。
 
@@ -28,9 +29,9 @@
 
 | 资源 | 是否迁移 | 说明 |
 |------|---------|------|
-| **存储卷** (`copaw-data`) | ✓ | 包含所有配置、工作区、运行时数据，都能完整保留 |
-| **网络** | ✗ | 旧容器使用的网络不会迁移，新容器会创建 `qwenpaw-network` |
-| **容器** | ✗ | 容器名从 `copaw` 变为 `qwenpaw`，会被重新创建 |
+| **存储卷** (`copaw-data`) | ✅ | 包含所有配置、工作区、运行时数据，都能完整保留 |
+| **网络** | ❌ | 旧容器使用的网络不会迁移，新容器会创建 `qwenpaw-network` |
+| **容器** | ❌ | 容器名从 `copaw` 变为 `qwenpaw`，会被重新创建 |
 
 ---
 
@@ -44,7 +45,7 @@
 docker compose down
 ```
 
-如果使用 `docker run` 直接运行，则手动停止并移除容器：
+如果你之前使用 `docker run` 部署，则手动停止并移除容器：
 
 ```bash
 docker stop copaw && docker rm copaw
@@ -69,7 +70,7 @@ docker compose up -d
 
 ### 4. 环境变量变更
 
-环境变量前缀从 `COPAW_` 变更为 `QWENPAW_`，请检查并更新 `.env` 文件，例如：
+部分环境变量前缀从 `COPAW_` 变更为 `QWENPAW_`，请检查并更新 `.env` 文件（如果存在），例如：
 
 | 旧变量名 | 新变量名 |
 |----------|---------|
