@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 # 迁移 legacy .copaw 目录
 # 上游 constant.py 中 ~/.copaw 存在性检测优先级高于 QWENPAW_WORKING_DIR 环境变量
 # 需要在 app 启动前将 .copaw 重命名，否则工作目录会被错误地解析为 /data/qwenpaw/.copaw
