@@ -35,7 +35,7 @@
 
 ---
 
-## 🚀 迁移步骤
+## 🚀 迁移步骤（Docker）
 
 ### 1. 停止旧版容器
 
@@ -80,6 +80,22 @@ docker compose up -d
 | `COPAW_VERSION` | `QWENPAW_VERSION` |
 
 > 第三方 LLM 提供商的 API Key 变量名（如 `OPENAI_API_KEY`、`ANTHROPIC_API_KEY` 等）不受影响。
+
+---
+
+## 🚀 迁移步骤（K8s）
+
+### 1. 调整存储卷
+
+用户数据存储卷的挂载点从 `/data/copaw` 改为 `/data/qwenpaw` 。
+
+### 2. 更换镜像名
+
+使用新版镜像 `ghcr.io/log-z/qwenpaw` 或 `logz2/qwenpaw` 。
+
+### 3. 环境变量变更
+
+参考 Docker 迁移步骤。
 
 ---
 
