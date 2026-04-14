@@ -45,7 +45,7 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 ```bash
 docker compose build                              # Build the image
-docker compose build --build-arg QWENPAW_VERSION=1.1.0  # Build with specific version
+docker compose build --build-arg QWENPAW_VERSION=1.1.1  # Build with specific version
 docker compose up -d                              # Start the service
 docker compose logs -f qwenpaw                    # View logs
 docker compose stop / restart                     # Stop/Restart
@@ -121,7 +121,7 @@ Key variables (see [.env.example](.env.example) for full list):
 | `QWENPAW_AUTO_INIT` | Auto initialization (default: true) |
 | `QWENPAW_LLM_MAX_RETRIES` | LLM API retry attempts (v0.0.7+) |
 | `EMBEDDING_API_KEY` | Vector memory search |
-| `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` / `ZHIPU_API_KEY` / `SILICONFLOW_API_KEY` | LLM provider keys |
+| `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` / `ZHIPU_API_KEY` / `SILICONFLOW_API_KEY` / `OPENROUTER_API_KEY` | LLM provider keys |
 
 ---
 

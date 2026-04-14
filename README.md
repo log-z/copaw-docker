@@ -14,7 +14,7 @@ QwenPaw（原 CoPaw 项目）是一款个人 AI 助手，部署在你自己的�
 更多信息请看官方仓库：[agentscope-ai/QwenPaw](https://github.com/agentscope-ai/QwenPaw)
 
 > [!NOTE]
-> 如果你正在使用旧版 CoPaw 镜像，请参阅 [如何从 CoPaw 迁移到 QwenPaw](docs/migrate-from-copaw.md)。
+> 如果你正在使用旧版 CoPaw 镜像，请参阅 [如何从 CoPaw 迁移到 QwenPaw](docs/migrate-from-copaw.md) 。
 
 ---
 
@@ -263,6 +263,8 @@ docker compose exec qwenpaw qwenpaw models config-key minimax      # 配置 Mini
 docker compose exec qwenpaw qwenpaw models config-key kimi         # 配置 Kimi（v0.1.0+）
 docker compose exec qwenpaw qwenpaw models config-key zhipu        # 配置智谱（v1.0.1+）
 docker compose exec qwenpaw qwenpaw models config-key siliconflow  # 配置 SiliconFlow（v1.0.2+）
+docker compose exec qwenpaw qwenpaw models config-key openrouter   # 配置 OpenRouter（v1.1.1+）
+docker compose exec qwenpaw qwenpaw models config-key opencode     # 配置 OpenCode/Zen（v1.1.1+）
 docker compose exec qwenpaw qwenpaw models config-key custom       # 配置自定义提供商
 docker compose exec qwenpaw qwenpaw models set-llm                 # 切换活跃模型
 
@@ -376,6 +378,7 @@ docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务�
 | `KIMI_API_KEY` | Kimi API Key（v0.1.0+ 新增） |
 | `ZHIPU_API_KEY` | 智谱 API Key（v1.0.1+ 新增） |
 | `SILICONFLOW_API_KEY` | SiliconFlow API Key（v1.0.2+ 新增） |
+| `OPENROUTER_API_KEY` | OpenRouter API Key（v1.1.1+ 新增） |
 
 ### Web 认证配置（v0.1.0+ 新增）
 
@@ -554,37 +557,34 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.0.2 更新（最新）
+### v1.1.1 更新（最新）
 
 #### 新功能
-- **插件系统** - 从工作区 `plugins/` 文件夹安装扩展
-- **`qwenpaw task` 命令** - 从终端运行一次性任务，无需启动 Web 服务
-- **`/model` 聊天命令** - 在聊天中切换模型、列出可用模型、恢复默认、查看模型详情
-- **SiliconFlow 提供商** - 内置 SiliconFlow API，提供中国和国际端点
-- **密钥加密存储** - API Key 等敏感值在磁盘上加密，密钥存储在操作系统钥匙串
-- **聊天搜索** - 跨会话搜索消息文本
-- **置顶会话** - 置顶对话使其保持在列表顶部
-- **聊天输入历史** - 使用上下箭头键浏览之前的用户输入
-- **每 Agent 聊天记忆** - 切换 Agent 时恢复上次打开的聊天
-- **技能命令** - `/skills` 查看已启用技能，`/<技能名>` 直接调用
-- **技能池标签** - 使用标签组织共享技能池
-- **MCP 工具发现** - 通过 HTTP API 查询 MCP 服务器工具信息
-- **QQ 富媒体发送** - 在各种消息类型中一致地发送文件和富媒体
-- **企业微信引用上下文** - 收到的消息保留引用/回复上下文
+- **OpenRouter 提供商** - 内置 OpenRouter，支持模型发现、系列浏览、按模态和价格筛选
+- **OpenCode (Zen) 提供商** - 内置 OpenAI 兼容提供商，提供免费模型
+- **模型 ID 自动补全** - 添加模型时自动补全模型 ID，默认启用模型发现
+- **内置 Agent 协作工具** - `list_agents` 和 `chat_with_agent` 工具，支持 Agent 间通信
+- **Matrix 频道重写** - 端到端加密 (E2EE)、@提及处理、消息历史、Markdown 渲染
+- **飞书引用消息** - 回复链消息处理，支持文本、帖子、图片和文件内容提取
+- **钉钉 QR 认证** - 控制台钉钉频道设置支持二维码设备流认证
+- **扩展 Shell 命令防护** - 新增 `$IFS` 注入、控制字符、Unicode 空白字符等防护规则
+- **ClawHub 技能需求格式** - 支持 ClawHub 格式的技能需求
+- **媒体 URL 直接查看** - `view_image` 和 `view_video` 支持 HTTP/HTTPS URL
 
 #### 优化
-- 时区选择器跟随 UI 语言
-- 控制台全面使用人类可读的文件大小格式
-- 较重的设置页面按需加载，首屏更快
-- 内置工具图标和提供商 Logo 显示
+- 多模态探测统一（Anthropic/Gemini/OpenAI 共享评估路径）
+- 切换模型提供商时保留媒体附件
+- 钉钉迁移至阿里云官方 SDK
+- 飞书 WebSocket 重连稳定性改进
+- 浏览器默认启动策略改为托管 CDP
+- 模型管理 UI 重设计（能力标签、搜索、卡片布局）
+- Agent 配置页面重构为标签页界面
+- 技能选择 UI 改进（标签建议、批量操作）
 
 #### Bug 修复
-- iMessage 私聊遵循 DM 策略和白名单
-- Discord 长回复不再破坏 Markdown 代码块
-- 飞书重连和多 Agent 运行不再因共享锁出错
-- MCP 关闭/重连后不再导致 CPU 飙升
-- 浏览器自动化点击重复元素时选择正确目标
-- Shell 工具保留引用文本中的换行符
+- QQ WebSocket 关闭不再阻塞 8 秒
+- 修复 Windows 本地模型下载失败
+- vLLM 兼容性：省略 `tool_choice=auto` 避免 400 错误
 
 ---
 
@@ -598,15 +598,15 @@ docker compose restart
 | 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
-| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器 |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+）、技能命令 `/<skill>` （v1.0.2+）、技能池标签（v1.0.2+） |
+| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器、标签页界面（v1.1.1+） |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+）、技能命令 `/<skill>` （v1.0.2+）、技能池标签（v1.0.2+）、技能选择改进（v1.1.1+） |
 | 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端、控制台 MCP 配置（v1.0.0.post2+）、MCP 工具发现（v1.0.2+） |
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度、LLM 重试配置（v0.2.0+） |
 | 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置 |
 | 智能体 | 工具 | 启用/禁用内置工具、批量切换、glob_search/grep_search |
-| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、QwenPaw Local Model（v1.0.0+）、视频分析（v1.0.0.post1+）、`/model` 聊天命令（v1.0.2+） |
+| 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、QwenPaw Local Model（v1.0.0+）、视频分析（v1.0.0.post1+）、`/model` 聊天命令（v1.0.2+）、模型 ID 自动补全（v1.1.1+） |
 | 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩） |
-| 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+）、系统重启/服务保护（v1.0.0+）、中文提示注入检测（v1.0.0+） |
+| 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+）、系统重启/服务保护（v1.0.0+）、中文提示注入检测（v1.0.0+）、扩展 Shell 命令防护（v1.1.1+） |
 | 设置 | Token 使用 | 追踪各提供商 token 使用量 |
 | 设置 | 语音转录 | 语音转录设置 |
 | 设置 | 主题 | 暗黑模式切换 |

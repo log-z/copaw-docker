@@ -4,13 +4,78 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-04-09
+> **更新日期**: 2026-04-14
 
 ---
 
-## 重要更新 (2026-04-09)
+## 重要更新 (2026-04-14)
 
-### v1.0.2 (最新)
+### v1.1.1 (最新)
+
+#### 新功能
+
+**模型与提供商**
+- **OpenRouter 提供商** - 内置 OpenRouter 提供商，支持模型发现、系列浏览、按模态和价格筛选 (#1192)
+- **OpenCode (Zen) 提供商** - 内置 OpenAI 兼容的 OpenCode 提供商，提供免费模型 (#2463)
+- **模型 ID 自动补全** - 添加模型时模型 ID 选择下拉自动补全，默认为所有提供商启用模型发现 (#3175, #3341)
+
+**多代理系统**
+- **内置 Agent 协作工具** - 新增 `list_agents` 和 `chat_with_agent` 内置工具，支持 Agent 间通信，含专用技能和简化 CLI 命令 (#3292)
+
+**频道**
+- **Matrix 频道重写** - 端到端加密 (E2EE)、@提及处理、消息历史支持和 Markdown 渲染 (#2509)
+- **飞书引用消息** - 回复链消息处理，支持文本、帖子、图片和文件内容提取 (#3207)
+- **钉钉 QR 认证** - 控制台中钉钉频道设置支持二维码设备流认证 (#3315)
+
+**安全**
+- **扩展 Shell 命令防护** - 新增防护规则覆盖 `$IFS` 注入、控制字符、Unicode 空白字符、`/proc/*/environ` 访问、危险 `jq` 标志和 Zsh 风险内置命令 (#3303)
+
+**工具与技能**
+- **ClawHub 技能需求格式** - 支持 ClawHub 格式的技能需求，含多元数据命名空间解析 (#3310)
+- **媒体 URL 查看** - `view_image` 和 `view_video` 工具现支持 HTTP/HTTPS URL 直接查看媒体，无需下载 (#3358)
+
+#### 优化
+
+**模型与提供商**
+- **多模态探测统一** - Anthropic、Gemini 和 OpenAI 的图像支持探测共享统一评估路径，改进误报检测 (#3367)
+- **模型切换消息规范化** - 请求时规范化消息，切换模型提供商时保留媒体附件 (#3359)
+- **Anthropic 媒体去重** - 工具结果中重复的 base64 媒体替换为文本占位符，防止超出 Anthropic 消息大小限制 (#3372)
+
+**频道**
+- **钉钉 SDK 迁移** - 频道迁移至阿里云官方 SDK，处理期间显示 emoji 反馈，AI 卡片模式支持媒体发送 (#3236, #3337, #3374)
+- **飞书 WebSocket 稳定性** - 重构事件循环处理，改进跨线程重连可靠性 (#3360)
+- **微信回复限制警告** - 频道设置现显示微信 iLink 的 context_token 回复限制警告 (#3376)
+
+**工具与技能**
+- **浏览器托管 CDP** - 默认浏览器启动策略改为托管 CDP，自动检测 Chromium、端口分配和进程生命周期管理 (#3164)
+
+**控制台与 UI**
+- **模型管理重设计** - 提供商模型管理模态框重设计，支持能力标签、模型搜索和简化卡片布局 (#3273, #3294)
+- **Agent 配置标签页** - Agent 配置页面从堆叠卡片重构为标签页界面 (#3354)
+- **技能选择 UI** - 改进技能选择，支持标签建议、长名称工具提示、优化加载行为和批量选择操作 (#3320, #3362, #3373)
+- **下载页面** - 网站下载页面重构，按稳定版和预览版分组 (#3353)
+
+#### Bug 修复
+
+**频道**
+- **QQ WebSocket 关闭** - `stop()` 不再因强制关闭 WebSocket 而阻塞 8 秒 (#3188)
+
+**控制台与 UI**
+- 修复暗黑模式下聊天会话置顶按钮对比度 (#3267)
+- 标题中 Markdown 链接现可在应用内导航而非打开新标签页 (#3186)
+- 网站贡献者布局中文区域对齐 (#3332)
+
+**提供商**
+- 修复 Windows 上本地模型下载失败 (`[Errno 22] Invalid argument`) (#3321)
+- 为 vLLM 兼容性省略 `tool_choice=auto`，避免未启用 `--enable-auto-tool-choice` 时出现 400 错误 (#3295)
+
+#### 文档
+- **RESTful API 教程** - 全面的 REST API 教程，涵盖聊天端点、认证、多轮会话、流式和 Agent 切换 (#3335)
+- **技能聊天命令** - 在命令文档中添加技能聊天命令参考 (#3330)
+
+---
+
+### v1.0.2
 
 #### 新功能
 
@@ -546,6 +611,8 @@
 - `qwenpaw models config-key lmstudio` - 配置 LM Studio (v0.0.7)
 - `qwenpaw models config-key siliconflow` - 配置 SiliconFlow (v1.0.2)
 - `qwenpaw models config-key zhipu` - 配置智谱 (v1.0.1)
+- `qwenpaw models config-key openrouter` - 配置 OpenRouter (v1.1.1)
+- `qwenpaw models config-key opencode` - 配置 OpenCode/Zen (v1.1.1)
 - `qwenpaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
 - `qwenpaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
 - `qwenpaw channels install/add/remove` - 自定义频道管理
@@ -859,6 +926,8 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | QwenPaw Local Model (v1.0.0 新增) | `qwenpaw-local` | 本地 llama.cpp 引擎 |
 | SiliconFlow (v1.0.2 新增) | `siliconflow` | 中国版/国际版分离端点 |
 | Zhipu / 智谱 (v1.0.1 新增) | `zhipu` | `https://open.bigmodel.cn/api/paas/v4` |
+| OpenRouter (v1.1.1 新增) | `openrouter` | `https://openrouter.ai/api/v1` |
+| OpenCode / Zen (v1.1.1 新增) | `opencode` | OpenAI 兼容端点，提供免费模型 |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
 | 自定义 | `custom` | （你自己填） |
 
@@ -960,6 +1029,8 @@ qwenpaw models config-key deepseek     # 配置 DeepSeek (v0.1.0+)
 qwenpaw models config-key minimax      # 配置 MiniMax (v0.1.0+)
 qwenpaw models config-key kimi         # 配置 Kimi (v0.1.0+)
 qwenpaw models config-key siliconflow  # 配置 SiliconFlow (v1.0.2+)
+qwenpaw models config-key openrouter   # 配置 OpenRouter (v1.1.1+)
+qwenpaw models config-key opencode     # 配置 OpenCode/Zen (v1.1.1+)
 qwenpaw models set-llm                 # 切换活跃模型
 qwenpaw models download <repo_id>      # 下载本地模型
 qwenpaw models local                   # 查看已下载模型
