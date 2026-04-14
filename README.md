@@ -333,75 +333,11 @@ docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务�
 
 ## 环境变量说明
 
-### QwenPaw 基础配置
+完整的环境变量列表及说明请参见 [.env.example](.env.example) 。
 
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `QWENPAW_WORKING_DIR` | `/data/qwenpaw` | 工作目录（固定不可修改） |
-| `QWENPAW_CONFIG_FILE` | `config.json` | 配置文件名 |
-| `QWENPAW_HEARTBEAT_FILE` | `HEARTBEAT.md` | 心跳问题文件名 |
-| `QWENPAW_JOBS_FILE` | `jobs.json` | 定时任务文件名 |
-| `QWENPAW_CHATS_FILE` | `chats.json` | 会话列表文件名 |
-| `QWENPAW_LOG_LEVEL` | `info` | 日志级别（debug/info/warning/error/critical） |
-| `QWENPAW_MEMORY_COMPACT_THRESHOLD` | `100000` | 触发记忆压缩的字符阈值 |
-| `QWENPAW_MEMORY_COMPACT_KEEP_RECENT` | `3` | 压缩后保留的最近消息数 |
-| `QWENPAW_MEMORY_COMPACT_RATIO` | `0.7` | 触发压缩的阈值比例（相对于上下文窗口大小） |
-| `QWENPAW_AUTO_INIT` | `true` | 是否自动初始化 |
-
-### Embedding 服务配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `EMBEDDING_API_KEY` | （必填） | Embedding 服务的 API Key |
-| `EMBEDDING_BASE_URL` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | Embedding 服务地址 |
-| `EMBEDDING_MODEL_NAME` | `text-embedding-v4` | Embedding 模型名称 |
-| `EMBEDDING_DIMENSIONS` | `1024` | 向量维度 |
-| `EMBEDDING_CACHE_ENABLED` | `true` | 是否启用 Embedding 缓存 |
-| `FTS_ENABLED` | `true` | 是否启用 BM25 全文检索 |
-| `MEMORY_STORE_BACKEND` | `auto` | 记忆存储后端（auto/local/chroma/sqlite） |
-
-### 模型提供商配置
-
-选择一个或多个提供商配置 API Key：
-
-| 变量 | 说明 |
-|------|------|
-| `MODELSCOPE_API_KEY` | ModelScope（魔搭）API Key |
-| `DASHSCOPE_API_KEY` | DashScope（灵积）API Key |
-| `OPENAI_API_KEY` | OpenAI 兼容接口 API Key |
-| `OPENAI_BASE_URL` | OpenAI 兼容接口地址 |
-| `OPENAI_MODEL_NAME` | OpenAI 兼容模型名称 |
-| `ANTHROPIC_API_KEY` | Anthropic API Key（v0.0.5+ 新增） |
-| `GEMINI_API_KEY` | Gemini API Key（v0.0.6+ 新增） |
-| `DEEPSEEK_API_KEY` | DeepSeek API Key（v0.1.0+ 新增） |
-| `MINIMAX_API_KEY` | MiniMax API Key（v0.1.0+ 新增） |
-| `KIMI_API_KEY` | Kimi API Key（v0.1.0+ 新增） |
-| `ZHIPU_API_KEY` | 智谱 API Key（v1.0.1+ 新增） |
-| `SILICONFLOW_API_KEY` | SiliconFlow API Key（v1.0.2+ 新增） |
-| `OPENROUTER_API_KEY` | OpenRouter API Key（v1.1.1+ 新增） |
-
-### Web 认证配置（v0.1.0+ 新增）
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `QWENPAW_AUTH_ENABLED` | `false` | 是否启用 Web 认证（启用后首次访问显示注册页面） |
-| `QWENPAW_AUTH_USERNAME` | （空） | 自动注册管理员用户名（仅首次启动时生效） |
-| `QWENPAW_AUTH_PASSWORD` | （空） | 自动注册管理员密码（仅首次启动时生效） |
-
-### 模型重试配置（v0.0.7+ 新增）
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `QWENPAW_LLM_MAX_RETRIES` | `3` | LLM API 调用最大重试次数 |
-| `QWENPAW_LLM_BACKOFF_BASE` | `1.0` | 重试退避基准时间（秒） |
-| `QWENPAW_LLM_BACKOFF_CAP` | `30.0` | 最大退避时间上限（秒） |
-
-### Web 服务配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `QWENPAW_CORS_ORIGINS` | `*` | CORS 允许的来源（v0.0.4+ 新增） |
-| `QWENPAW_RUNNING_IN_CONTAINER` | `true` | 是否在容器内运行（自动检测，通常无需手动设置） |
+> **注意**：模型提供商的 API Key **不支持**通过环境变量配置，需通过以下方式设置：
+> - WebUI 控制台 → Settings → Models
+> - CLI 命令：`docker compose exec qwenpaw qwenpaw models config`
 
 ---
 

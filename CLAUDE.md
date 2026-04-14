@@ -118,10 +118,15 @@ Key variables (see [.env.example](.env.example) for full list):
 | `QWENPAW_AUTH_ENABLED` | Enable Web authentication (default: `false`, v1.1.0+) |
 | `QWENPAW_AUTH_USERNAME` | Auto-register admin username (v1.1.0+) |
 | `QWENPAW_AUTH_PASSWORD` | Auto-register admin password (v1.1.0+) |
-| `QWENPAW_AUTO_INIT` | Auto initialization (default: true) |
-| `QWENPAW_LLM_MAX_RETRIES` | LLM API retry attempts (v0.0.7+) |
-| `EMBEDDING_API_KEY` | Vector memory search |
-| `MODELSCOPE_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` / `ZHIPU_API_KEY` / `SILICONFLOW_API_KEY` / `OPENROUTER_API_KEY` | LLM provider keys |
+| `QWENPAW_AUTO_INIT` | Auto initialization (default: true, Docker entrypoint only) |
+| `QWENPAW_PORT` | Listening port (default: `8088`) |
+| `QWENPAW_LLM_MAX_RETRIES` | LLM API retry attempts (default: `3`) |
+| `QWENPAW_LLM_MAX_CONCURRENT` | Max concurrent LLM calls (default: `10`) |
+| `QWENPAW_LLM_MAX_QPM` | Max queries per minute (default: `600`) |
+| `EMBEDDING_API_KEY` | Embedding API key for vector memory search |
+| `TAVILY_API_KEY` | Tavily search API key for web search skill |
+
+> **Note:** LLM provider API keys (DashScope, OpenAI, Anthropic, etc.) are NOT configured via environment variables. Use the WebUI (Settings → Models) or CLI (`qwenpaw models config`) instead.
 
 ---
 
