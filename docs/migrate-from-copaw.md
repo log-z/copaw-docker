@@ -123,8 +123,8 @@ volumes:
 ln -sf /usr/local/bin/qwenpaw /usr/local/bin/copaw
 
 # Python 包目录兼容
-ln -sf /usr/local/lib/python3.12/site-packages/qwenpaw \
-       /usr/local/lib/python3.12/site-packages/copaw
+ln -sf /usr/local/lib/python3.13/site-packages/qwenpaw \
+       /usr/local/lib/python3.13/site-packages/copaw
 
 # 数据目录兼容
 ln -sf /data/qwenpaw /data/copaw

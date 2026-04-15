@@ -481,8 +481,8 @@ docker compose restart
 
 ### 自行构建
 
-- **基础镜像**: `python:3.12-slim`
-- **Python 版本**: 3.12
+- **基础镜像**: `python:3.13-slim`
+- **Python 版本**: 3.13
 - **Node.js 版本**: 24.x LTS（用于 MCP 功能）
 - **工作目录**: `/data/qwenpaw`
 - **运行用户**: `qwenpaw`（非 root）

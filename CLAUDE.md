@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Docker deployment project for QwenPaw, a personal assistant product based on AgentScope. QwenPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT, Mattermost, Matrix, WeChat iLink) and runs locally with user-configured LLM providers.
 
-**Key Technologies**: Python 3.12, Docker, Docker Compose, AgentScope framework
+**Key Technologies**: Python 3.13, Docker, Docker Compose, AgentScope framework
 
 **Official Documentation**: http://qwenpaw.agentscope.io/docs/
 
@@ -83,7 +83,7 @@ docker run --rm -v copaw-data:/data -v $(pwd):/backup \
 
 ### Dockerfile Structure (Multi-stage Build)
 
-- **Builder stage**: `python:3.12-slim`, installs build tools and `pip install qwenpaw`
+- **Builder stage**: `python:3.13-slim`, installs build tools and `pip install qwenpaw`
   - Supports `QWENPAW_VERSION` build argument (default: `latest`)
 - **Runtime stage**: Runtime dependencies only, runs as non-root user `qwenpaw`
 
@@ -143,7 +143,7 @@ Key variables (see [.env.example](.env.example) for full list):
 ## Image Information
 
 - **Repository**: `ghcr.io/log-z/qwenpaw:latest`
-- **Base**: `python:3.12-slim`
+- **Base**: `python:3.13-slim`
 - **Node.js**: 24.x LTS (MCP support)
 - **Browser**: Chromium headless (MCP browser automation)
 - **Working dir**: `/data/qwenpaw`

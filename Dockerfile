@@ -19,7 +19,7 @@
 #   - Node.js 24.x LTS 已预装用于 MCP 功能，约增加 150MB
 
 # ==================== 构建阶段 ====================
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 # 设置构建参数
 ARG QWENPAW_VERSION="latest"
@@ -52,7 +52,7 @@ RUN if [ "$QWENPAW_VERSION" = "latest" ]; then \
     fi
 
 # ==================== 运行阶段 ====================
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 # 重新声明构建参数，使其可用于 LABEL
 ARG QWENPAW_VERSION="latest"
@@ -116,7 +116,7 @@ ENV CHROME_BIN=/usr/bin/chromium \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # 从构建阶段复制 Python 包
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # 通过软链接实现持久化设置
@@ -125,12 +125,12 @@ RUN mkdir -p /data/qwenpaw/.runtime && \
 
 # 兼容旧版 CoPaw 命名（因为从 v1.1.0 开始 CoPaw 改名为 QwenPaw）
 RUN ln -sf /usr/local/bin/qwenpaw /usr/local/bin/copaw && \
-    ln -sf /usr/local/lib/python3.12/site-packages/qwenpaw /usr/local/lib/python3.12/site-packages/copaw && \
+    ln -sf /usr/local/lib/python3.13/site-packages/qwenpaw /usr/local/lib/python3.13/site-packages/copaw && \
     ln -sf /data/qwenpaw /data/copaw && \
     ln -sf /data/qwenpaw/.runtime /data/copaw.secret
 
 # 设置目录所有权
-RUN chown -R qwenpaw:qwenpaw /usr/local/lib/python3.12/site-packages/qwenpaw && \
+RUN chown -R qwenpaw:qwenpaw /usr/local/lib/python3.13/site-packages/qwenpaw && \
     chown -R qwenpaw:qwenpaw /data/qwenpaw
 
 # 设置工作目录
