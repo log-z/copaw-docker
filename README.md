@@ -285,6 +285,7 @@ docker compose exec qwenpaw qwenpaw channels remove <key>   # 删除自定义频
 # 技能管理
 docker compose exec qwenpaw qwenpaw skills list         # 查看所有技能
 docker compose exec qwenpaw qwenpaw skills config       # 交互式启用/禁用
+docker compose exec qwenpaw qwenpaw skills info         # 查看技能详情（v1.1.2+）
 
 # 定时任务
 docker compose exec qwenpaw qwenpaw cron list            # 列出所有任务
@@ -320,6 +321,7 @@ docker compose exec qwenpaw qwenpaw auth reset-password # 重置 Web UI 密码
 
 # Agent 与消息（v0.2.0+）
 docker compose exec qwenpaw qwenpaw agents list            # 列出所有代理
+docker compose exec qwenpaw qwenpaw agents create          # 创建新代理（v1.1.2+）
 docker compose exec qwenpaw qwenpaw agents enable <agent>  # 启用代理（v1.0.0+）
 docker compose exec qwenpaw qwenpaw agents disable <agent> # 禁用代理（v1.0.0+）
 docker compose exec qwenpaw qwenpaw message push           # 向频道推送消息
@@ -327,6 +329,10 @@ docker compose exec qwenpaw qwenpaw message send           # 向代理发送请�
 
 # 任务执行（v1.0.2+）
 docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务，无需 Web 服务
+
+# 诊断（v1.1.2+）
+docker compose exec qwenpaw qwenpaw doctor             # 诊断检查
+docker compose exec qwenpaw qwenpaw doctor fix          # 自动修复问题
 ```
 
 ---
@@ -493,34 +499,32 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.1 更新（最新）
+### v1.1.2 更新（最新）
 
 #### 新功能
-- **OpenRouter 提供商** - 内置 OpenRouter，支持模型发现、系列浏览、按模态和价格筛选
-- **OpenCode (Zen) 提供商** - 内置 OpenAI 兼容提供商，提供免费模型
-- **模型 ID 自动补全** - 添加模型时自动补全模型 ID，默认启用模型发现
-- **内置 Agent 协作工具** - `list_agents` 和 `chat_with_agent` 工具，支持 Agent 间通信
-- **Matrix 频道重写** - 端到端加密 (E2EE)、@提及处理、消息历史、Markdown 渲染
-- **飞书引用消息** - 回复链消息处理，支持文本、帖子、图片和文件内容提取
-- **钉钉 QR 认证** - 控制台钉钉频道设置支持二维码设备流认证
-- **扩展 Shell 命令防护** - 新增 `$IFS` 注入、控制字符、Unicode 空白字符等防护规则
-- **ClawHub 技能需求格式** - 支持 ClawHub 格式的技能需求
-- **媒体 URL 直接查看** - `view_image` 和 `view_video` 支持 HTTP/HTTPS URL
+- **Mission 模式** - `/mission` 命令支持自主多阶段任务执行，可迭代规划、执行和自我修正
+- **纯文本自动续推** - 模型仅返回文本而未调用工具时，自动重试最多两轮推理
+- **自定义 Agent ID** - 从控制台或 API 创建 Agent 时可指定自定义 ID
+- **ACP 外部 Agent 委托** - 通过 `delegate_external_agent` 工具委托任务给外部编码 Agent（OpenCode、Qwen、Claude Code、Codex）
+- **`qwenpaw agents create`** - 命令行创建 Agent，支持模板选择（`default`、`local`、`qa`）
+- **`qwenpaw doctor`** - 诊断命令，检查环境、配置、提供商、频道等，支持 `doctor fix` 自动修复
+- **`qwenpaw skills info`** - 命令行查看技能详情，聊天中 `/skills` 斜杠命令
+- **Memory Dream** - 定时长期记忆整理，周期性去重和重组 `MEMORY.md`
+- **递归文件监视器** - `recursive_file_watcher` 选项，记忆索引包含子目录文件
+- **技能导入中心** - 重新设计导入模态框，支持 URL 验证、市场集成和冲突覆盖确认
+- **Debug 页面** - 设置中新增 Debug 页面，实时查看后端日志
+- **微信引用消息** - 引用/回复消息解析，支持文本、图片、语音、文件和视频
 
 #### 优化
-- 多模态探测统一（Anthropic/Gemini/OpenAI 共享评估路径）
-- 切换模型提供商时保留媒体附件
-- 钉钉迁移至阿里云官方 SDK
-- 飞书 WebSocket 重连稳定性改进
-- 浏览器默认启动策略改为托管 CDP
-- 模型管理 UI 重设计（能力标签、搜索、卡片布局）
-- Agent 配置页面重构为标签页界面
-- 技能选择 UI 改进（标签建议、批量操作）
+- 提供商列表按可用性排序
+- Agent 间通信工具拆分为同步（`chat_with_agent`）和异步（`submit_to_agent`/`check_agent_task`）
 
 #### Bug 修复
-- QQ WebSocket 关闭不再阻塞 8 秒
-- 修复 Windows 本地模型下载失败
-- vLLM 兼容性：省略 `tool_choice=auto` 避免 400 错误
+- `/clear` 正确清除控制台聊天历史
+- 图片 MIME 规范化（`image/jpg` → `image/jpeg`）
+- 多模态工具调用排序修复（OpenAI/Anthropic 兼容性）
+- Discord 线程消息路由到正确会话
+- 记忆压缩钩子不再重复运行
 
 ---
 
@@ -530,12 +534,12 @@ docker compose restart
 
 | 组 | 功能 | 说明 |
 |----|------|------|
-| 聊天 | 聊天 | 和 QwenPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+）、选择 Agent 对话（v1.0.0.post1+）、聊天搜索（v1.0.2+）、置顶会话（v1.0.2+）、输入历史（v1.0.2+） |
+| 聊天 | 聊天 | 和 QwenPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+）、选择 Agent 对话（v1.0.0.post1+）、聊天搜索（v1.0.2+）、置顶会话（v1.0.2+）、输入历史（v1.0.2+）、Mission 模式（v1.1.2+） |
 | 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
 | 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器、标签页界面（v1.1.1+） |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+）、技能命令 `/<skill>` （v1.0.2+）、技能池标签（v1.0.2+）、技能选择改进（v1.1.1+） |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+）、技能命令 `/<skill>` （v1.0.2+）、技能池标签（v1.0.2+）、技能选择改进（v1.1.1+）、技能导入中心（v1.1.2+） |
 | 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端、控制台 MCP 配置（v1.0.0.post2+）、MCP 工具发现（v1.0.2+） |
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度、LLM 重试配置（v0.2.0+） |
 | 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置 |
@@ -546,6 +550,7 @@ docker compose restart
 | 设置 | Token 使用 | 追踪各提供商 token 使用量 |
 | 设置 | 语音转录 | 语音转录设置 |
 | 设置 | 主题 | 暗黑模式切换 |
+| 设置 | Debug | 实时查看后端日志（v1.1.2+） |
 | 设置 | 账户 | 更改用户名密码（v0.2.0+，认证启用时） |
 
 **Skills Hub 导入**：支持从社区平台导入技能

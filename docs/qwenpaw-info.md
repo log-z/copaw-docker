@@ -4,11 +4,65 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-04-15
+> **更新日期**: 2026-04-17
 
 ---
 
-## 重要更新 (2026-04-15)
+## 重要更新 (2026-04-17)
+
+### v1.1.2
+
+#### 新功能
+
+**Agent 系统**
+- **Mission 模式** - `/mission` 命令支持自主多阶段任务执行，Agent 可迭代规划、执行和自我修正，支持 `/mission status` 和 `/mission list` 监控运行中的任务 (#3364, #3480)
+- **纯文本自动续推** - 启用后，当模型仅返回文本而未调用工具时，Agent 自动重试最多两轮额外推理 (#3107)
+- **自定义 Agent ID** - 从控制台或 API 创建 Agent 时可指定自定义 ID (#3333)
+- **ACP 外部 Agent 委托** - 通过 `delegate_external_agent` 工具将任务委托给外部编码 Agent（OpenCode、Qwen、Claude Code、Codex），含权限守卫和实时流式输出 (#3340)
+- **Agent CLI 创建** - 通过 `qwenpaw agents create` 从命令行创建 Agent，支持模板选择（`default`、`local`、`qa`）和工作区初始化 (#3385)
+
+**CLI**
+- **`qwenpaw doctor`** - 诊断命令，检查环境、配置、提供商、频道、技能、MCP、记忆、安全等，支持 `doctor fix` 自动修复 (#3371)
+- **`qwenpaw skills info`** - 从命令行查看技能详情（启用状态、频道、路径、描述），同时新增聊天中 `/skills` 斜杠命令 (#3459)
+
+**记忆**
+- **Memory Dream** - 定时长期记忆整理，"dream" Agent 周期性去重和重组 `MEMORY.md` (#2177)
+- **递归文件监视器** - 新增 `recursive_file_watcher` 选项，在记忆索引中包含子目录文件 (#3347)
+
+**控制台与 UI**
+- **技能导入中心** - 重新设计导入模态框，支持 URL 验证、市场集成和冲突覆盖确认 (#2412, #3415, #3482)
+- **Debug 页面** - 设置中新增 Debug 页面，实时查看后端日志文件 (#3478)
+
+**频道**
+- **微信引用消息** - 引用/回复消息现可解析，支持文本、图片、语音、文件和视频 (#3483)
+
+#### 优化
+
+- **提供商排序** - 设置中提供商列表按可用性排序 (#3458)
+- **Agent 通信工具** - Agent 间通信工具拆分为 `chat_with_agent`（同步）和新的 `submit_to_agent` / `check_agent_task`（异步后台任务）(#3485)
+
+#### Bug 修复
+
+**控制台与 UI**
+- `/clear` 现在正确清除控制台聊天历史 (#3348)
+- Token 用量按日期表格现在按最新日期排序 (#3387)
+- Cron 任务 ID 提示文本修正为系统生成的 UUID (#3404)
+- ArrowUp 消息历史在斜杠命令建议可见时不再触发 (#3444)
+
+**提供商**
+- 图片 MIME 规范化：`image/jpg` 统一为 `image/jpeg` 防止严格 API 拒绝 (#3313)
+- 多模态工具调用排序：提升的图片消息不再破坏 OpenAI 和 Anthropic 要求的连续工具结果块 (#3299)
+- 提供商类身份：修复从多个导入路径加载同一提供商时的 Pydantic 类身份崩溃 (#3431)
+
+**Agent 系统**
+- 后台任务追踪：通过 AgentApp API 分发的后台任务现由 `TaskTracker` 追踪，防止重载或关闭时被取消 (#3305)
+- 记忆压缩防护：记忆压缩钩子不再在每个推理步骤中运行两次 (#3461)
+
+**频道**
+- Discord 线程路由：Discord 线程消息现路由到正确的线程会话而非父频道 (#3144)
+- 微信输入指示器：输入指示器不再泄漏后台任务，完成或出错时可靠停止 (#3488)
+
+---
 
 ### v1.1.1.post1 补丁修复
 
@@ -609,7 +663,10 @@
 
 ### CLI 新增命令
 - `qwenpaw agents list` - 列出所有代理 (v0.2.0)
+- `qwenpaw agents create` - 创建新 Agent，支持模板选择 (v1.1.2)
 - `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
+- `qwenpaw doctor` - 诊断检查与自动修复 (v1.1.2)
+- `qwenpaw skills info` - 查看技能详情 (v1.1.2)
 - `qwenpaw message push/send` - 推送消息/发送请求 (v0.2.0)
 - `qwenpaw message send --background` - 后台发送代理请求 (v1.0.0)
 - `qwenpaw update` - 自动更新 QwenPaw (v0.1.0)
@@ -1060,6 +1117,7 @@ qwenpaw auth reset-password            # 重置 Web UI 密码
 
 ```bash
 qwenpaw agents list                    # 列出所有代理
+qwenpaw agents create                  # 创建新 Agent (v1.1.2 新增)
 qwenpaw agents enable/disable <agent>  # 启用/禁用代理 (v1.0.0 新增)
 qwenpaw message push <channel> <user>  # 向频道推送消息
 qwenpaw message send <agent> <msg>     # 向代理发送请求
@@ -1097,6 +1155,13 @@ qwenpaw cron resume <job_id>           # 恢复任务
 qwenpaw cron run <job_id>              # 立即执行一次
 ```
 
+### 诊断 (v1.1.2 新增)
+
+```bash
+qwenpaw doctor                         # 诊断检查（环境、配置、提供商、频道等）
+qwenpaw doctor fix                     # 自动修复发现的问题
+```
+
 ### 会话管理
 
 ```bash
@@ -1112,6 +1177,7 @@ qwenpaw chats delete <id>              # 删除会话
 ```bash
 qwenpaw skills list                    # 看有哪些技能
 qwenpaw skills config                  # 交互式开关
+qwenpaw skills info                    # 查看技能详情 (v1.1.2 新增)
 ```
 
 ---
