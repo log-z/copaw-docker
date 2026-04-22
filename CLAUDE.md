@@ -45,7 +45,7 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 ```bash
 docker compose build                              # Build the image
-docker compose build --build-arg QWENPAW_VERSION=1.1.2  # Build with specific version
+docker compose build --build-arg QWENPAW_VERSION=1.1.3  # Build with specific version
 docker compose up -d                              # Start the service
 docker compose logs -f qwenpaw                    # View logs
 docker compose stop / restart                     # Stop/Restart
@@ -65,6 +65,8 @@ docker compose exec qwenpaw qwenpaw agents enable <agent>  # Enable agent (v1.0.
 docker compose exec qwenpaw qwenpaw doctor             # Run diagnostics (v1.1.2+)
 docker compose exec qwenpaw qwenpaw message push      # Push message to channel (v0.2.0+)
 docker compose exec qwenpaw qwenpaw task <prompt>     # Run one-off task, no web server (v1.0.2+)
+docker compose exec qwenpaw qwenpaw acp               # Start ACP Server (v1.1.3+)
+docker compose exec qwenpaw qwenpaw providers update  # Update provider config incl. base URL (v1.1.3+)
 ```
 
 ### Data Management

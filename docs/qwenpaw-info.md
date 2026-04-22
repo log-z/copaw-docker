@@ -4,11 +4,68 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-04-17
+> **更新日期**: 2026-04-22
 
 ---
 
-## 重要更新 (2026-04-17)
+## 重要更新 (2026-04-22)
+
+### v1.1.3
+
+#### 新功能
+
+**Agent 系统**
+- **备份与恢复** - 备份和恢复系统，创建 agent、skills、memory、sessions 的作用域快照，支持按 agent 选择、导入/导出 zip 文件 (#3534, #3655)
+- **ACP Server** - 通过 `qwenpaw acp` 将 QwenPaw agents 暴露为 ACP（Agent Communication Protocol）端点（stdio）(#3487, #3589, #3595)
+- **Agent 主动消息** - Agent 可主动发送消息，使用会话记忆和屏幕上下文提供及时信息 (#3466, #3643)
+- **跨提供商消息规范化** - 对话中无缝切换 LLM 提供商，自动清理和规范化提供商特定的消息字段 (#3530)
+
+**控制台与 UI**
+- **控制台插件系统** - 可扩展的控制台插件架构，第三方插件可注入侧边栏页面、注册路由、共享主机模块 (#3357, #3512, #3631)
+- **Agent 统计页面** - 新的仪表板，包含会话和消息趋势图、token 使用量、频道分布饼图 (#3365, #3608, #3632)
+
+**技能**
+- **技能页面改进** - 重新设计的 Skills 和 Skill Pool 页面，支持批量选择/管理、分离的搜索和过滤控件 (#3616, #3634)
+- **内置技能语言切换** - 所有内置技能支持中英文变体，从 Skill Pool 页面切换语言 (#3558, #3644)
+
+**安全**
+- **Shell 混淆防护** - 新的 Tool Guard guardian，检测 shell 命令混淆模式 (#3400, #3668)
+- **增强的 Tool Guard 响应** - Tool guard 消息现在包含风险严重级别和本地化的阻止/审批原因解释 (#3515)
+
+**提供商**
+- **本地模型管理** - 为本地模型（llama.cpp）配置自定义服务器端口，实时监控服务器日志 (#3596, #3604)
+- **OpenRouter 多模态检测** - OpenRouter 模型现在自动报告多模态能力（图片/视频支持）(#3584, #3604)
+- **Aliyun Coding Plan 国际版** - 支持 Aliyun Coding Plan 提供商国际区域 (#3609)
+
+**频道**
+- **QQ 即时确认** - QQ 频道可配置即时回复，在 agent 处理请求时立即确认用户 (#3246)
+- **Telegram 输入指示器** - 工具执行期间输入指示器保持活跃，提供持续的视觉反馈 (#3585)
+- **钉钉回复 @提及** - 钉钉群聊回复时自动 @提及原始发送者 (#3591)
+- **频道健康检查与重启 API** - 按 agent 的 HTTP 端点检查单个频道健康状态并热重启频道 (#3649)
+
+**CLI**
+- **更新提供商 Base URL** - `qwenpaw providers update` 现在支持从命令行更新提供商 Base URL (#3536)
+
+#### 优化
+
+- **Debug 页面重新设计** - Debug 页面移至 Settings 下，改进组件结构、专用日志查看器、暗黑模式样式修复 (#3539, #3547, #3590)
+- **`make_plan` 技能更新** - 清理过时的文档引用，简化技能 (#3535)
+- **统一频道媒体目录** - 所有频道现在一致地从 agent 工作区解析 `media_dir`，确保跨频道类型的文件存储隔离 (#3610)
+
+#### Bug 修复
+
+**控制台与 UI**
+- **预览 URL 前缀** - 修复文件预览路径中的重复 URL 前缀 (#3355)
+- **Markdown 渲染** - 修复工作区文件编辑器中的 Markdown 渲染和代码块复制样式 (#3639)
+- **表格滚动** - 修复 Sessions 和 Cron Jobs 页面的表格滚动 (#3654)
+
+**频道**
+- **企业微信附件访问** - 修复服务器部署中企业微信附件访问失败 (#3079)
+- **企业微信文件上传** - 修复企业微信文件上传中的事件循环阻塞，支持 `send_file_to_user` 相对路径 (#3128)
+- **企业微信重复消息** - 修复企业微信群聊消息的重复聊天条目 (#3529)
+- **企业微信截图文件名** - 修复企业微信截图文件名中的 CJK 字符导致下载失败 (#3633)
+
+---
 
 ### v1.1.2
 
@@ -664,6 +721,7 @@
 ### CLI 新增命令
 - `qwenpaw agents list` - 列出所有代理 (v0.2.0)
 - `qwenpaw agents create` - 创建新 Agent，支持模板选择 (v1.1.2)
+- `qwenpaw acp` - 启动 ACP Server，暴露 agent 为 ACP 端点 (v1.1.3)
 - `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
 - `qwenpaw doctor` - 诊断检查与自动修复 (v1.1.2)
 - `qwenpaw skills info` - 查看技能详情 (v1.1.2)
@@ -682,6 +740,7 @@
 - `qwenpaw models config-key zhipu` - 配置智谱 (v1.0.1)
 - `qwenpaw models config-key openrouter` - 配置 OpenRouter (v1.1.1)
 - `qwenpaw models config-key opencode` - 配置 OpenCode/Zen (v1.1.1)
+- `qwenpaw providers update` - 更新提供商配置，含 Base URL (v1.1.3)
 - `qwenpaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
 - `qwenpaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
 - `qwenpaw channels install/add/remove` - 自定义频道管理

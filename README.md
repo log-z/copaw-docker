@@ -333,6 +333,12 @@ docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务�
 # 诊断（v1.1.2+）
 docker compose exec qwenpaw qwenpaw doctor             # 诊断检查
 docker compose exec qwenpaw qwenpaw doctor fix          # 自动修复问题
+
+# 提供商配置（v1.1.3+）
+docker compose exec qwenpaw qwenpaw providers update   # 更新提供商配置（含 Base URL）
+
+# ACP Server（v1.1.3+）
+docker compose exec qwenpaw qwenpaw acp                # 启动 ACP Server
 ```
 
 ---
@@ -499,32 +505,34 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.2 更新（最新）
+### v1.1.3 更新（最新）
 
 #### 新功能
-- **Mission 模式** - `/mission` 命令支持自主多阶段任务执行，可迭代规划、执行和自我修正
-- **纯文本自动续推** - 模型仅返回文本而未调用工具时，自动重试最多两轮推理
-- **自定义 Agent ID** - 从控制台或 API 创建 Agent 时可指定自定义 ID
-- **ACP 外部 Agent 委托** - 通过 `delegate_external_agent` 工具委托任务给外部编码 Agent（OpenCode、Qwen、Claude Code、Codex）
-- **`qwenpaw agents create`** - 命令行创建 Agent，支持模板选择（`default`、`local`、`qa`）
-- **`qwenpaw doctor`** - 诊断命令，检查环境、配置、提供商、频道等，支持 `doctor fix` 自动修复
-- **`qwenpaw skills info`** - 命令行查看技能详情，聊天中 `/skills` 斜杠命令
-- **Memory Dream** - 定时长期记忆整理，周期性去重和重组 `MEMORY.md`
-- **递归文件监视器** - `recursive_file_watcher` 选项，记忆索引包含子目录文件
-- **技能导入中心** - 重新设计导入模态框，支持 URL 验证、市场集成和冲突覆盖确认
-- **Debug 页面** - 设置中新增 Debug 页面，实时查看后端日志
-- **微信引用消息** - 引用/回复消息解析，支持文本、图片、语音、文件和视频
+- **备份与恢复** - 创建 agent、skills、memory、sessions 的作用域快照，支持按 agent 选择、导入/导出 zip 文件
+- **ACP Server** - 通过 `qwenpaw acp` 将 QwenPaw agents 暴露为 ACP（Agent Communication Protocol）端点
+- **Agent 主动消息** - Agent 可主动发送消息，使用会话记忆和屏幕上下文提供及时信息
+- **跨提供商消息规范化** - 对话中无缝切换 LLM 提供商，自动清理和规范化消息字段
+- **控制台插件系统** - 第三方插件可注入侧边栏页面、注册路由、共享主机模块
+- **Agent 统计页面** - 会话和消息趋势图、token 使用量、频道分布饼图
+- **技能页面改进** - Skills 和 Skill Pool 页面重设计，支持批量选择/管理
+- **内置技能语言切换** - 所有内置技能支持中英文变体，从 Skill Pool 页面切换
+- **Shell 混淆防护** - 新的 Tool Guard guardian，检测 shell 命令混淆模式
+- **增强的 Tool Guard 响应** - 包含风险严重级别和本地化阻止原因解释
+- **本地模型管理** - 为 llama.cpp 配置自定义服务器端口，实时监控服务器日志
+- **QQ 即时确认** - QQ 频道可配置即时回复，在 agent 处理时立即确认用户
+- **Telegram 输入指示器** - 工具执行期间输入指示器保持活跃
+- **钉钉回复 @提及** - 群聊回复时自动 @提及原始发送者
+- **频道健康检查与重启 API** - 按 agent 的 HTTP 端点检查频道健康状态并热重启
+- **`qwenpaw providers update`** - 从命令行更新提供商配置，含 Base URL
 
 #### 优化
-- 提供商列表按可用性排序
-- Agent 间通信工具拆分为同步（`chat_with_agent`）和异步（`submit_to_agent`/`check_agent_task`）
+- Debug 页面移至 Settings 下，改进组件结构和暗黑模式样式
+- 所有频道统一从 agent 工作区解析 `media_dir`，确保文件存储隔离
 
 #### Bug 修复
-- `/clear` 正确清除控制台聊天历史
-- 图片 MIME 规范化（`image/jpg` → `image/jpeg`）
-- 多模态工具调用排序修复（OpenAI/Anthropic 兼容性）
-- Discord 线程消息路由到正确会话
-- 记忆压缩钩子不再重复运行
+- 文件预览路径中的重复 URL 前缀
+- 工作区文件编辑器 Markdown 渲染和代码块复制样式
+- 企业微信附件访问、文件上传、重复消息和截图文件名问题
 
 ---
 
@@ -535,22 +543,23 @@ docker compose restart
 | 组 | 功能 | 说明 |
 |----|------|------|
 | 聊天 | 聊天 | 和 QwenPaw 对话、管理会话、切换模型、多模态支持、SSE 流式响应、音视频支持（v0.2.0+）、多模态预览（v1.0.0+）、频道标签（v1.0.0+）、命令建议（v1.0.0+）、选择 Agent 对话（v1.0.0.post1+）、聊天搜索（v1.0.2+）、置顶会话（v1.0.2+）、输入历史（v1.0.2+）、Mission 模式（v1.1.2+） |
-| 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+） |
+| 控制 | 频道 | 启用/禁用频道、填入凭据、快速文档链接、飞书区域选择器（v0.2.0+）、QQ 即时确认（v1.1.3+）、频道健康检查 API（v1.1.3+） |
 | 控制 | 会话 | 筛选、重命名、删除会话 |
 | 控制 | 定时任务 | 创建/编辑/删除任务、立即执行 |
-| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器、标签页界面（v1.1.1+） |
-| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+）、技能命令 `/<skill>` （v1.0.2+）、技能池标签（v1.0.2+）、技能选择改进（v1.1.1+）、技能导入中心（v1.1.2+） |
+| 智能体 | 工作区 | 编辑人设文件、查看记忆、上传/下载、代理选择器、标签页界面（v1.1.1+）、备份与恢复（v1.1.3+） |
+| 智能体 | 技能 | 启用/禁用/创建/**导入**/AI优化/删除技能、安全扫描、Skill Pool 双层架构（v1.0.0+）、技能命令 `/<skill>` （v1.0.2+）、技能池标签（v1.0.2+）、技能选择改进（v1.1.1+）、技能导入中心（v1.1.2+）、技能页面重设计（v1.1.3+）、技能语言切换（v1.1.3+） |
 | 智能体 | MCP | 启用/禁用/创建/删除 MCP 客户端、控制台 MCP 配置（v1.0.0.post2+）、MCP 工具发现（v1.0.2+） |
 | 智能体 | 运行配置 | 修改最大迭代次数和最大输入长度、LLM 重试配置（v0.2.0+） |
 | 智能体 | 上下文管理 | 调整压缩比例、保留比例、工具结果压缩设置 |
 | 智能体 | 工具 | 启用/禁用内置工具、批量切换、glob_search/grep_search |
 | 设置 | 模型 | 配置提供商（含自定义提供商）、管理本地/Ollama/LM Studio 模型、选择模型、搜索过滤（v0.2.0+）、QwenPaw Local Model（v1.0.0+）、视频分析（v1.0.0.post1+）、`/model` 聊天命令（v1.0.2+）、模型 ID 自动补全（v1.1.1+） |
 | 设置 | 环境变量 | 添加/编辑/删除环境变量（敏感值遮罩） |
-| 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+）、系统重启/服务保护（v1.0.0+）、中文提示注入检测（v1.0.0+）、扩展 Shell 命令防护（v1.1.1+） |
+| 设置 | 安全 | Tool Guard 安全规则管理、文件访问保护（v0.2.0+）、系统重启/服务保护（v1.0.0+）、中文提示注入检测（v1.0.0+）、扩展 Shell 命令防护（v1.1.1+）、Shell 混淆防护（v1.1.3+） |
 | 设置 | Token 使用 | 追踪各提供商 token 使用量 |
+| 设置 | 统计 | Agent 统计仪表板，会话/消息趋势、token 用量、频道分布（v1.1.3+） |
 | 设置 | 语音转录 | 语音转录设置 |
 | 设置 | 主题 | 暗黑模式切换 |
-| 设置 | Debug | 实时查看后端日志（v1.1.2+） |
+| 设置 | Debug | 实时查看后端日志（v1.1.2+，v1.1.3 重设计） |
 | 设置 | 账户 | 更改用户名密码（v0.2.0+，认证启用时） |
 
 **Skills Hub 导入**：支持从社区平台导入技能
