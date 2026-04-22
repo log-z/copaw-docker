@@ -176,8 +176,10 @@ copaw-docker/
 
 ```
 copaw-data:/
+├── qwenpaw.backups -> qwenpaw/.backups   # 软链接指向 .backups（兼容 BACKUP_DIR）
 ├── qwenpaw.secret -> qwenpaw/.runtime    # 软链接指向 .runtime（兼容 SECRET_DIR）
 └── qwenpaw/
+    ├── .backups/              # 备份存储目录
     ├── .runtime/              # 敏感配置目录
     │   ├── auth.json          # Web 认证数据（v0.1.0+）
     │   ├── envs.json          # 环境变量配置
@@ -359,6 +361,7 @@ docker compose exec qwenpaw qwenpaw acp                # 启动 ACP Server
 
 本项目使用 Docker 数据卷 `copaw-data` 持久化以下内容：
 
+- `.backups/` - 备份存储目录
 - `.runtime/` - 敏感配置目录
   - `auth.json` - Web 认证数据（v0.1.0+）
   - `envs.json` - 环境变量配置

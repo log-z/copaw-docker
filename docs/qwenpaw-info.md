@@ -960,6 +960,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 │   ├── MEMORY.md            # 长期有效的关键信息
 │   └── YYYY-MM-DD.md        # 每日日志
 ├── mcp_clients/             # MCP 客户端配置
+├── .backups/                # BACKUP_DIR: 备份存储目录
 └── .runtime/                # SECRET_DIR (v0.1.0+)
     ├── providers.json       # LLM 提供商配置
     ├── envs.json            # 环境变量配置

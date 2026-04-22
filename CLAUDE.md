@@ -110,6 +110,7 @@ All data stored in Docker volume `copaw-data` at `/data/qwenpaw`:
 | `workspaces/default/` | Default agent workspace (v0.1.0+) |
 | `workspaces/default/plugins/` | Plugin extensions (v1.0.2+) |
 | `.runtime/` | SECRET_DIR: providers.json, envs.json, auth.json |
+| `.backups/` | BACKUP_DIR: backup zip files |
 
 See [docs/qwenpaw-info.md](docs/qwenpaw-info.md) for complete directory structure.
 

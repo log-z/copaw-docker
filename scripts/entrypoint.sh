@@ -74,6 +74,14 @@ else
     log_warn "EMBEDDING_API_KEY is not set. Memory search features may be limited."
 fi
 
+# 确保 .backups 目录存在
+BACKUPS_DIR="${QWENPAW_WORKING_DIR}/.backups"
+if [ ! -d "${BACKUPS_DIR}" ]; then
+    log_info "Creating backups directory: ${BACKUPS_DIR}"
+    mkdir -p "${BACKUPS_DIR}"
+    chmod 700 "${BACKUPS_DIR}"
+fi
+
 # 确保 .runtime 目录存在
 RUNTIME_DIR="${QWENPAW_WORKING_DIR}/.runtime"
 if [ ! -d "${RUNTIME_DIR}" ]; then

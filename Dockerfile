@@ -119,9 +119,12 @@ ENV CHROME_BIN=/usr/bin/chromium \
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# 通过软链接实现持久化设置
-RUN mkdir -p /data/qwenpaw/.runtime && \
-    ln -sf /data/qwenpaw/.runtime /data/qwenpaw.secret
+# 通过软链接实现持久化设置和备份
+# SECRET_DIR: {WORKING_DIR}.secret → 卷内 .runtime 目录
+# BACKUP_DIR: {WORKING_DIR}.backups → 卷内 .backups 目录
+RUN mkdir -p /data/qwenpaw/.runtime /data/qwenpaw/.backups && \
+    ln -sf /data/qwenpaw/.runtime /data/qwenpaw.secret && \
+    ln -sf /data/qwenpaw/.backups /data/qwenpaw.backups
 
 # 兼容旧版 CoPaw 命名（因为从 v1.1.0 开始 CoPaw 改名为 QwenPaw）
 RUN ln -sf /usr/local/bin/qwenpaw /usr/local/bin/copaw && \
