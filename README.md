@@ -508,7 +508,15 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.3 更新（最新）
+### v1.1.3.post1 更新（最新）
+
+#### Bug 修复
+- **Windows Defender 兼容** - 回退改动以避免触发 Windows Defender 误报
+- **桌面端文件下载** - pywebview 文件下载改用原生保存对话框
+
+---
+
+### v1.1.3 更新
 
 #### 新功能
 - **备份与恢复** - 创建 agent、skills、memory、sessions 的作用域快照，支持按 agent 选择、导入/导出 zip 文件
