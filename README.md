@@ -513,7 +513,12 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.4 更新（最新）
+### v1.1.4.post1 补丁更新（最新）
+
+- **CJK 感知查询分词** - 记忆搜索新增 CJK（中日韩）感知的查询分词，提升中文等语言的搜索精度
+- **回退 Vite 升级** - 回退控制台构建工具 Vite 从 v8 到 v6 的升级
+
+### v1.1.4 更新
 
 #### 新功能
 - **Memory & Context 重构** - 长期记忆模块重构，支持可插拔后端、自动记忆摘要与检索、新上下文管理接口
