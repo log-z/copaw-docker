@@ -21,6 +21,9 @@
 # ==================== 构建阶段 ====================
 FROM python:3.13-slim AS builder
 
+# 安装 uv（从官方多架构镜像复制二进制文件）
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 # 设置构建参数
 ARG QWENPAW_VERSION="latest"
 ARG QWENPAW_EXTRAS=""
@@ -28,26 +31,25 @@ ARG QWENPAW_EXTRAS=""
 # 设置工作目录
 WORKDIR /build
 
-# 安装构建依赖和升级 pip
+# 安装构建依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         gcc \
         g++ \
-        && rm -rf /var/lib/apt/lists/* \
-    && python -m pip install --no-cache-dir --upgrade pip setuptools wheel
+        && rm -rf /var/lib/apt/lists/*
 
 # 安装 QwenPaw 及其依赖（支持动态版本指定和扩展）
 RUN if [ "$QWENPAW_VERSION" = "latest" ]; then \
       if [ -z "$QWENPAW_EXTRAS" ]; then \
-        pip install --no-cache-dir qwenpaw; \
+        uv pip install --no-cache-dir --system qwenpaw; \
       else \
-        pip install --no-cache-dir "qwenpaw[$QWENPAW_EXTRAS]"; \
+        uv pip install --no-cache-dir --system "qwenpaw[$QWENPAW_EXTRAS]"; \
       fi \
     else \
       if [ -z "$QWENPAW_EXTRAS" ]; then \
-        pip install --no-cache-dir qwenpaw==${QWENPAW_VERSION}; \
+        uv pip install --no-cache-dir --system "qwenpaw==${QWENPAW_VERSION}"; \
       else \
-        pip install --no-cache-dir "qwenpaw[$QWENPAW_EXTRAS]==${QWENPAW_VERSION}"; \
+        uv pip install --no-cache-dir --system "qwenpaw[$QWENPAW_EXTRAS]==${QWENPAW_VERSION}"; \
       fi \
     fi
 
@@ -65,8 +67,6 @@ LABEL version="${QWENPAW_VERSION}"
 # 设置环境变量
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
     # QwenPaw 特定环境变量
     QWENPAW_WORKING_DIR="/data/qwenpaw" \
     QWENPAW_CONFIG_FILE="config.json" \
