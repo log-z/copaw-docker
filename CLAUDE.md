@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Docker deployment project for QwenPaw, a personal assistant product based on AgentScope. QwenPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, MQTT, Mattermost, Matrix, WeChat iLink) and runs locally with user-configured LLM providers.
+This is a Docker deployment project for QwenPaw, a personal assistant product based on AgentScope. QwenPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, SIP Voice, MQTT, Mattermost, Matrix, WeChat iLink) and runs locally with user-configured LLM providers.
 
 **Key Technologies**: Python 3.13, Docker, Docker Compose, AgentScope framework
 
@@ -25,6 +25,7 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 - **v1.1.0+**: Set `QWENPAW_AUTH_ENABLED=true` to enable Web authentication (disabled by default)
   - First access shows registration page
   - Local requests (127.0.0.1) automatically bypass authentication
+  - v1.1.4+: Configurable `allow_no_auth_hosts` whitelist for trusted IP access without auth
   - Auto-register admin via environment variables: `QWENPAW_AUTH_USERNAME` and `QWENPAW_AUTH_PASSWORD`
   - Password reset: `docker compose exec qwenpaw qwenpaw auth reset-password`
 - **v0.0.x or when authentication disabled**:
@@ -45,7 +46,7 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 ```bash
 docker compose build                              # Build the image
-docker compose build --build-arg QWENPAW_VERSION=1.1.3  # Build with specific version
+docker compose build --build-arg QWENPAW_VERSION=1.1.4  # Build with specific version
 docker compose up -d                              # Start the service
 docker compose logs -f qwenpaw                    # View logs
 docker compose stop / restart                     # Stop/Restart

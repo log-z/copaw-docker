@@ -4,11 +4,83 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-04-23
+> **更新日期**: 2026-04-24
 
 ---
 
-## 重要更新 (2026-04-22)
+## 重要更新 (2026-04-24)
+
+### v1.1.4
+
+#### 新功能
+
+**Agent 系统**
+- **Memory & Context 重构** - 长期记忆模块重构，支持可插拔后端、每 N 轮对话自动记忆摘要、自动记忆检索、新的上下文管理接口 (#3548)
+- **Plan 模式** - 可选的结构化规划模式，使用 `/plan` 创建分步任务计划，Agent 按计划执行，控制台实时显示计划面板 (#3686, #3787)
+
+**提供商**
+- **DeepSeek V4 模型** - 新增 DeepSeek V4 Flash 和 V4 Pro 内置模型 (#3797)
+
+**安全**
+- **可配置 Shell 混淆检测** - 在安全设置页面单独开关每条 Shell 混淆检测规则，每条规则标记风险类型 (#3694, #3715, #3781)
+- **Auth-Bypass 主机白名单** - 可配置 `allow_no_auth_hosts` 列表，允许指定 IP 无需认证访问 API，含 IP 验证和控制台安全警告 (#3739)
+
+**工具**
+- **浏览器启动参数** - `browser_use` 支持自定义 Chromium 标志和浏览器可执行文件路径 (#3556)
+- **Shell 命令超时** - 按 Agent 配置 `execute_shell_command` 的默认超时时间 (#3732)
+
+**控制台与 UI**
+- **每 Agent 模型分配** - 从 Settings → Agents 为每个 Agent 单独指定 LLM 模型 (#3599)
+- **会话查看按钮** - Sessions 表格新增"View"操作，直接跳转到对应聊天会话 (#3615)
+- **会话右键菜单** - 右键聊天会话项，快速打开、重命名、置顶/取消置顶和删除 (#3770)
+
+**频道**
+- **SIP 语音频道** - 新增 SIP 电话频道，双模式后端 — pyVoIP（开发）和 LiveKit（生产）(#3449)
+- **钉钉语音识别** - 使用钉钉内置语音识别替代本地下载和转码音频 (#3681)
+- **Telegram 命令菜单** - 在 Telegram 机器人命令菜单中暴露 `/model` 和 `/stop` (#3714)
+- **QQ 引用消息支持** - 解析回复/引用元数据，将引用文本和附件注入 Agent 请求 (#3735)
+- **钉钉 Markdown 消息** - 较短回复使用钉钉 Open API Markdown 格式，渲染更丰富 (#3771)
+- **钉钉定时消息类型** - 定时/循环发送使用独立消息类型，允许 Cron 使用卡片消息同时交互聊天使用 Markdown (#3778)
+- **微信交互式配置向导** - CLI 频道设置流程中的交互式 `configure_weixin` 向导 (#3699)
+
+#### 优化
+
+- **Tool Guard 审批系统重构** - 控制台交互式审批卡片、跨会话审批路由（从主会话审批子 Agent 工具调用）、可配置执行级别（Strict/Smart/Auto/Off）、REST API 和 `/approval` CLI 命令 (#3656, #3737)
+- **动态插件注册** - 用运行时 `import.meta.glob` 替换构建时生成的 host 模块注册表 (#3676, #3692, #3696)
+- **Docker 构建改进** - `config.json` 初始化从镜像构建移至容器入口点，`pip` 替换为 `uv` 加速安装 (#3698, #3723, #3769)
+- **Agent 语言同步** - 新 Agent 继承控制台 UI 语言 (#3720)
+- **Agent 选择持久化** - Agent 选择状态保存在 `localStorage`，浏览器重启后恢复 (#3772)
+- **Token 用量缓冲** - 异步缓冲 Token 用量记录，定期刷盘 (#3766)
+
+#### Bug 修复
+
+**频道**
+- **过滤工具消息** - 对进行中内容事件遵循 `filter_tool_messages` 设置 (#3660)
+- **文件 URL 编码** - `file://` URL 中对非 ASCII 字符进行百分号编码，修复 Windows 和 CJK 路径 (#3625)
+- **微信发送响应** - 修复微信 `send_text` 在空或非字典 API 响应时失败 (#3685)
+- **微信图标映射** - 修复 `wechat` 频道键未映射到正确微信图标 (#3691)
+- **微信 QR 登录超时** - 延长微信二维码轮询超时至 60 秒，读取超时时重试 (#3700)
+
+**控制台与 UI**
+- **Agent 统计** - 修复图表库导入错误导致的页面崩溃和切换 Agent 时统计不刷新 (#3724, #3743)
+
+**提供商**
+- **重复模型警告** - 添加已存在模型 ID 时显示本地化警告 (#3773)
+- **Anthropic 文件块** - 将 Anthropic 格式历史中不支持的文件块转为文本占位符，防止 API 错误 (#3786)
+
+**打包**
+- **Discord.py Conda-Unpack** - 将 `discord.py` 加入 conda-unpack 重装列表，修复 Windows 路径损坏 (#3730)
+
+#### 文档
+- **Memory-Evolving & Proactive Agent** - 新增 Memory-Evolving 和 Proactive Agent 功能的专门文档页面 (#3755, #3764)
+- **Agent Team 实践指南** - 新增 Agent Team 协作的完整实践指南 (#3784)
+- **ACP 集成文档** - 重构并完善 ACP 集成文档，控制台内嵌文档链接 (#3741)
+- **Docker 备份卷** - 新增 Docker 卷挂载的备份与恢复文档 (#3736)
+- **备份图示更新** - 更新备份文档图示 (#3678)
+
+---
+
+### v1.1.3.post1 补丁修复 (2026-04-22)
 
 ### v1.1.3.post1 补丁修复
 
@@ -730,6 +802,7 @@
 - `qwenpaw agents list` - 列出所有代理 (v0.2.0)
 - `qwenpaw agents create` - 创建新 Agent，支持模板选择 (v1.1.2)
 - `qwenpaw acp` - 启动 ACP Server，暴露 agent 为 ACP 端点 (v1.1.3)
+- `qwenpaw approval` - 管理工具调用审批 (v1.1.4)
 - `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
 - `qwenpaw doctor` - 诊断检查与自动修复 (v1.1.2)
 - `qwenpaw skills info` - 查看技能详情 (v1.1.2)
@@ -1008,6 +1081,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | **xiaoyi** | 小艺 (v0.1.0 新增) | 华为 A2A 协议配置 |
 | **mqtt** | MQTT 消息队列 (v0.0.6 新增) | `host`, `port`, `transport`, `qos`, `subscribe_topic`, `publish_topic` |
 | **twilio voice** | Twilio 语音 (v0.0.5 新增) | `account_sid`, `auth_token`, `phone_number` |
+| **sip** | SIP 语音 (v1.1.4 新增) | SIP 配置，双模式后端（pyVoIP 开发 / LiveKit 生产） |
 | **mattermost** | Mattermost (v0.0.7 新增) | `url`, `token`, `team_name` |
 | **matrix** | Matrix 协议 (v0.0.7 新增) | `homeserver`, `user_id`, `access_token` |
 | **console** | 控制台 | （只需开关） |
@@ -1035,6 +1109,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | QQ | ✓ | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ (v0.0.6+) | ✓ | ✓ (v0.0.7+) | 🚧 | 🚧 | ✓ (v1.0.2+) |
 | Telegram | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Twilio Voice | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
+| SIP Voice (v1.1.4) | ✓ | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
 | MQTT | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
 | Mattermost | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Matrix | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -1229,6 +1304,26 @@ qwenpaw cron run <job_id>              # 立即执行一次
 qwenpaw doctor                         # 诊断检查（环境、配置、提供商、频道等）
 qwenpaw doctor fix                     # 自动修复发现的问题
 ```
+
+### 审批管理 (v1.1.4 新增)
+
+```bash
+qwenpaw approval                       # 管理工具调用审批（Tool Guard）
+```
+
+### 聊天命令
+
+| 命令 | 说明 | 版本 |
+|------|------|------|
+| `/plan` | 创建分步任务计划（Plan 模式）| v1.1.4 |
+| `/mission` | 自主多阶段任务执行 | v1.1.2 |
+| `/model` | 切换模型、列出可用模型 | v1.0.2 |
+| `/skills` | 查看已启用技能 | v1.0.2 |
+| `/stop` | 取消运行中任务 | v1.0.0 |
+| `/clear` | 清除聊天历史 | v0.1.0 |
+| `/compact` | 手动触发记忆压缩 | v0.1.0 |
+| `/approve` | 批准被阻止的工具调用 | v0.0.7 |
+| `/deny` | 拒绝工具调用 | v0.0.7 |
 
 ### 会话管理
 
