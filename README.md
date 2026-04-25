@@ -513,7 +513,11 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.4.post1 补丁更新（最新）
+### v1.1.4.post2 补丁更新（最新）
+
+- **频道审批修复** - 修复 Tool Guard 审批在频道中不工作的问题
+
+### v1.1.4.post1 补丁更新
 
 - **CJK 感知查询分词** - 记忆搜索新增 CJK（中日韩）感知的查询分词，提升中文等语言的搜索精度
 - **回退 Vite 升级** - 回退控制台构建工具 Vite 从 v8 到 v6 的升级
