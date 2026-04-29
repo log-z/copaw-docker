@@ -513,44 +513,31 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.4.post2 补丁更新（最新）
-
-- **频道审批修复** - 修复 Tool Guard 审批在频道中不工作的问题
-
-### v1.1.4.post1 补丁更新
-
-- **CJK 感知查询分词** - 记忆搜索新增 CJK（中日韩）感知的查询分词，提升中文等语言的搜索精度
-- **回退 Vite 升级** - 回退控制台构建工具 Vite 从 v8 到 v6 的升级
-
-### v1.1.4 更新
+### v1.1.5 更新（最新）
 
 #### 新功能
-- **Memory & Context 重构** - 长期记忆模块重构，支持可插拔后端、自动记忆摘要与检索、新上下文管理接口
-- **Plan 模式** - `/plan` 命令创建分步任务计划，Agent 按计划执行，控制台实时计划面板
-- **DeepSeek V4 模型** - 新增 DeepSeek V4 Flash 和 V4 Pro 内置模型
-- **SIP 语音频道** - 新增 SIP 电话频道，双模式后端（pyVoIP 开发 / LiveKit 生产）
-- **Tool Guard 审批系统** - 控制台交互式审批卡片、跨会话审批路由、可配置执行级别（Strict/Smart/Auto/Off）、`/approval` CLI 命令
-- **可配置 Shell 混淆检测** - 安全设置页面单独开关每条检测规则，标记风险类型
-- **Auth-Bypass 主机白名单** - `allow_no_auth_hosts` 允许指定 IP 免认证访问
-- **每 Agent 模型分配** - 从 Settings → Agents 为每个 Agent 单独指定 LLM 模型
-- **浏览器启动参数** - `browser_use` 支持自定义 Chromium 标志和浏览器路径
-- **Shell 命令超时** - 按 Agent 配置 `execute_shell_command` 默认超时
-- **钉钉语音识别** - 使用钉钉内置语音识别替代本地处理
-- **QQ 引用消息支持** - 解析回复/引用元数据并注入 Agent 请求
-- **钉钉 Markdown 消息** - 较短回复使用 Markdown 格式渲染
-- **微信交互式配置向导** - CLI 中交互式 `configure_weixin` 向导
+- **上下文压缩回退** - LLM 上下文压缩失败时自动提高保留阈值重试
+- **自适应模型重试** - 从 API 失败中学习模型特性，主动适配后续请求
+- **ACP Agent 重命名与删除** - 可从 WebUI 重命名和删除 ACP Agent
+- **QQ 语音与 ASR 支持** - QQ 频道检测语音消息，使用平台 ASR 转录
 
 #### 优化
-- Docker 构建改进 — `config.json` 初始化移至入口点，`pip` 替换为 `uv` 加速安装
-- 动态插件注册 — 运行时 `import.meta.glob` 替换构建时注册表
-- Agent 语言同步 — 新 Agent 继承控制台 UI 语言
-- Token 用量缓冲 — 异步缓冲记录，定期刷盘
+- Agent 统计页面移至侧边栏 Workspace 分组
+- Dockerfile 构建目录清理，镜像更精简
+- Chat 组件升级，修复 `stopChat` 问题
+
+#### 性能优化
+- 配置文件和技能清单 mtime 缓存，减少磁盘读取
+- 模型 API 并发请求自动去重
+- 聊天会话列表虚拟化渲染，搜索渐进加载
 
 #### Bug 修复
-- 文件 URL 编码修复（Windows 和 CJK 路径）
-- 微信发送响应、图标映射和 QR 登录超时修复
-- Agent 统计页面崩溃和刷新问题修复
-- Anthropic 不支持的文件块导致 API 错误修复
+- 频道中 `/approve` 和 `/deny` 命令修复
+- 企业微信 @提及时斜杠命令失败修复
+- QQ WebSocket 可恢复错误自动重连
+- Agent 选择在浏览器标签页间泄漏修复
+- 时区名称规范化到 IANA 标识符
+- MCP 客户端超时传递到工具执行
 
 ---
 
