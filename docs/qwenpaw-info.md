@@ -4,11 +4,44 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-04-30
+> **更新日期**: 2026-05-06
 
 ---
 
-## 重要更新 (2026-04-30)
+## 重要更新 (2026-05-06)
+
+### v1.1.5.post2 补丁修复 (2026-05-06)
+
+#### 新功能
+
+**会话**
+- **会话标题异步生成** - 通过 LLM 异步生成聊天会话标题 (#3829)
+
+**国际化**
+- **巴西葡萄牙语支持** - 新增 Brazilian Portuguese (pt-BR) 本地化 (#4009)
+
+**技能**
+- **技能安装/卸载 CLI** - 新增 `qwenpaw skills install` 和 `qwenpaw skills uninstall` 命令 (#4053)
+
+#### 优化
+
+- **MCP 执行超时修正** - MCP 客户端 `sse_read_timeout` 现用作工具执行超时，而非 HTTP 连接超时 (#4061)
+- **控制台重复渲染** - 解决控制台重复渲染问题 (#4052)
+
+#### Bug 修复
+
+**频道**
+- **Telegram 网络重试** - Telegram 频道新增网络重试机制 (#4039)
+- **音频文件路径解析** - 修复 `file://` URL 音频块返回解析后的路径 (#4021)
+- **审批命令修复** - 修复 `/approve` 简写忽略 `request_id` 参数的问题 (#4014)
+
+**提供商**
+- **Anthropic max_token** - 增加 Anthropic 兼容模型的 `max_token` 限制 (#4054)
+
+**技能**
+- **技能加载健壮性** - 增强对已迁移或格式错误的技能及技能池条目的容错加载 (#4016)
+
+---
 
 ### v1.1.5.post1 补丁修复 (2026-04-30)
 
@@ -892,6 +925,8 @@
 - `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
 - `qwenpaw doctor` - 诊断检查与自动修复 (v1.1.2)
 - `qwenpaw skills info` - 查看技能详情 (v1.1.2)
+- `qwenpaw skills install` - 安装技能 (v1.1.5.post2)
+- `qwenpaw skills uninstall` - 卸载技能 (v1.1.5.post2)
 - `qwenpaw message push/send` - 推送消息/发送请求 (v0.2.0)
 - `qwenpaw message send --background` - 后台发送代理请求 (v1.0.0)
 - `qwenpaw update` - 自动更新 QwenPaw (v0.1.0)
@@ -1427,6 +1462,8 @@ qwenpaw chats delete <id>              # 删除会话
 qwenpaw skills list                    # 看有哪些技能
 qwenpaw skills config                  # 交互式开关
 qwenpaw skills info                    # 查看技能详情 (v1.1.2 新增)
+qwenpaw skills install                 # 安装技能 (v1.1.5.post2 新增)
+qwenpaw skills uninstall               # 卸载技能 (v1.1.5.post2 新增)
 ```
 
 ---

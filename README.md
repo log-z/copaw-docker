@@ -513,7 +513,27 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.5.post1 更新（最新）
+### v1.1.5.post2 更新（最新）
+
+#### 新功能
+- **会话标题异步生成** - 通过 LLM 异步生成聊天会话标题
+- **巴西葡萄牙语支持** - 新增 Brazilian Portuguese (pt-BR) 本地化
+- **技能安装/卸载 CLI** - 新增 `qwenpaw skills install` 和 `qwenpaw skills uninstall` 命令
+
+#### 优化
+- MCP 执行超时修正，`sse_read_timeout` 现用作工具执行超时
+- 控制台重复渲染问题修复
+
+#### Bug 修复
+- Telegram 频道网络重试机制
+- 音频文件 `file://` URL 路径解析修复
+- `/approve` 简写忽略 `request_id` 参数修复
+- Anthropic 兼容模型 `max_token` 限制增加
+- 技能加载对已迁移或格式错误条目的容错增强
+
+---
+
+### v1.1.5.post1 更新
 
 #### 新功能
 - **飞书交互式审批** - Tool Guard 审批升级为交互式按钮，更直观的操作体验
