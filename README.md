@@ -513,68 +513,36 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.5.post2 更新（最新）
+### v1.1.6 更新（最新）
 
 #### 新功能
-- **会话标题异步生成** - 通过 LLM 异步生成聊天会话标题
-- **巴西葡萄牙语支持** - 新增 Brazilian Portuguese (pt-BR) 本地化
-- **技能安装/卸载 CLI** - 新增 `qwenpaw skills install` 和 `qwenpaw skills uninstall` 命令
-
-#### 优化
-- MCP 执行超时修正，`sse_read_timeout` 现用作工具执行超时
-- 控制台重复渲染问题修复
-
-#### Bug 修复
-- Telegram 频道网络重试机制
-- 音频文件 `file://` URL 路径解析修复
-- `/approve` 简写忽略 `request_id` 参数修复
-- Anthropic 兼容模型 `max_token` 限制增加
-- 技能加载对已迁移或格式错误条目的容错增强
-
----
-
-### v1.1.5.post1 更新
-
-#### 新功能
-- **飞书交互式审批** - Tool Guard 审批升级为交互式按钮，更直观的操作体验
-- **飞书审批文档提示** - 审批卡片显示文档链接，便于了解操作详情
-- **企业微信群聊会话共享** - 新增 `share_session_in_group` 开关控制群聊会话共享
-
-#### 安全更新
-- **路径遍历防护** - 拒绝绝对静态文件路径，防止路径遍历攻击
-
-#### Bug 修复
-- 企业微信流式响应卡顿修复，保持占位符流活跃
-- 企业微信重连优化，避免双重重连竞争
-- 控制台工具调用代码块换行显示修复
-
----
-
-### v1.1.5 更新
-
-#### 新功能
-- **上下文压缩回退** - LLM 上下文压缩失败时自动提高保留阈值重试
-- **自适应模型重试** - 从 API 失败中学习模型特性，主动适配后续请求
-- **ACP Agent 重命名与删除** - 可从 WebUI 重命名和删除 ACP Agent
-- **QQ 语音与 ASR 支持** - QQ 频道检测语音消息，使用平台 ASR 转录
-
-#### 优化
-- Agent 统计页面移至侧边栏 Workspace 分组
-- Dockerfile 构建目录清理，镜像更精简
-- Chat 组件升级，修复 `stopChat` 问题
+- **Windows 诊断增强** - `qwenpaw doctor` 新增 Windows 环境检查（长路径、PowerShell 模式等）
+- **Agent 状态 API** - 新增 `GET /agents/{agentId}/agent-status` 端点
+- **Cron 会话隔离** - Cron 任务新增 `share_session` 选项，支持每次运行创建隔离会话
+- **GPT Image 2 插件** - 通过 OpenAI GPT Image 2 API 生成图像
+- **Whisper 语音输入** - 服务端 Whisper 替换浏览器原生 Web Speech API
+- **Token 使用趋势图** - 按模型和 Token 类型的趋势折线图
+- **Mermaid 图表渲染** - Markdown 中 `mermaid` 代码块渲染为交互式图表
+- **火山引擎提供商** - 新增 Volcano Engine 内置提供商
+- **阿里云 Token 计划提供商** - 新增 Aliyun Token Plan 内置提供商
+- **DashScope 区域选择** - Base URL 可从预设区域端点修改
+- **企业微信交互式审批卡片** - Tool Guard 审批渲染为交互式模板卡片
+- **飞书发送者上下文** - 发送者昵称传递到 Agent 环境上下文
+- **规则级自动拒绝** - 单个安全规则可配置为自动拒绝工具调用
+- **技能测试 CLI** - 新增 `qwenpaw skills test` 命令
 
 #### 性能优化
-- 配置文件和技能清单 mtime 缓存，减少磁盘读取
-- 模型 API 并发请求自动去重
-- 聊天会话列表虚拟化渲染，搜索渐进加载
+- 聊天历史导航优化，缓存用户消息列表
+- QR 轮询在认证完成时立即清理
+- 控制台渲染稳定性提升
 
 #### Bug 修复
-- 频道中 `/approve` 和 `/deny` 命令修复
-- 企业微信 @提及时斜杠命令失败修复
-- QQ WebSocket 可恢复错误自动重连
-- Agent 选择在浏览器标签页间泄漏修复
-- 时区名称规范化到 IANA 标识符
-- MCP 客户端超时传递到工具执行
+- Docker 卷备份恢复正确处理 secrets (#3916)
+- Agent 配置热重载支持任务排空
+- MCP 客户端生命周期泄漏修复
+- SSE 流代理安全性修复
+- 日志轮转统一使用 `RotatingFileHandler`
+- 企业代理环境下环回健康检查绕过
 
 ---
 

@@ -4,11 +4,81 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-05-06
+> **更新日期**: 2026-05-09
 
 ---
 
-## 重要更新 (2026-05-06)
+## 重要更新 (2026-05-09)
+
+### v1.1.6 (2026-05-09)
+
+#### 新功能
+
+**Agent 系统**
+- **Windows 诊断增强** - `qwenpaw doctor` 新增 Windows 环境检查，包括长路径支持、PowerShell 语言模式和工作目录路径长度 (#4032)
+- **Agent 状态 API** - 新增 `GET /agents/{agentId}/agent-status` 端点，报告 Agent 运行时状态、运行任务数和时间戳 (#4107)
+- **Cron 会话隔离** - Cron 任务新增 `share_session` 选项，禁用时每次运行创建隔离会话上下文 (#4117)
+- **GPT Image 2 插件** - 新增通过 OpenAI GPT Image 2 API 生成图像的工具插件 (#3911)
+- **配置驱动 Agent 名称** - 使用配置的 Agent 配置文件名称替代硬编码默认值 (#4140)
+
+**会话与控制台**
+- **Whisper 语音输入** - 用服务端 Whisper 转录替换浏览器原生 Web Speech API，跨浏览器更可靠 (#3574)
+- **Token 使用趋势图** - Token Usage 设置页面新增按模型和按 Token 类型的趋势折线图 (#4080, #4094)
+- **技能批量启禁用** - 技能批量操作工具栏新增启用和禁用按钮，含每技能错误报告 (#4091)
+- **Mermaid 图表渲染** - `mermaid` 语言标签的 Markdown 代码块渲染为交互式图表 (#4146)
+- **巴西葡萄牙语完善** - 后端语言设置新增完整 pt-BR 本地化支持 (#4143)
+
+**提供商**
+- **火山引擎提供商** - 新增 Volcano Engine 为内置 OpenAI 兼容提供商，含标准和 Coding Plan 端点 (#3994)
+- **DashScope 区域选择** - DashScope Base URL 可从预设区域端点修改 (#4074)
+- **阿里云 Token 计划提供商** - 新增 Aliyun Token Plan 为内置提供商 (#4122)
+
+**频道**
+- **飞书发送者上下文** - 飞书发送者昵称传递到 Agent 环境上下文 (#4098)
+- **企业微信交互式审批卡片** - Tool Guard 审批请求渲染为交互式模板卡片 (#4112)
+
+**安全**
+- **规则级自动拒绝** - 单个安全规则可配置为自动拒绝工具调用 (#4046)
+
+**技能与 CLI**
+- **技能测试 CLI** - 新增 `qwenpaw skills test` 命令验证技能内容和运行安全扫描 (#3999)
+
+#### 性能优化
+
+- **聊天历史导航** - 跳过非箭头键的历史查找，缓存用户消息列表避免重复扫描 (#4130)
+- **QR 轮询清理** - 认证完成或二维码过期时立即停止轮询并清除状态指示器 (#4148)
+- **控制台渲染稳定** - 消除审批轮询状态比较和聊天运行时选项的重复渲染 (#4110, #4153)
+
+#### Bug 修复
+
+**频道**
+- **微信 Cron 缓冲刷新** - 绕过正常完成路径的 Cron/主动发送立即刷新微信合并缓冲区 (#4106)
+- **Markdown 表格拆分** - 在消息分片间重复表头和分隔行，保持 Markdown 表格结构 (#4119)
+
+**Agent 系统**
+- **外部 Agent 超时** - `delegate_external_agent` 新增安全默认超时（60s），防止无限挂起 (#3928)
+- **Agent 配置热重载** - Agent 配置文件变更触发优雅重载，含任务排空 (#4064)
+- **Agent 配置持久化** - 修复控制台 Agent 配置编辑器保存时丢失嵌套设置的问题 (#4157)
+
+**MCP**
+- **MCP 客户端生命周期泄漏** - 修复 `close()` 可能跳过停止后台重连任务的问题 (#4152)
+
+**控制台与 UI**
+- **SSE 代理安全性** - 通过清理不可编码内容防止格式错误的代理文本导致 SSE 流崩溃 (#3553)
+- **默认 Agent 显示名称** - 所有 UI 界面尊重自定义默认 Agent 名称 (#4073)
+- **文件预览路径** - 修复文件预览路径中冗余 URL 前缀剥离导致的 URL 断裂 (#4089)
+
+**基础设施**
+- **Docker 备份恢复** - 通过交换目录内容而非重命名，正确恢复 Docker 卷挂载点上的 secrets (#3916)
+- **音频块路径** - 为 `file://` URL 音频块返回解析后的文件系统路径 (#4048)
+- **日志轮转** - 所有平台统一使用 `RotatingFileHandler` 进行日志轮转 (#4076)
+- **环回代理绕过** - 企业代理环境下绕过环回 API 健康检查的代理环境变量 (#4092)
+- **Conda 打包** - 运行 `conda-pack` 前恢复打包工具，防止打包管道中断 (#4093)
+
+#### 文档
+- **WSL2 超时 FAQ** - 新增 WSL2 NAT 模式下 `APITimeoutError` 处理的 FAQ 条目 (#4005)
+
+---
 
 ### v1.1.5.post2 补丁修复 (2026-05-06)
 
@@ -925,6 +995,7 @@
 - `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
 - `qwenpaw doctor` - 诊断检查与自动修复 (v1.1.2)
 - `qwenpaw skills info` - 查看技能详情 (v1.1.2)
+- `qwenpaw skills test` - 验证技能内容和安全扫描 (v1.1.6)
 - `qwenpaw skills install` - 安装技能 (v1.1.5.post2)
 - `qwenpaw skills uninstall` - 卸载技能 (v1.1.5.post2)
 - `qwenpaw message push/send` - 推送消息/发送请求 (v0.2.0)
@@ -1262,6 +1333,8 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | OpenRouter (v1.1.1 新增) | `openrouter` | `https://openrouter.ai/api/v1` |
 | OpenCode / Zen (v1.1.1 新增) | `opencode` | OpenAI 兼容端点，提供免费模型 |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
+| Volcano Engine / 火山引擎 (v1.1.6 新增) | `volcengine` | OpenAI 兼容端点，含标准和 Coding Plan 端点 |
+| Aliyun Token Plan (v1.1.6 新增) | `aliyun-token-plan` | （阿里云 Token 计划端点） |
 | 自定义 | `custom` | （你自己填） |
 
 ### 本地提供商
@@ -1462,6 +1535,7 @@ qwenpaw chats delete <id>              # 删除会话
 qwenpaw skills list                    # 看有哪些技能
 qwenpaw skills config                  # 交互式开关
 qwenpaw skills info                    # 查看技能详情 (v1.1.2 新增)
+qwenpaw skills test                    # 验证技能内容和运行安全扫描 (v1.1.6 新增)
 qwenpaw skills install                 # 安装技能 (v1.1.5.post2 新增)
 qwenpaw skills uninstall               # 卸载技能 (v1.1.5.post2 新增)
 ```
