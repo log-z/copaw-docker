@@ -25,7 +25,7 @@ QwenPaw（原 CoPaw 项目）是一款个人 AI 助手，部署在你自己的�
 > **注意**：v1.1.8+ 起，未启用安全认证时，**备份功能** 可能无法在 Web UI 中使用。([#4409](https://github.com/agentscope-ai/QwenPaw/pull/4409))
 
 <details>
-<summary><strong>如何开启/禁用安全认证</summary>
+<summary><strong>如何开启/禁用安全认证</strong></summary>
 
 设置 `QWENPAW_AUTH_ENABLED=true` 启用安全认证，可降低风险：
 - 首次访问显示注册页面
