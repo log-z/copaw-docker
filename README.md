@@ -18,18 +18,19 @@ QwenPaw（原 CoPaw 项目）是一款个人 AI 助手，部署在你自己的�
 
 ---
 
-## ⚠️ 安全警告 ⚠️
+##  安全警告 
 
-> **QwenPaw v0.1.0+ 支持可选的 Web 认证功能。对于 v0.1.0 之前的版本或未启用认证时，切勿将服务端口暴露到公网！**
+> ⚠️ **QwenPaw 支持可选的安全认证功能。对于未启用的部署，切勿将服务端口暴露到公网！** ⚠️
+>
+> **注意**：v1.1.8+ 起，未启用安全认证时，**备份功能** 可能无法在 Web UI 中使用。([#4409](https://github.com/agentscope-ai/QwenPaw/pull/4409))
 
 <details>
-<summary><strong>v0.1.0+ Web 认证</strong>（推荐启用）</summary>
+<summary><strong>如何开启/禁用安全认证</summary>
 
-设置 `QWENPAW_AUTH_ENABLED=true` 启用 Web 认证：
+设置 `QWENPAW_AUTH_ENABLED=true` 启用安全认证，可降低风险：
 - 首次访问显示注册页面
-- 本地请求 (127.0.0.1) 自动绕过认证
-- v1.1.4+: 可配置 `allow_no_auth_hosts` 白名单允许信任 IP 免认证访问
-- 支持环境变量自动注册（适用于自动化部署）
+- 容器内部请求 (127.0.0.1) 自动绕过认证
+- v1.1.4+: 可配置白名单允许信任 IP 免认证访问（受限于容器子网隔离，此配置意义不大）
 - 密码重置：`docker compose exec qwenpaw qwenpaw auth reset-password`
 
 ```bash
@@ -40,16 +41,13 @@ QWENPAW_AUTH_ENABLED=true
 QWENPAW_AUTH_USERNAME=admin
 QWENPAW_AUTH_PASSWORD=your_secure_password
 ```
-</details>
 
-<details>
-<summary><strong>v0.0.x 或未启用认证时</strong>，WebUI 管理界面<strong>没有登录验证机制</strong>，任何能访问该端口的人都可以完全控制你的 QwenPaw 实例。点击展开安全建议。</summary>
+设置 `QWENPAW_AUTH_ENABLED=false` 禁用安全认证：
+```bash
+# 在 .env 文件中禁用
+QWENPAW_AUTH_ENABLED=false
+```
 
-- 默认端口 `8088` 仅应在**受信任的内网环境**或通过**反向代理 + 认证**等方式访问
-- 如果必须远程访问，请使用以下安全措施之一：
-  - 通过 SSH 隧道访问：`ssh -L 8088:localhost:8088 your-server`
-  - 配置 Nginx/Caddy 等反向代理并添加 Basic Auth 或 OAuth 认证
-  - 使用防火墙限制访问来源 IP
 </details>
 
 ---
@@ -182,7 +180,7 @@ copaw-data:/
 └── qwenpaw/
     ├── .backups/              # 备份存储目录
     ├── .runtime/              # 敏感配置目录
-    │   ├── auth.json          # Web 认证数据（v0.1.0+）
+    │   ├── auth.json          # 安全认证数据（v0.1.0+）
     │   ├── envs.json          # 环境变量配置
     │   └── providers.json     # LLM 提供商配置
     ├── custom_channels/       # 用户自定义频道模块
@@ -320,7 +318,7 @@ docker compose exec qwenpaw qwenpaw daemon version       # 查看 QwenPaw 版本
 
 # 更新与认证（v0.1.0+）
 docker compose exec qwenpaw qwenpaw update              # 更新 QwenPaw 到最新版本（在容器中更新无意义）
-docker compose exec qwenpaw qwenpaw auth reset-password # 重置 Web UI 密码
+docker compose exec qwenpaw qwenpaw auth reset-password # 重置安全认证密码
 
 # Agent 与消息（v0.2.0+）
 docker compose exec qwenpaw qwenpaw agents list            # 列出所有代理
@@ -367,7 +365,7 @@ docker compose exec qwenpaw qwenpaw approval           # 管理工具调用审�
 
 - `.backups/` - 备份存储目录
 - `.runtime/` - 敏感配置目录
-  - `auth.json` - Web 认证数据（v0.1.0+）
+  - `auth.json` - 安全认证数据（v0.1.0+）
   - `envs.json` - 环境变量配置
   - `providers.json` - LLM 提供商配置
 - `custom_channels/` - 用户自定义频道模块
@@ -419,7 +417,7 @@ docker compose exec qwenpaw qwenpaw approval           # 管理工具调用审�
 
 ## 端口说明
 
-> ⚠️ **安全提醒**：v0.1.0 之前或未启用认证时，请勿将端口暴露到公网！环境变量启用 `QWENPAW_AUTH_ENABLED=true` 后可降低风险。
+> ⚠️ **安全提醒**：未启用认证时，请勿将端口暴露到公网！环境变量启用 `QWENPAW_AUTH_ENABLED=true` 后可降低风险。
 
 | 容器端口 | 主机端口 | 说明 |
 |----------|----------|------|
@@ -434,7 +432,7 @@ ports:
   # - "0.0.0.0:8088:8088"
 ```
 
-> **安全更新**：v0.0.5 起，默认端口绑定改为 `127.0.0.1` 以提高安全性。v0.1.0+ 启用认证后可降低风险。
+> **安全更新**：v0.0.5 起，默认端口绑定改为 `127.0.0.1` 以提高安全性。启用认证后可降低风险。
 
 ---
 

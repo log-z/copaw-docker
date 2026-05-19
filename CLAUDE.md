@@ -20,19 +20,19 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 ### Security Warning
 
-> **QwenPaw v1.1.0+ supports optional Web authentication. For versions prior to v1.1.0 or when authentication is disabled, NEVER expose the service port to the public internet!**
+> **QwenPaw v0.1.0+ supports optional Web authentication. When authentication is disabled, NEVER expose the service port to the public internet!**
 
-- **v1.1.0+**: Set `QWENPAW_AUTH_ENABLED=true` to enable Web authentication (disabled by default)
+- **With authentication enabled**: Set `QWENPAW_AUTH_ENABLED=true` to enable Web authentication (disabled by default)
   - First access shows registration page
   - Local requests (127.0.0.1) automatically bypass authentication
   - v1.1.4+: Configurable `allow_no_auth_hosts` whitelist for trusted IP access without auth
   - Auto-register admin via environment variables: `QWENPAW_AUTH_USERNAME` and `QWENPAW_AUTH_PASSWORD`
   - Password reset: `docker compose exec qwenpaw qwenpaw auth reset-password`
-- **v0.0.x or when authentication disabled**:
+- **When authentication disabled**:
   - The WebUI management interface has **no login authentication**
   - Default port `8088` should only be accessed in **trusted internal networks**
-  - v0.0.5+ changed default Docker port binding to `127.0.0.1` for improved security
   - If remote access is required, use SSH tunnel or reverse proxy with authentication
+  - **v1.1.8+**: Backup creation, import, and restore are restricted to `allow_no_auth_hosts` whitelist only (defaults to `127.0.0.1` and `::1`). To use backup features from other devices, enable Web authentication.
 
 ### Data Volume Compatibility
 
