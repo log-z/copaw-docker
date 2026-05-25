@@ -22,7 +22,8 @@ QwenPaw（原 CoPaw 项目）是一款个人 AI 助手，部署在你自己的�
 
 > ⚠️ **QwenPaw 支持可选的安全认证功能。对于未启用的部署，切勿将服务端口暴露到公网！** ⚠️
 >
-> **注意**：v1.1.8+ 起，未启用安全认证时，**备份功能** 可能无法在 Web UI 中使用。([#4409](https://github.com/agentscope-ai/QwenPaw/pull/4409))
+> ~~注意：v1.1.8+ 起，未启用安全认证时，**备份功能** 可能无法在 Web UI 中使用。([#4409](https://github.com/agentscope-ai/QwenPaw/pull/4409))~~
+> -- 已在 v1.1.8.post1 中修复。
 
 <details>
 <summary><strong>如何开启/禁用安全认证</strong></summary>
@@ -511,7 +512,27 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.8 更新（最新）
+### v1.1.8.post1 更新（最新）
+
+#### 新功能
+- **OpenCode Go** - OpenCode 提供商新增 OpenCode Go，通过 `meta.base_url_options` 配置 (#4536)
+- **OpenCode URL 冻结禁用** - OpenCode 提供商配置中禁用 URL 冻结 (#4549)
+- **后台任务超时** - 后台任务提交新增 `task_timeout` 支持 (#4547)
+- **文件名规范化** - 消息内容处理中规范化文件名，修复特殊字符问题 (#4574)
+
+#### 变更
+- **备份限制移除** - 移除备份功能的 `allow_no_auth_hosts` 白名单限制 (#4563)
+- **控制台插件页面** - 更新控制台插件页面样式 (#4545)
+
+#### Bug 修复
+- MCP 密钥路由修复，修复包含 "/" 的客户端密钥路由问题 (#4560)
+- Plan Panel 暗黑模式标题不可见修复 (#4570)
+- 控制台 chatSession 修复 (#4573)
+- QwenPaw Pet Windows 兼容性、宠物生命周期 UX、双语 UI 和打包修复 (#4564)
+
+---
+
+### v1.1.8 更新
 
 #### 新功能
 - **官方插件分发** - 从网站浏览下载官方插件，或控制台插件管理器一键安装

@@ -32,7 +32,6 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
   - The WebUI management interface has **no login authentication**
   - Default port `8088` should only be accessed in **trusted internal networks**
   - If remote access is required, use SSH tunnel or reverse proxy with authentication
-  - **v1.1.8+**: Backup creation, import, and restore are restricted to `allow_no_auth_hosts` whitelist only (defaults to `127.0.0.1` and `::1`). To use backup features from other devices, enable Web authentication.
 
 ### Data Volume Compatibility
 
