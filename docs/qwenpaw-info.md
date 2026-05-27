@@ -4,11 +4,68 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-05-25
+> **更新日期**: 2026-05-27
 
 ---
 
-## 重要更新 (2026-05-25)
+## 重要更新 (2026-05-27)
+
+### v1.1.9 (2026-05-27)
+
+#### 新功能
+
+**桌面与 IDE**
+- **Tauri 2.x 桌面应用** - 新的基于 Tauri 的原生桌面应用，支持 macOS 和 Windows (#3813)
+- **Coding 模式** - 新的 Web IDE，三栏布局：文件树、带内联差异审查的标签编辑器，以及 Git 面板（分支、暂存、提交）(#4578, #4671)
+
+**技能与提供商**
+- **技能市场** - 新的技能市场页面，可从多个提供商（阿里云、ClawHub、ModelScope）浏览和安装技能，支持跨提供商搜索 (#4518, #4623)
+- **OpenCode Go 提供商** - OpenCode 和 OpenCode Go 共享单一提供商，支持切换 API 端点 (#4536, #4549)
+- **浏览器无头模式警告** - 无头浏览器启动时包含切换到有头模式的说明提示 (#4603)
+
+**Agent 系统**
+- **后台任务超时** - `submit_to_agent` 新增 `task_timeout` 参数，CLI 也可通过 `--task-timeout` 标志设置 (#4547)
+- **文件块上下文** - 消息内容中的文件块现在与图片、音频、视频块一起处理和 Token 计数 (#4567)
+- **工具拒绝反馈** - 用户拒绝工具调用时，Agent 收到明确指令不再重试或尝试替代方案 (#4569)
+- **隔离 Cron 会话** - 非共享 Cron 任务使用清洁上下文执行，同时历史记录累积在统一的每任务会话中 (#4602)
+
+**聊天与控制台**
+- **桌面端文件下载** - 点击聊天中的文件卡片在 pywebview 桌面应用中正常工作 (#4566)
+- **聊天输入草稿持久化** - 聊天输入文本和光标位置在页面导航间保存和恢复 (#4598)
+- **聊天历史记忆摘要** - 聊天历史现在包含记忆摘要 (#4658)
+
+**频道**
+- **统一访问控制** - 每频道白名单/黑名单/待审批系统，控制台 UI 管理所有频道的用户访问 (#4565)
+- **QQ 工具审批卡片** - QQ 频道中的交互式键盘按钮卡片，用于批准/拒绝操作 (#4667)
+
+#### 变更
+
+- **插件管理器 UI** - 重新设计插件管理器页面，支持 i18n 感知描述、类型过滤、名称搜索，安装/卸载后自动重载 (#4545, #4588)
+- **技能内容验证** - 从 ZIP 导入或通过编辑器保存的技能现在在接收前进行验证 (#4591)
+- **控制台 UI 刷新** - 更新头部导航布局和 Environments & Security 设置页面 (#4654, #4657)
+
+#### Bug 修复
+
+**频道**
+- **微信消息可靠性** - 添加基于内容的去重捕获跨轮询重复消息；跳过过期 `context_token` 的发送；报告 API 发起消息的准确失败 (#4576, #4597, #4618, #4627)
+- **钉钉中文文件名** - 文件发送中的百分号编码中文文件名现在正确解码 (#4600)
+- **钉钉 DM Webhook Key** - DM Webhook 存储键现在包含 `sender_id`，防止不同会话共享相同 `conversation_id` 后缀时的键冲突 (#4665)
+
+**控制台与 UI**
+- **MCP 客户端密钥路由** - 修复包含 `/` 的 MCP 客户端密钥路由问题 (#4560)
+- **QwenPaw Pet** - 修复 Windows 兼容性、连续对话中宠物卡在 Done 状态，自动启动默认改为 opt-in (#4564, #4626)
+- **暗黑模式可见性** - 修复暗黑模式下 Plan Panel 标题和 Pet 导入拖放区不可见 (#4570, #4599)
+- **Whisper 语音按钮** - 聊天页面现在等待 Whisper 提供商检查完成后再显示语音按钮，防止配置 Whisper 时短暂闪烁浏览器语音按钮 (#4601)
+
+**提供商与安全**
+- **代理客户端 IP** - 认证绕过白名单现在解析真实客户端 IP，而非使用代理地址 (#4562)
+- **Gemini `max_tokens`** - Gemini 提供商现在正确将 `max_tokens` 映射为 `max_output_tokens` (#4621)
+
+#### 测试
+
+- **集成测试套件** - 重构并扩展集成测试，覆盖更广 (#4561)
+
+---
 
 ### v1.1.8.post1 (2026-05-20)
 
@@ -1258,7 +1315,7 @@ pip install qwenpaw
 
 可选：先创建并激活虚拟环境再安装（`python -m venv .venv`，Linux/macOS 下 `source .venv/bin/activate`，Windows 下 `.venv\Scripts\Activate.ps1`）。
 
-#### 方式三：桌面应用 (v0.0.6 新增，Beta)
+#### 方式三：桌面应用 (v0.0.6 新增，v1.1.9 新增 Tauri 版)
 
 如果你不习惯使用命令行，可以下载并使用 QwenPaw 的桌面应用版本，无需手动配置 Python 环境或执行命令。
 
@@ -1266,6 +1323,7 @@ pip install qwenpaw
 - ✅ **零配置**：下载后双击即可运行，无需安装 Python 或配置环境变量
 - ✅ **跨平台**：支持 Windows 10+ 和 macOS 14+ (推荐 Apple Silicon)
 - ✅ **可视化**：自动打开浏览器界面，无需手动输入地址
+- ✅ **Tauri 原生版** (v1.1.9+)：基于 Tauri 2.x 的原生桌面应用，更轻量、更原生的体验
 - ⚠️ **Beta 阶段**：功能持续完善中，欢迎反馈问题
 
 **下载地址**：[GitHub Releases](https://github.com/agentscope-ai/QwenPaw/releases)
@@ -1489,7 +1547,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | SiliconFlow (v1.0.2 新增) | `siliconflow` | 中国版/国际版分离端点 |
 | Zhipu / 智谱 (v1.0.1 新增) | `zhipu` | `https://open.bigmodel.cn/api/paas/v4` |
 | OpenRouter (v1.1.1 新增) | `openrouter` | `https://openrouter.ai/api/v1` |
-| OpenCode / Zen (v1.1.1 新增) | `opencode` | OpenAI 兼容端点，提供免费模型 |
+| OpenCode / Zen (v1.1.1 新增) | `opencode` | OpenAI 兼容端点，提供免费模型，v1.1.9+ 含 OpenCode Go 可切换端点 |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
 | Volcano Engine / 火山引擎 (v1.1.6 新增) | `volcengine` | OpenAI 兼容端点，含标准和 Coding Plan 端点 |
 | Aliyun Token Plan (v1.1.6 新增) | `aliyun-token-plan` | （阿里云 Token 计划端点） |
@@ -1617,6 +1675,7 @@ qwenpaw agents enable/disable <agent>  # 启用/禁用代理 (v1.0.0 新增)
 qwenpaw message push <channel> <user>  # 向频道推送消息
 qwenpaw message send <agent> <msg>     # 向代理发送请求
 qwenpaw message send <agent> <msg> --background  # 后台发送请求 (v1.0.0 新增)
+qwenpaw message send <agent> <msg> --background --task-timeout 120  # 指定后台任务超时秒数 (v1.1.9 新增)
 qwenpaw task <prompt>                  # 运行一次性任务，无需 Web 服务 (v1.0.2 新增)
 ```
 
