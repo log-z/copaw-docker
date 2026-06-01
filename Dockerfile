@@ -107,7 +107,7 @@ RUN apt-get update && \
         fonts-wqy-zenhei \
         fonts-wqy-microhei \
         && rm -rf /var/lib/apt/lists/* \
-        && sed -i 's/^CHROMIUM_FLAGS=""/CHROMIUM_FLAGS="--no-sandbox"/' /usr/bin/chromium
+        && sed -i 's/^CHROMIUM_FLAGS=""/CHROMIUM_FLAGS="--no-sandbox --remote-debugging-address=127.0.0.1"/' /usr/bin/chromium
 
 # 设置 Chromium 相关环境变量
 ENV CHROME_BIN=/usr/bin/chromium \
