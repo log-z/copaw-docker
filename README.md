@@ -510,7 +510,14 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.11.post1 更新（最新）
+### v1.1.11.post2 更新（最新）
+
+#### 样式优化
+- **工具卡片标题截断** - 工具卡片标题截断为单行并显示省略号 (#5119)
+
+---
+
+### v1.1.11.post1 更新
 
 #### Bug 修复
 - **本地提供商显示** - 在 ModelSelector PRO 标签页中显示 Ollama/LM Studio 等本地提供商 (#5113)
