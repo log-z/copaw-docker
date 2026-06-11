@@ -510,7 +510,19 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v1.1.11 更新（最新）
+### v1.1.11.post1 更新（最新）
+
+#### Bug 修复
+- **本地提供商显示** - 在 ModelSelector PRO 标签页中显示 Ollama/LM Studio 等本地提供商 (#5113)
+- **文件预览改进** - 改进文件预览错误处理 (#5115)
+- **提供商搜索** - 禁用提供商搜索输入框的浏览器自动补全 (#5112)
+
+#### 变更
+- 切换 Agent 时刷新 Datapaw Agent 菜单 (#5114)
+
+---
+
+### v1.1.11 更新
 
 #### 新功能
 - **免费模型 OAuth** - 零配置免费模型，支持一键 OAuth 认证 (#5049)
