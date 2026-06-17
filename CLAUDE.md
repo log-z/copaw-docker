@@ -45,7 +45,7 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 ```bash
 docker compose build                              # Build the image
-docker compose build --build-arg QWENPAW_VERSION=1.1.11.post2  # Build with specific version
+docker compose build --build-arg QWENPAW_VERSION=1.1.12  # Build with specific version
 docker compose up -d                              # Start the service
 docker compose logs -f qwenpaw                    # View logs
 docker compose stop / restart                     # Stop/Restart
