@@ -101,7 +101,6 @@ RUN install -m 0755 -d /etc/apt/keyrings && \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         chromium \
-        chromium-driver \
         fonts-liberation \
         fonts-noto-color-emoji \
         fonts-wqy-zenhei \
