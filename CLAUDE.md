@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Docker deployment project for QwenPaw, a personal assistant product based on AgentScope. QwenPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, SIP Voice, MQTT, Mattermost, Matrix, WeChat iLink) and runs locally with user-configured LLM providers.
+This is a Docker deployment project for QwenPaw, a personal assistant product based on AgentScope. QwenPaw supports multi-channel conversations (DingTalk, Feishu, QQ, Discord, iMessage, Telegram, Twilio Voice, SIP Voice, MQTT, Mattermost, Matrix, WeChat iLink, Slack) and runs locally with user-configured LLM providers.
 
-**Key Technologies**: Python 3.13, Docker, Docker Compose, AgentScope framework
+**Key Technologies**: Python 3.13, Docker, Docker Compose, AgentScope 2.0 framework (since v2.0.0)
 
 **Official Documentation**: http://qwenpaw.agentscope.io/docs/
 
@@ -45,7 +45,7 @@ This is a Docker deployment project for QwenPaw, a personal assistant product ba
 
 ```bash
 docker compose build                              # Build the image
-docker compose build --build-arg QWENPAW_VERSION=1.1.12  # Build with specific version
+docker compose build --build-arg QWENPAW_VERSION=2.0.0  # Build with specific version
 docker compose up -d                              # Start the service
 docker compose logs -f qwenpaw                    # View logs
 docker compose stop / restart                     # Stop/Restart
@@ -67,6 +67,8 @@ docker compose exec qwenpaw qwenpaw message push      # Push message to channel 
 docker compose exec qwenpaw qwenpaw task <prompt>     # Run one-off task, no web server (v1.0.2+)
 docker compose exec qwenpaw qwenpaw acp               # Start ACP Server (v1.1.3+)
 docker compose exec qwenpaw qwenpaw providers update  # Update provider config incl. base URL (v1.1.3+)
+docker compose exec qwenpaw qwenpaw cron update       # Edit existing cron job (v2.0.0+)
+docker compose exec qwenpaw qwenpaw tui               # Full-screen terminal UI (v2.0.0+)
 ```
 
 ### Data Management
@@ -100,6 +102,8 @@ docker compose up → entrypoint.sh → check config.json
     → qwenpaw app --host 0.0.0.0 → listens on 0.0.0.0:8088
 ```
 
+> **v2.0.0 note**: Kernel refactored on AgentScope 2.0 (Runtime 2.0). Long-term memory is now backed by ReMe v0.4.0; scrolling context uses a SQLite `history.db` (FTS5) with 30-day default retention and auto-import of existing sessions on startup. A `none` memory backend option can fully disable memory for lightweight deployments.
+
 ### Data Persistence
 
 All data stored in Docker volume `copaw-data` at `/data/qwenpaw`:
@@ -109,6 +113,7 @@ All data stored in Docker volume `copaw-data` at `/data/qwenpaw`:
 | `config.json` | Root configuration (v0.1.0+) |
 | `workspaces/default/` | Default agent workspace (v0.1.0+) |
 | `workspaces/default/plugins/` | Plugin extensions (v1.0.2+) |
+| `history.db` | Scrolling context work history, SQLite + FTS5 (v2.0.0+) |
 | `.runtime/` | SECRET_DIR: providers.json, envs.json, auth.json |
 | `.backups/` | BACKUP_DIR: backup zip files |
 

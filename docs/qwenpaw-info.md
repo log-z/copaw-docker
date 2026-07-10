@@ -4,11 +4,270 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-07-06
+> **更新日期**: 2026-07-10
 
 ---
 
-## 重要更新 (2026-07-06)
+## 重要更新 (2026-07-10)
+
+### v2.0.0 (2026-07-10)
+
+> **重大版本**：内核基于 AgentScope 2.0 重构，完整 changelog 范围为 v1.1.12.post3...v2.0.0。
+
+#### 新功能
+
+**核心架构**
+- **Runtime 2.0 内核重构** - 基于 AgentScope 2.0 重构内核 (#5078, #4846, #5018, #5552)
+- **Agent OS Driver** - 统一管理 MCP/A2A/ACP 连接、加密凭据存储和按调用审批策略 (#5067)
+- **Loop 工程** - 新的 Loop 门设计，含三种 Loop 模板：Normal / Mission / Goal (#5665, #5727)
+- **治理与沙箱** - 策略引擎支持 allow/deny/ask 规则，ToolGuard 检测器合并为单一策略评估路径，通用化治理模式扩展到插件 (#5088, #5546, #5301)
+
+**上下文管理**
+- **滚动上下文** - 基于 SQLite 的工作历史 (history.db)，含 FTS5 全文搜索、驱逐索引、轮次级持久化，以及沙盒化的 recall_history_python REPL 用于按需检索旧轮次。默认 30 天保留，启动时自动导入现有会话 (#5321)
+- **原生压缩** - 使用 AgentScope 2.0 内置上下文压缩策略重构 (#5309)
+
+**长期记忆**
+- **ReMe v0.4.0 后端** - 用 ReMe v0.4.0 替换自研记忆运行时，向量存储、自动追踪和检索由 ReMe 库处理 (#5349)
+- **按轮次追踪** - 记忆写入通过中间件按轮次执行，不再绑定到会话关闭 (#5540)
+- **使用感知搜索** - 记忆搜索考虑近期性和频率；后端特定嵌入模型选择添加到配置 UI (#5820)
+- **ADBPG REST 模式** - ADBPG 记忆后端切换为仅 REST，含自动搜索 (#5296)
+- **搜索 UI 简化** - 更简洁的记忆搜索显示，元数据字段精简 (#5482)
+- **'none' 后端** - 配置选项可完全禁用记忆系统，适用于轻量部署 (#5732)
+
+**终端 UI (TUI)**
+- **全屏 TUI** - 基于 textual 的终端聊天应用 (`qwenpaw tui`)，流式输出、工具调用渲染、状态栏和会话管理全在终端中 (#5032)
+- **项目范围会话** - TUI 可启动绑定到特定项目目录的 Coding Mode 会话 (#5448)
+- **上下文用量条** - TUI 状态栏中实时 Token/上下文用量指示器 (#5673)
+- **TUI 中的 ACP 命令** - `/approve`、`/deny` 内联审批命令 + 记录面板改进 (#5443, #5714)
+
+**控制台与 UI**
+- **审批卡片** - 更大的操作按钮、更清晰的差异预览、一键批准/拒绝 (#5855)
+- **长文本上传** - 直接粘贴或上传大段文本到聊天输入 (#5854)
+- **会话级工具审批** - 按会话覆盖全局工具策略 (#5685, #5832)
+- **非所有者横幅** - 查看他人会话标签时显示"仅查看"横幅 (#5664)
+- **移动端布局** - 所有控制台页面响应式 CSS + 抽屉式导航 (#5444–#5470)
+- **工具页面分栏视图** - 已启用与可用工具分列显示；按工具配置感知切换 (#5509, #5604)
+- **技能市场改进** - 星标/下载数、已启用/已禁用分离、CDN 自动同步 (#5521, #5706, #5639)
+- **频道页面双布局** - 已启用频道在上、可用频道在下 (#5504)
+- **Coding Mode 50/50 分屏** - 聊天面板占视口一半 (#5473)
+- **项目浏览器隐藏文件夹** - `.` 前缀目录现在可选择 (#5828)
+- **会话抽屉** - 按日期分组的会话，含内联搜索 (#5728)
+- **Token 用量浮层** - 环形图显示每轮 Token/上下文用量，为 Runtime 2.0 恢复 (#5493, #5544)
+- **收件箱过滤器** - 按来源类型过滤推送通知 (#5522)
+- **消息锚点** - 用户轮次的跳转消息导航器 (#5515)
+- **请求超时** - 可配置 HTTP 超时 + AbortSignal 传播 (#5764)
+
+**模型提供商**
+- **OpenAI Response API** - 新增 OpenAI Response API 格式提供商 (#5519)
+- **DashScope 更新** - Qwen3.7 + DeepSeek V4 加入内置模型列表；extra_body 透传 generate_kwargs；按模型 thinking 转发开关 (#5646, #5491, #5687, #5730)
+- **GitHub Models** - 迁移到新 API 端点；支持细粒度 PAT (#5735)
+- **Telegram 自定义 Base URL** - `api_base_url` 配置用于自托管 Telegram Bot API 服务器 (#5651)
+
+**频道**
+- **Matrix 流式输出** - 就地编辑流式，不再为每个块发送新消息 (#5585)
+- **插件注册频道** - 插件可注册自定义频道类型，含 JSON schema 自动生成配置 UI (#4693)
+- **按频道防抖切换** - `no_text_debounce` 标志，快速频道不再批量消息 (#5617)
+- **Slack** - 完整频道实现，含多模态附件、话题回复和流式输出 (#5193)
+- **钉钉私有化部署** - `api_endpoint` 配置用于本地钉钉实例 (#5111)
+- **Azure Bot 频道** - Azure Bot 频道作为插件添加，含 i18n/自定义图标/doc_url 支持 (#5849)
+- **Discord 附件** - 下载到本地 media_dir，通过静态文件路由服务 (#5468)
+
+**桌面**
+- **Tauri 迁移** - 桌面构建从 Electron 迁移到 Tauri，更小的二进制、原生 webview、Windows NSIS 安装器 (#5734, #4669, #4041)
+- **捆绑 ACP 运行时** - Node.js 运行时 + ACP 模块内置在桌面包中，开箱即用的 Agent 通信 (#5814, #5794)
+- **DevTools 手势** - 8 次点击 Logo 打开 Chromium DevTools 调试 (#5805)
+
+**安全与沙箱**
+- **Windows AppContainer 沙箱** - 通过 Windows 原生 AppContainer API 隔离代码执行 (#5525)
+- **Linux bubblewrap 沙箱** - 通过 bwrap 挂载命名空间隔离 Linux 代码执行 (#5310)
+- **Cron 工具安全开关** - 按任务标志，要求/跳过定时任务的工具审批 (#5847)
+- **危险命令检测** - ToolGuard 检测 `find -delete` 等破坏性 shell 模式 (#5843)
+- **访问策略** - 声明式 allow/deny/ask 规则按能力调用评估
+
+**插件**
+- **AgentScope 中间件钩子** - 插件可注册 AgentScope 兼容中间件，含 semver 版本控制 (#5221)
+- **版本门控目录** - 插件市场和 CDN 仅显示与当前 QwenPaw 版本兼容的插件 (#5661)
+- **生命周期钩子** - on_uninstall 钩子、验证器修复和公共技能提供者 API (#5008)
+
+**工具**
+- **web_search 和 web_fetch** - 内置网页搜索和抓取工具，含产品身份 (#5890)
+- **grep_search show_file 选项** - 添加 show_file 标志显示匹配的文件内容 (#5840)
+- **工具错误透传** - 工具结果错误状态转发到前端，改善 UX (#5912)
+
+**CLI**
+- **cron update** - 编辑现有 cron 任务的调度/提示/配置，无需删除+重建 (#5210)
+
+**可观测性**
+- **Langfuse 2.0** - 通过钩子集成恢复追踪分组；每个 agent 循环是一个 Langfuse generation span (#5511)
+
+#### 变更
+
+- **relay_reasoning** - `preserve_thinking` 重命名为 `relay_reasoning`；DashScope 默认关闭以避免输出中重复推理 (#5876)
+- **速率限制** - 多维度（IP + 用户 + 端点）速率限制，可配置窗口 (#5738)
+- **记忆生命周期** - `/compact` 命令重构；新增 `/system_prompt` 命令；搜索状态简化以避免过期嵌入 (#5450, #5815)
+- **SessionItem 组件** - 所有会话渲染器合并为一个 SessionItem 组件 (#5754)
+- **技能 UI** - SkillPool/SkillMarket 组件重构，移除无用 CSS (#5753, #5532)
+- **Plan 模式移除** - Agent 配置不再包含 plan_mode；UI 引用已清理 (#5605, #5618)
+- **插件版本保留** - 更新后旧插件版本保留在磁盘上；下次启动清理加载失败状态 (#5695)
+
+#### Bug 修复
+
+**上下文与记忆**
+- **驱逐不再移除活跃轮次** - 渐进压力释放防止大工具输出 OOM (#5765)
+- **活跃轮次锚定** - 用接缝横幅标记驱逐结束位置，让模型知道边界 (#5871)
+- **驱逐索引标签** - 无标题的驱逐跨度自动生成标签 (#5848)
+- **HTTP 历史路径标题标记** - 从 HTTP 历史路径剥离标题标记 (#5672)
+- **系统提示调整** - 调整措辞，阻止模型将每个观察写入记忆 (#5629)
+- **工具结果截断** - 过大的工具结果在上下文插入前截断，防止 Token 溢出 (#5510)
+
+**提供商与工具 Schema**
+- **OpenAI Responses API** - 格式和 reasoning_content 兼容性修复 (#5920)
+- **function_call 名称保留** - Responses API function_call 名称正确保留 (#5913)
+- **reasoning_content 对齐** - 改进基础格式化器丢弃预测 (#5865)
+- **上下文阈值显示** - 修复提供商感知的上下文阈值显示 (#5902)
+- **流式错误重试** - OpenAI 流式错误含 body 状态码时重试 (#5799)
+- **OpenRouter OAuth** - 恢复 Runtime 2.0 迁移中意外丢失的 OAuth 路由 (#5806)
+- **reasoning_content 流式** - 流式中 reasoning_content 字段错误不再崩溃响应 (#5582)
+- **工具 Schema 清理** - nullable 字段、Gemini const、独立 type:null 全部处理 (#5549, #5827, #5545)
+- **内联 $ref/$defs** - 为不支持 JSON Schema 引用的 GLM 模型内联 (#5496)
+- **MCP 工具名规范化** - 为 OpenAI API 合规规范化 MCP 工具名；优雅解码格式错误的工具输入 JSON (#5485, #5486)
+- **元宝崩溃** - 空 api_domain 或缺失 proto 描述符不再导致硬崩溃 (#5804)
+- **在线指示器** - 仅实际配置的提供商计入"在线"指示 (#5537)
+- **Gemini format_tools** - 覆盖以匹配其预期的 Schema 格式 (#5517)
+
+**运行时与 Agent**
+- **中断轮次持久化** - 中断的轮次现在持久化部分状态；空取消消息被抑制 (#5838)
+- **cancel_envelope** - 任务取消时正确 yield (#5674)
+- **工作区提示文件** - `.qwenpaw.md` 和技能注入在系统提示组装中恢复 (#5396, #5680)
+- **stale language 参数** - 从记忆 section 调用中移除 (#5803)
+- **spawn_subagent** - 在 Runtime 2.0 下恢复工作 (#5660)
+- **project_dir 检查** - 未启用 coding_mode 时使用 project_dir 不再静默继续 (#5640)
+- **自配对工具消息** - 同轮次的 call + result 不再在消息清理中被丢弃 (#5792)
+- **SSE 信封事件** - 与 v1 协议格式对齐，向后兼容 (#5495)
+- **Windows 路径** - 反斜杠路径转为 file:// URL；反向解析修复 (#5635)
+- **TextBlock 对象** - 在 offload_tool_result 中处理 (#5831)
+- **前导空白** - JSON 对象前的空格不再破坏解析 (#5766, #5841)
+- **内容安全图片拒绝** - 不再被视为"模型不支持图片" (#5533)
+- **Loop 门状态** - 新用户轮次时重置；继续时对等重置 (#5916)
+- **错误信封** - 使用结构化 Error 对象，前端 SDK 兼容 (#5905)
+- **/stop 用户隔离** - 按 user_id 隔离，防止跨用户任务取消 (#5883)
+
+**桌面**
+- **Python 运行时下载** - 锁定到确切发布 URL (#5875)
+- **插件依赖安装** - 不再级联为并发 pip 风暴 (#5570)
+- **Linux 浏览器检测** - 处理 .desktop 文件中 env 包裹的 Exec 行 (#5526)
+- **PyInstaller/Tauri 配置** - 修复发布打包 (#5518)
+- **桌面截图工具** - 现在工作区治理中允许 (#5641)
+
+**TUI**
+- **CJK/IME 输入** - 修复 macOS/Linux 上的 CJK/IME 组合输入 (#5671)
+- **审批与会话预热** - 改进审批和会话预热 (#5892)
+
+**控制台与聊天**
+- **rootSessionId 赋值** - 修复审批请求路由中的赋值 (#5886)
+- **移动端聊天历史抽屉** - 正确渲染会话 (#5744)
+- **消息气泡空白** - 移除 white-space: pre-wrap（导致双换行）(#5596)
+- **Markdown 换行** - 保留助手消息中的 Markdown 换行 (#5538)
+- **插件市场链接** - 通过 link guard 路由插件市场详情链接 (#5750)
+- **流式完成时间戳** - 显示流式完成时间戳 (#5742)
+- **时间戳可见** - 始终可见；修复 fetch URL 中的双 /api 前缀 (#5802)
+- **MCP 访问策略页面** - 修复布局 (#5213)
+- **工具审批推送** - 推送工具防护审批通知到 IM 频道 (#5601)
+- **插件市场兼容标签** - 正确显示 (#5926)
+- **图片预览模式** - 编码会话中图片文件自动启用预览模式 (#5878)
+
+**MCP**
+- **运行时审批级别** - 正确传播 (#5864)
+- **无效 MCP 配置** - agent.json 中的无效 MCP 服务器配置不再崩溃 Agent 启动 (#5755)
+
+**频道**
+- **分段流式回复** - 分段流式回复拆分为独立消息框 (#5487)
+- **流式结束事件** - 使用事件内容作为文本 (#5553)
+- **频道实例直传** - 频道实例直接传递到通知路径
+- **Matrix 加密媒体** - 通过 nio 库下载 (#5059)
+- **企业微信二维码** - URL 提取修复 (#5460)
+- **钉钉投递失败** - 现在反馈给用户 (#5654)
+- **Matrix Token 登录** - 修复重复认证参数导致的失败 (#5873)
+- **Telegram 输入指示器** - 在 consume 前触发 (#5700)
+
+**Cron**
+- **运行时间戳** - 存储为任务配置的时区 (#5783)
+- **Cron 会话隔离** - 正确隔离 (#5494)
+- **格式错误的 tool_call** - 加载时清理 cron 历史中的格式错误条目 (#5475)
+- **心跳超时** - 现在可配置 (#5557)
+- **UI 编辑/删除** - 已启用的 cron 任务可从 UI 编辑/删除 (#5483)
+
+**安全与治理**
+- **OFF 模式** - 修复错误触发审批弹窗 (#5623)
+- **Strict 模式** - 正确覆盖 ALLOW 规则 (#5682)
+- **外部运行器** - 硬阻止策略加强 (#5642)
+- **Pet 插件审批钩子** - 缺少 scope 参数修复 (#5830)
+- **rm 检测拆分** - 拆分检测/提取以防 `${HOME}` 绕过 (#5866)
+- **macOS 沙箱配置** - 修复缺失的闭括号 (#5454)
+
+**记忆**
+- **心跳/Cron** - 跳过自动记忆和搜索 (#5592)
+
+**工作区与工具**
+- **工作区检测器缓存键** - 更新 (#5500)
+- **Playwright 内存泄漏** - 修复 (#5686)
+- **技能市场安装队列** - 安装间清理 (#5650)
+
+**打包与 CI**
+- **project.urls** - 添加到 pyproject.toml 用于 GitHub 依赖图 (#5839)
+- **ACP 版本** - 锁定到 0.3.x (#5798)
+- **bash 3.2 兼容** - macOS 上 empty extra_flags 展开保护 (#5743)
+- **Tauri CI** - 移除死引导步骤 (#5578)
+- **supervisord** - 添加重启限制 (#5613)
+
+#### 性能
+
+- **会话列表虚拟化** - SidebarSessionList 用 react-window 虚拟化；轮询去重；日期格式缓存 (#5643)
+- **会话切换闪烁** - 不再闪烁空白；队列警报闪烁解决 (#5559, #5683)
+- **关闭任务并行化** - 关闭时间减少约 40% (#5469)
+- **文件大小限制** - send_file_to_user 限制文件大小，防止大附件内存峰值 (#5457)
+
+#### 基础设施
+
+- **桌面验证** - 提取为可复用的 GitHub Actions composite (#5681)
+- **Docker init** - 添加 `init: true` 防止僵尸进程累积 (#5649)
+- **Review bot** - QwenPaw 审查 bot 自动在 PR 上评论 lint/style 发现 (#5736)
+- **Windows nightly CI** - HTTP 超时提高；每测试挂起保护添加 (#5627)
+
+#### 测试
+
+- **Crons 模块** - 51 个单元测试覆盖调度、执行、历史 (#5423)
+- **Chats 模块** - 38 个单元测试覆盖会话 CRUD 和消息处理 (#5422)
+- **前端 M2** - Stores + Hooks + Control 页面组件测试 (#5409)
+- **前端 M3-A** - Agent hooks + Settings 页面测试 (#5434)
+- **前端 M3-B** - Inbox + API 模块测试 (#5438)
+- **E2E** - 为 AgentScope 2.0 适配 (#5542)
+- **桌面 e2e** - 添加到发布工作流 (#5428)
+- **集成测试并行化** - 通过 pytest-xdist；覆盖率门加固 (#5531)
+- **Channels 模块** - 单元测试 (#5812)
+- **Approvals 模块** - 单元测试 (#5811)
+- **Inbox 模块** - 单元测试 (#5809)
+- **控制台契约守卫** - 12 个 API 模块测试 (#5807)
+- **控制台 hooks + stores** - 单元测试 (#5808)
+- **大会话回归测试** (#5810)
+- **集成测试 Sprint 4.1** - 覆盖 /api/tool-calls/* + /api/console/chat/task (#5895)
+- **Flaky 测试稳定** - 重试装饰器，移除死 /api/agent 端点 (#5507)
+
+#### 文档
+
+- **架构页面** - 英中双语，解释 Runtime、Driver、Workspace 层 (#5653)
+- **TUI 文档** (#5644)
+- **安全文档** - Sandbox 和 Access Policy 章节 (#5621, #5678)
+- **上下文管理** - 围绕滚动 + 情景记忆模型重写 (#5614, #5631)
+- **v1→v2 迁移指南** - 面向插件作者 (#5752)
+- **路线图** - 更新为 2.0 (#5610, #5461)
+- **HiClaw 更名** - 所有实践指南中更名为 AgentTeams (#5636)
+- **博客 + SEO** - 网站博客章节和 SEO 改进 (#5697)
+- **Langfuse 文档** - Docker 部署更新 (#5380)
+- **Whisper 安装** - 控制台文档添加安装说明 (#5924)
+- **多语言 tools 翻译** - 对齐 (#5516)
+
+---
 
 ### v1.1.12.post3 (2026-07-06)
 
@@ -804,7 +1063,7 @@
 
 **Agent 系统**
 - **Memory & Context 重构** - 长期记忆模块重构，支持可插拔后端、每 N 轮对话自动记忆摘要、自动记忆检索、新的上下文管理接口 (#3548)
-- **Plan 模式** - 可选的结构化规划模式，使用 `/plan` 创建分步任务计划，Agent 按计划执行，控制台实时显示计划面板 (#3686, #3787)
+- **Plan 模式** - 可选的结构化规划模式，使用 `/plan` 创建分步任务计划，Agent 按计划执行，控制台实时显示计划面板 (#3686, #3787)（**v2.0.0 已移除**，见上方变更说明）
 
 **提供商**
 - **DeepSeek V4 模型** - 新增 DeepSeek V4 Flash 和 V4 Pro 内置模型 (#3797)
@@ -1590,6 +1849,7 @@
 - `qwenpaw acp` - 启动 ACP Server，暴露 agent 为 ACP 端点 (v1.1.3)
 - `qwenpaw approval` - 管理工具调用审批 (v1.1.4)
 - `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
+- `qwenpaw tui` - 启动全屏终端 UI（基于 textual），流式输出、工具调用渲染、会话管理 (v2.0.0)
 - `qwenpaw doctor` - 诊断检查与自动修复 (v1.1.2)
 - `qwenpaw skills info` - 查看技能详情 (v1.1.2)
 - `qwenpaw skills test` - 验证技能内容和安全扫描 (v1.1.6)
@@ -1615,6 +1875,7 @@
 - `qwenpaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
 - `qwenpaw channels install/add/remove` - 自定义频道管理
 - `qwenpaw cron get/pause/resume/state` - 定时任务状态管理
+- `qwenpaw cron update` - 编辑现有 cron 任务的调度/提示/配置 (v2.0.0)
 - `qwenpaw chats create/update/delete` - 会话管理
 
 ---
@@ -1822,12 +2083,13 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 │       ├── customized_skills/ # 用户自定义的技能
 │       └── plugins/          # 插件扩展 (v1.0.2+)
 ├── HEARTBEAT.md             # 心跳每次要问 QwenPaw 的内容
+├── history.db               # 滚动上下文工作历史（SQLite，含 FTS5，v2.0.0+）
 ├── jobs.json                # 定时任务列表
 ├── chats.json               # 会话列表（文件存储模式）
 ├── providers.json           # LLM 提供商配置（v0.0.5+ 迁移到 SECRET_DIR）
 ├── envs.json                # 环境变量配置（v0.0.5+ 迁移到 SECRET_DIR）
 ├── custom_channels/         # 自定义频道模块
-├── memory/                  # Agent 记忆文件（自动管理）
+├── memory/                  # Agent 记忆文件（v2.0.0+ 由 ReMe v0.4.0 后端管理）
 │   ├── MEMORY.md            # 长期有效的关键信息
 │   └── YYYY-MM-DD.md        # 每日日志
 ├── mcp_clients/             # MCP 客户端配置
@@ -1837,6 +2099,12 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
     ├── envs.json            # 环境变量配置
     └── auth.json            # Web 认证数据 (v0.1.0+)
 ```
+
+> **v2.0.0 工作目录变化**：
+> - 新增 `history.db`（SQLite）—— 滚动上下文工作历史，含 FTS5 全文搜索和驱逐索引，默认 30 天保留，启动时自动导入现有会话
+> - `memory/` 改由 ReMe v0.4.0 后端管理，支持 `none` 后端完全禁用记忆系统
+> - 记忆写入改为按轮次通过中间件执行，不再绑定到会话关闭
+>
 
 **v0.1.0 多工作区迁移**：现有配置会在首次启动时自动迁移到新的多工作区架构。
 
@@ -1870,12 +2138,20 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | **onebot-v11** | OneBot v11 / NapCat QQ (v1.0.1 新增) | 反向 WebSocket 服务器配置，支持个人账号和群消息 |
 | **xiaoyi** | 小艺 (v0.1.0 新增) | 华为 A2A 协议配置 |
 | **yuanbao** | 腾讯元宝 (v1.1.10 新增) | 腾讯元宝 Bot API 配置 |
+| **slack** | Slack (v2.0.0 新增) | 完整频道实现，含多模态附件、话题回复和流式输出 |
+| **azure-bot** | Azure Bot (v2.0.0 新增，插件) | Azure Bot 频道作为插件，含 i18n/自定义图标/doc_url 支持 |
 | **mqtt** | MQTT 消息队列 (v0.0.6 新增) | `host`, `port`, `transport`, `qos`, `subscribe_topic`, `publish_topic` |
 | **twilio voice** | Twilio 语音 (v0.0.5 新增) | `account_sid`, `auth_token`, `phone_number` |
 | **sip** | SIP 语音 (v1.1.4 新增) | SIP 配置，双模式后端（pyVoIP 开发 / LiveKit 生产） |
 | **mattermost** | Mattermost (v0.0.7 新增) | `url`, `token`, `team_name` |
-| **matrix** | Matrix 协议 (v0.0.7 新增) | `homeserver`, `user_id`, `access_token` |
+| **matrix** | Matrix 协议 (v0.0.7 新增) | `homeserver`, `user_id`, `access_token`；v2.0.0 支持就地编辑流式 |
 | **console** | 控制台 | （只需开关） |
+
+> **v2.0.0 频道增强**：
+> - **钉钉私有化部署** — `api_endpoint` 配置用于本地钉钉实例
+> - **Telegram 自定义 Base URL** — `api_base_url` 用于自托管 Telegram Bot API 服务器
+> - **插件注册频道** — 插件可注册自定义频道类型，含 JSON schema 自动生成配置 UI
+> - **按频道防抖切换** — `no_text_debounce` 标志，快速频道不再批量消息
 
 ### 频道通用字段
 
@@ -1906,6 +2182,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | Matrix | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 小艺 | ✓ | ✓ (v0.2.0+) | ✓ (v0.2.0+) | ✗ | ✓ (v0.2.0+) | ✓ | ✓ (v0.2.0+) | ✗ | ✗ | ✓ (v0.2.0+) |
 | 腾讯元宝 (v1.1.10) | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
+| Slack (v2.0.0) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 > ✓ = 已支持；🚧 = 施工中；✗ = 不支持
 
@@ -1920,6 +2197,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | ModelScope（魔搭） | `modelscope` | `https://api-inference.modelscope.cn/v1` |
 | DashScope（灵积） | `dashscope` | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | OpenAI | `openai` | `https://api.openai.com/v1` |
+| OpenAI Response API (v2.0.0 新增) | `openai-response` | OpenAI Response API 格式端点 |
 | Azure OpenAI | `azure_openai` | （你自己填） |
 | Anthropic (v0.0.5 新增) | `anthropic` | `https://api.anthropic.com` |
 | Gemini (v0.0.6 新增) | `gemini` | `https://generativelanguage.googleapis.com` |
@@ -1936,6 +2214,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | Volcano Engine / 火山引擎 (v1.1.6 新增) | `volcengine` | OpenAI 兼容端点，含标准和 Coding Plan 端点 |
 | Aliyun Token Plan (v1.1.6 新增) | `aliyun-token-plan` | （阿里云 Token 计划端点） |
 | Xiaomi MiMo (v1.1.11 新增) | `mimo` | （小米 MiMo Token Plan 端点） |
+| GitHub Models (v2.0.0 新增) | `github-models` | 新 API 端点，支持细粒度 PAT |
 | 自定义 | `custom` | （你自己填） |
 
 ### 本地提供商
@@ -2111,15 +2390,15 @@ qwenpaw approval                       # 管理工具调用审批（Tool Guard�
 
 | 命令 | 说明 | 版本 |
 |------|------|------|
-| `/plan` | 创建分步任务计划（Plan 模式）| v1.1.4 |
 | `/mission` | 自主多阶段任务执行 | v1.1.2 |
 | `/model` | 切换模型、列出可用模型 | v1.0.2 |
 | `/skills` | 查看已启用技能 | v1.0.2 |
 | `/stop` | 取消运行中任务 | v1.0.0 |
 | `/clear` | 清除聊天历史 | v0.1.0 |
-| `/compact` | 手动触发记忆压缩 | v0.1.0 |
-| `/approve` | 批准被阻止的工具调用 | v0.0.7 |
-| `/deny` | 拒绝工具调用 | v0.0.7 |
+| `/compact` | 手动触发记忆压缩（v2.0.0 重构） | v0.1.0 |
+| `/system_prompt` | 查看/设置系统提示（v2.0.0 新增） | v2.0.0 |
+| `/approve` | 批准被阻止的工具调用（TUI 中内联可用） | v0.0.7 |
+| `/deny` | 拒绝工具调用（TUI 中内联可用） | v0.0.7 |
 
 ### 会话管理
 
