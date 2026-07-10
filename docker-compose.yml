@@ -46,6 +46,9 @@ services:
     # 重启策略
     restart: unless-stopped
 
+    # 进程管理：转发信号并回收僵尸进程
+    init: true
+
     # 健康检查
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]

@@ -85,6 +85,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
         ca-certificates \
+        git \
         && rm -rf /var/lib/apt/lists/*
 
 # 安装 Node.js 24.x LTS (用于 MCP 功能支持) 并升级 npm 修复漏洞
