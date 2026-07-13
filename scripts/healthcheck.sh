@@ -13,7 +13,8 @@ if [ -n "${QWENPAW_PORT}" ]; then
     fi
 fi
 
-HEALTH_CHECK_URL="http://127.0.0.1:${QWENPAW_PORT:-8088}/"
+# v2.0.0.post1+ 提供就绪探针 /api/healthz（启动中返回 503，就绪返回 200）
+HEALTH_CHECK_URL="http://127.0.0.1:${QWENPAW_PORT:-8088}/api/healthz"
 
 # HTTP 健康检查
 if curl -f -s --max-time "${HEALTH_CHECK_TIMEOUT}" "${HEALTH_CHECK_URL}" >/dev/null 2>&1; then

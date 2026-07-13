@@ -514,9 +514,28 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v2.0.0 更新（最新，2026-07-10）
+### v2.0.0.post1 更新（最新，2026-07-13）
 
-> **重大版本**：内核基于 AgentScope 2.0 重构。完整 changelog 详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
+> v2.0.0 的补丁版本，主要为回归修复。
+
+#### 新增
+- **就绪探针端点** — 新增 `/api/healthz`，区分「启动中」(503) 与「就绪」(200)，本项目 `healthcheck.sh` 已接入
+- **治理增强** — Strict 模式覆盖 always allow 规则；默认用户规则自动同步；放行 `gh` CLI；新增全局沙箱开关
+- **可信代理验证** — 增强真实客户端 IP 解析（配合 `allow_no_auth_hosts` 白名单）
+- **Windows 安全会话 ID 编码** — 修复 ReMe 文件存储中的非法文件名字符
+
+#### 修复
+- **控制台** — 提供商搜索自动补全、暗黑模式 Loop 模板/聊天历史对比度、新聊天入队与队列迁移、删除会话清理队列、技能页滚动加载只加载第一批
+- **上下文/Agent** — 旧版会话文件内容块加载、重复 ID 工具结果过滤、多层孤儿 `tool_result` 防御；**临时禁用有问题的 offload 机制**（#6058）
+- **推理模型** — 改用 `max_completion_tokens`
+- **频道** — Telegram 409 冲突循环加固
+- **MCP/插件** — 访问策略即时生效、`register_tool` 桥接到运行时 ToolRegistry
+
+---
+
+### v2.0.0 更新（2026-07-10）
+
+> **重大版本**：内核基于 AgentScope 2.0 重构。
 
 #### 破坏性变更（升级请注意）
 - **Runtime 2.0** 内核重构 — 插件作者请参阅官方 v1→v2 迁移指南
