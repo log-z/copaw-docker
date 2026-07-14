@@ -514,7 +514,27 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v2.0.0.post1 更新（最新，2026-07-13）
+### v2.0.0.post2 更新（最新，2026-07-14）
+
+> v2.0.0.post1 的补丁版本，聚焦治理/安全增强与稳定性修复。
+
+#### 新增
+- **聊天归档** — 控制台新增聊天会话归档功能
+- **治理增强** — 扩展敏感文件列表并允许全局读取；`sudo` 执行改为 ASK 用户授权；Always Allow 按钮改用 `toolSource` 控制
+- **ReMe 记忆增强** — 提升 ReMe 可靠性、可观测性与 CJK 嵌入安全性
+
+#### 修复
+- **治理/沙箱** — 前端 tool-guard 规则桥接到策略深度扫描；OFF 模式沙箱路径正确尊重 `sandbox_enabled` 开关；shell 执行中保留 venv PATH
+- **应用** — `qwenpaw doctor` 改用就绪端点；`download_catalog` 处理 gzip 编码的 JSON 响应
+- **上下文/Agent** — 滚动封顶的工具结果使用标准截断提示；Goal 完成后清理过期会话；`/new`、`/clear` 重置 stop gates
+- **TUI** — 修复点击流式输出时崩溃
+
+#### 性能
+- **会话历史迁移批量写入** — 启动时批量写入历史迁移，减少导入开销
+
+---
+
+### v2.0.0.post1 更新（2026-07-13）
 
 > v2.0.0 的补丁版本，主要为回归修复。
 
