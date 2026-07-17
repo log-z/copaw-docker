@@ -514,7 +514,42 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v2.0.0.post2 更新（最新，2026-07-14）
+### v2.0.0.post3 更新（最新，2026-07-17）
+
+> v2.0.0.post2 的补丁版本，聚焦 MCP 迁移、记忆与上下文滚动加固、多模态/频道稳定性修复。
+
+#### 新增
+- **静默 Agent 投递** — Cron 任务新增静默投递选项，不触发推送气泡
+- **CloudPaw 插件迁移到 QwenPaw 2.0** — 版本升至 0.0.4
+- **ReMe 配置与索引增强** — 增强 ReMe 配置和索引安全保障；新增 Dream 调度开关
+- **历史保留天数配置** — 新增 `history_retention_days` 用于上下文压缩
+- **多 Agent 启动约束** — 约束多 Agent 启动并改进就绪 UX
+- **治理规则新增** — 治理新增规则
+
+#### 变更
+- **频道基类重构** — 重构频道基类
+- **AgentScope 依赖升级** — 升级 agentscope 到 2.0.4.post1
+
+#### 修复
+- **MCP** — Driver 迁移期间将 `${VAR}` 头迁移为环境凭据引用；遗留 MCP 迁移通过 schema 水印一次性执行；连接超时后解锁工作区启动；清理 MCP 工具名回退命名空间以符合 OpenAI 约束
+- **记忆** — 自动记忆限制为外部用户查询；`auto_memory_interval` 允许设为 0 禁用自动记忆，并要求 int >= 0；约束摘要任务历史
+- **治理/沙箱** — 清理过期的 OFF 模式沙箱状态
+- **运行时** — 尊重每请求模型覆盖；从 HTTP 请求传递 `model_slot_override` 到模型工厂
+- **聊天** — 流式 thinking/text 差异中保留空白；用户消息刷新 `updated_at` 并使过期缓存失效
+- **多模态** — 模型信息查找失败或内置注解错误时不再错误剥离图片；未探测的多模态按 fail-open 处理
+- **上下文滚动** — 加固上下文限制和可恢复的工具结果压缩；微调 doom loop 阈值
+- **频道** — 约束无界状态并跟踪 fire-and-forget 任务，防止内存泄漏
+- **桌面** — Tauri 更新仅保留在 OSS；防止 WKWebView 固定过期控制台前端
+- **技能** — 修复 skill-hub 相关内存泄漏
+- **CLI（Windows）** — 条件提升 UAC 让 VBS 无头启动器保持无窗口
+
+#### 基础设施 / 测试
+- 加固桌面工作流并移除遗留 verify 死代码；新增 CodeQL 2-shard 安全扫描（试运行）+ Dependabot
+- 夜间全扫描以覆盖运行控制台 vitest；E2E 选择器适配 v2.0.0；集成测试 Sprint 4.2（访问控制 / fork / coding-mode / agent-status）
+
+---
+
+### v2.0.0.post2 更新（2026-07-14）
 
 > v2.0.0.post1 的补丁版本，聚焦治理/安全增强与稳定性修复。
 
