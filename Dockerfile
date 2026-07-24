@@ -160,4 +160,4 @@ VOLUME ["/data/qwenpaw"]
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # 默认命令（监听所有网络接口，使用 QWENPAW_PORT 环境变量）
-CMD ["sh", "-c", "qwenpaw app --host 0.0.0.0 --port ${QWENPAW_PORT}"]
+CMD ["sh", "-c", "exec qwenpaw app --host 0.0.0.0 --port ${QWENPAW_PORT}"]

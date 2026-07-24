@@ -49,6 +49,9 @@ services:
     # 进程管理：转发信号并回收僵尸进程
     init: true
 
+    # 优雅退出：给 qwenpaw 的 lifespan 足够时间完成清理
+    stop_grace_period: 30s
+
     # 健康检查
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
