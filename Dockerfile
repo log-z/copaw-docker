@@ -2,20 +2,22 @@
 #
 # 构建参数说明:
 #   QWENPAW_VERSION  - QwenPaw 版本 (默认: latest)
-#   QWENPAW_EXTRAS   - 可选扩展，用逗号分隔 (例如: llamacpp,mlx,ollama)
+#   QWENPAW_EXTRAS   - 可选扩展，用逗号分隔 (例如: local,hub,qwenpaw-data,whisper,codex,qoder,sip,sip-livekit)
+#                      注意: 自 v2.0.0 起 ollama 已内置(经 agentscope[model-ollama])，不再是 extras；
+#                            llamacpp/mlx 已在旧版本移除。
 #
 # 使用示例:
 #   # 基础镜像（仅云端模型，包含 Node.js 用于 MCP）
 #   docker build --build-arg QWENPAW_VERSION=latest -t qwenpaw:latest .
 #
-#   # 带本地模型支持 (llama.cpp)
-#   docker build --build-arg QWENPAW_VERSION=latest --build-arg QWENPAW_EXTRAS=llamacpp -t qwenpaw:local .
+#   # 带本地模型支持 (huggingface)
+#   docker build --build-arg QWENPAW_VERSION=latest --build-arg QWENPAW_EXTRAS=local -t qwenpaw:local .
 #
-#   # 带多个本地模型支持
-#   docker build --build-arg QWENPAW_EXTRAS=llamacpp,ollama -t qwenpaw:full .
+#   # 带 Hub / QwenPaw Data / 全量扩展
+#   docker build --build-arg QWENPAW_EXTRAS=full -t qwenpaw:full .
 #
 # 注意:
-#   - 本地模型支持会显著增加镜像大小，请按需选择
+#   - 扩展会显著增加镜像大小，请按需选择
 #   - Node.js 24.x LTS 已预装用于 MCP 功能，约增加 150MB
 
 # ==================== 构建阶段 ====================

@@ -181,23 +181,29 @@ copaw-data:/
     │   ├── auth.json          # 安全认证数据（v0.1.0+）
     │   ├── envs.json          # 环境变量配置
     │   └── providers.json     # LLM 提供商配置
-    ├── custom_channels/       # 用户自定义频道模块
-    ├── mcp_clients/           # MCP 客户端配置
     ├── memory/                # Agent 记忆文件存储（v2.0.0+ 由 ReMe v0.4.0 后端管理）
-    ├── history.db             # 滚动上下文工作历史（SQLite + FTS5，v2.0.0+）
+    ├── media/                 # 频道媒体默认目录（v2.0.0+）
+    ├── local_models/          # 本地模型目录（含 bin/logs/models/tmp，v2.0.0+）
+    ├── models/                # 本地模型数据目录
+    ├── plugins/               # 插件安装目录（`qwenpaw plugin install`）
     ├── workspaces/            # 多代理工作区目录（v0.1.0+）
     │   └── default/           # 默认代理工作区
-    │       ├── active_skills/ # 当前激活的技能
-    │       ├── customized_skills/ # 用户自定义技能
-    │       ├── plugins/       # 插件扩展（v1.0.2+）
+    │       ├── agent.json     # 代理配置
     │       ├── AGENTS.md      # 详细工作流程与指南（必填）
     │       ├── PROFILE.md     # 身份和用户画像
     │       ├── SOUL.md        # Agent 核心身份与行为原则（必填）
-    │       └── agent.json     # 代理配置
+    │       ├── active_skills/     # 当前激活的技能
+    │       ├── customized_skills/ # 用户自定义技能
+    │       ├── plugins/       # 插件扩展（v1.0.2+）
+    │       ├── drivers/       # 外部能力驱动卡（MCP/ACP 等，v2.0.0+ 取代旧 mcp_clients/）
+    │       ├── credentials.yaml   # 驱动/邮箱加密凭据（v2.2.0+）
+    │       ├── history.db     # 滚动上下文工作历史（SQLite + FTS5，每个工作区一份，v2.0.0+）
+    │       └── media/         # 该工作区上传媒体
     ├── chats.json             # 会话列表
     ├── config.json            # 根配置文件（包含代理引用，v0.1.0+）
     ├── HEARTBEAT.md           # 心跳任务配置
-    └── jobs.json              # 定时任务列表
+    ├── jobs.json              # 定时任务列表
+    └── token_usage.json       # Token 用量统计
 ```
 
 > **v0.1.0 多工作区迁移**：现有配置会在首次启动时自动迁移到新的多工作区架构。
@@ -262,28 +268,31 @@ docker compose exec qwenpaw qwenpaw models config-key gemini       # 配置 Gemi
 docker compose exec qwenpaw qwenpaw models config-key lmstudio     # 配置 LM Studio（v0.0.7+）
 docker compose exec qwenpaw qwenpaw models config-key deepseek     # 配置 DeepSeek（v0.1.0+）
 docker compose exec qwenpaw qwenpaw models config-key minimax      # 配置 MiniMax（v0.1.0+）
-docker compose exec qwenpaw qwenpaw models config-key kimi         # 配置 Kimi（v0.1.0+）
-docker compose exec qwenpaw qwenpaw models config-key zhipu        # 配置智谱（v1.0.1+）
-docker compose exec qwenpaw qwenpaw models config-key siliconflow  # 配置 SiliconFlow（v1.0.2+）
+docker compose exec qwenpaw qwenpaw models config-key kimi-cn      # 配置 Kimi 国内站（v2.2.0+，旧 kimi 已拆分）
+docker compose exec qwenpaw qwenpaw models config-key kimi-intl    # 配置 Kimi 国际站（v2.2.0+）
+docker compose exec qwenpaw qwenpaw models config-key zhipu-cn     # 配置智谱（v2.2.0+，旧 zhipu 已拆分）
+docker compose exec qwenpaw qwenpaw models config-key zhipu-intl   # 配置智谱国际站（v2.2.0+）
+docker compose exec qwenpaw qwenpaw models config-key siliconflow-cn   # 配置 SiliconFlow 国内站（v2.2.0+）
+docker compose exec qwenpaw qwenpaw models config-key siliconflow-intl # 配置 SiliconFlow 国际站（v2.2.0+）
+docker compose exec qwenpaw qwenpaw models config-key volcengine-cn     # 配置火山引擎（v2.2.0+，另有 -codingplan/-agentplan 变体）
 docker compose exec qwenpaw qwenpaw models config-key openrouter   # 配置 OpenRouter（v1.1.1+）
 docker compose exec qwenpaw qwenpaw models config-key opencode     # 配置 OpenCode/Zen（v1.1.1+）
-docker compose exec qwenpaw qwenpaw models config-key mimo         # 配置 Xiaomi MiMo（v1.1.11+）
+docker compose exec qwenpaw qwenpaw models config-key mimo         # 配置 Xiaomi MiMo（v1.1.11+，另有 mimo-tokenplan）
+docker compose exec qwenpaw qwenpaw models config-key ollama       # 配置 Ollama 本地模型（v2.0.0+ 已内置）
 docker compose exec qwenpaw qwenpaw models config-key custom       # 配置自定义提供商
 docker compose exec qwenpaw qwenpaw models set-llm                 # 切换活跃模型
 
-# 模型管理（本地模型 - 需额外依赖）
-docker compose exec qwenpaw qwenpaw models download <repo_id>      # 下载本地模型 (llama.cpp/MLX)
+# 模型管理（本地模型 - 需额外依赖 qwenpaw[local]）
+docker compose exec qwenpaw qwenpaw models download <repo_id>      # 下载本地模型仓库（huggingface/modelscope）
 docker compose exec qwenpaw qwenpaw models local                   # 查看已下载模型
 docker compose exec qwenpaw qwenpaw models remove-local <model_id> # 删除已下载模型
-docker compose exec qwenpaw qwenpaw models ollama-pull <model>     # 拉取 Ollama 模型
-docker compose exec qwenpaw qwenpaw models ollama-list             # 列出 Ollama 模型
+# 注：Ollama 模型请用外部命令 `ollama pull <model>`（v2.2.0 起已移除 ollama-pull/ollama-list）
 
 # 频道管理
 docker compose exec qwenpaw qwenpaw channels list           # 查看所有频道
 docker compose exec qwenpaw qwenpaw channels config         # 交互式配置
-docker compose exec qwenpaw qwenpaw channels install <key>  # 安装自定义频道
-docker compose exec qwenpaw qwenpaw channels add <key>      # 添加频道到配置
-docker compose exec qwenpaw qwenpaw channels remove <key>   # 删除自定义频道
+docker compose exec qwenpaw qwenpaw channels send           # 向频道发送消息
+# 注：旧版 `channels install/add/remove <key>` 已在 v2.2.0 移除，改用控制台或 plugins 管理自定义频道
 
 # 技能管理
 docker compose exec qwenpaw qwenpaw skills list         # 查看所有技能
@@ -325,10 +334,9 @@ docker compose exec qwenpaw qwenpaw auth reset-password # 重置安全认证密�
 # Agent 与消息（v0.2.0+）
 docker compose exec qwenpaw qwenpaw agents list            # 列出所有代理
 docker compose exec qwenpaw qwenpaw agents create          # 创建新代理（v1.1.2+）
-docker compose exec qwenpaw qwenpaw agents enable <agent>  # 启用代理（v1.0.0+）
-docker compose exec qwenpaw qwenpaw agents disable <agent> # 禁用代理（v1.0.0+）
-docker compose exec qwenpaw qwenpaw message push           # 向频道推送消息
-docker compose exec qwenpaw qwenpaw message send           # 向代理发送请求
+docker compose exec qwenpaw qwenpaw agents delete          # 删除代理
+docker compose exec qwenpaw qwenpaw agents chat            # 直接与代理对话
+# 注：旧版 `agents enable/disable` 与 `message push/send` 已在 v2.2.0 移除，请在控制台配置
 
 # 任务执行（v1.0.2+）
 docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务，无需 Web 服务
@@ -337,14 +345,11 @@ docker compose exec qwenpaw qwenpaw task <prompt>      # 运行一次性任务�
 docker compose exec qwenpaw qwenpaw doctor             # 诊断检查
 docker compose exec qwenpaw qwenpaw doctor fix          # 自动修复问题
 
-# 提供商配置（v1.1.3+）
-docker compose exec qwenpaw qwenpaw providers update   # 更新提供商配置（含 Base URL）
-
 # ACP Server（v1.1.3+）
 docker compose exec qwenpaw qwenpaw acp                # 启动 ACP Server
 
-# 审批管理（v1.1.4+）
-docker compose exec qwenpaw qwenpaw approval           # 管理工具调用审批（Tool Guard）
+# QwenPaw Hub（v2.2.0+，需 qwenpaw[hub]）
+docker compose exec qwenpaw qwenpaw hub                # 启动多用户 Hub 服务
 ```
 
 ---
@@ -370,12 +375,15 @@ docker compose exec qwenpaw qwenpaw approval           # 管理工具调用审�
   - `auth.json` - 安全认证数据（v0.1.0+）
   - `envs.json` - 环境变量配置
   - `providers.json` - LLM 提供商配置
-- `custom_channels/` - 用户自定义频道模块
-- `memory/` - Agent 记忆文件
+- `memory/` - Agent 记忆文件（v2.0.0+ 由 ReMe v0.4.0 后端管理）
+- `media/` - 频道媒体默认目录（v2.0.0+）
 - `workspaces/default/` - 默认代理工作区（v0.1.0+）
   - `active_skills/` - 当前激活的技能
   - `customized_skills/` - 用户自定义技能
   - `plugins/` - 插件扩展（v1.0.2+）
+  - `drivers/` - 外部能力驱动卡（MCP/ACP 等，v2.0.0+ 取代旧 mcp_clients/）
+  - `credentials.yaml` - 驱动/邮箱加密凭据（v2.2.0+）
+  - `history.db` - 滚动上下文工作历史（SQLite，每个工作区一份，v2.0.0+）
   - `AGENTS.md` - 详细的工作流程、规则和指南
   - `PROFILE.md` - 身份和用户画像
   - `SOUL.md` - 核心身份与行为原则
@@ -384,6 +392,7 @@ docker compose exec qwenpaw qwenpaw approval           # 管理工具调用审�
 - `config.json` - 根配置文件（包含代理引用，v0.1.0+）
 - `HEARTBEAT.md` - 心跳配置
 - `jobs.json` - 定时任务列表
+- `token_usage.json` - Token 用量统计
 
 容器重启后，所有数据都会保留。
 
@@ -514,40 +523,30 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v2.1.0 更新（最新，2026-08-13）
+### v2.2.0 更新（最新，2026-09-03）
 
-> **重大版本**：新增 QwenPaw OS Shell 桌面窗口化应用与 QwenPaw Creator 视频创作平台，运行时/上下文/可观测能力大幅增强。
+> 新增 QwenPaw Hub 自托管多用户 hub、QwenPaw Data 与 Mail 原生应用，统一模型选择与市场管理。
 
 #### 新增
-- **QwenPaw OS Shell** — 在可移动、可缩放窗口中打开应用，含启动器、任务栏、通知和已保存布局；App Center 与 OS Shell 共享统一应用目录
-- **统一文件工作区** — 无需离开聊天即可浏览、预览、编辑、比较、上传/下载工作区文件
-- **QwenPaw Creator** — 视频创作平台，由专门 Agent 团队将创意/素材转化为成片，支持图片/视频/语音/字幕/叠加层并行生产，含设置中心和外部 Skills
-- **跨 Harness 集成** — 创建由 Codex/Qoder 驱动的 Agent（按会话模型、权限、Skills 和 MCP 服务）；ACP 客户端可传临时模型/项目/MCP 服务，无需保存运行时凭据
-- **Computer-use** — Windows 桌面应用自动化（按应用审批，用户接管输入时停止）；macOS 打包完成、设备级 E2E 验证进行中
-- **会话快照与恢复** — 快照/恢复会话、记忆和选定工作区文件，不改变项目 Git 历史
-- **Visual Compact** — 对支持的多模态模型缩减长上下文输入，同时保留源恢复
-- **后台长时工具** — 长时工具可在后台继续，支持进度/延展/取消；工具工作流可复用结果、分支、循环、并行
-- **ReMe Light 增强** — 记忆搜索可选经 OpenAI 兼容端点重排序；新增热更新嵌入设置、Daily Paper 调度、每 Agent 运行时状态
-- **控制台** — Agent 统计显示 Token 用量并收窄到当前 Agent；交互式 3D 记忆关系图；代码块统一响应式设计（LaTeX/Mermaid 预览与源码页签）
-- **频道** — 飞书/QQ/企业微信/小艺/元宝可选自定义网关端点（私有部署/本地集成测试）；Bot 身份冲突警告
-- **Browser-use 仍为 Beta** — 浏览器侧代码执行不受主机级沙箱保护，操作策略尚未强制
+- **QwenPaw Hub** — 本地进程或 Docker 运行时的自托管多用户 hub，含工作区级访问控制、凭据管理和反向代理 (#7112)
+- **QwenPaw Data / Mail** — Data 作为原生 PawApp 部署（含一键 Docker Compose）；Mail 智能邮件助手（实时监控/搜索/会话感知/审批），桌面捆绑 Mail MCP
+- **模型与提供商** — 统一提供商发现、能力感知路由、回退策略与思考控制；新增 Volcengine Agent Plan 和 MiMo V2.5 提供商；Token Usage 新增提示缓存命中/写入观测
+- **Creator 1.1.x** — 扩展主流提供商图片/视频生成；新增录制网站/桌面操作、百炼 Wan3 视频生成、自动视频质检
+- **控制台/工作区** — 子 Agent 分组、紧凑后台任务列表、响应产物与可直接下载的生成媒体、工作区 UI 建文件夹/复制文件/选系统提示文件、会话级项目目录、Token 趋势与全 Agent 视图、OS dock 自动隐藏、复制响应不含隐藏推理
+- **技能/频道/媒体** — 集成 AnySearch 搜索与 MCP；技能搜索与批量启停；应用/插件/技能统一市场；PawApp 免重载打开；CLI 交互配置插件频道；Matrix 群组按发送者隔离；钉钉群组共享上下文；OneBot 媒体本地下载；超大图片缩放；助手消息自动折叠
+- **Computer-use** — 可观察相关窗口
 
 #### 变更
-- **Windows 沙箱选择** — 根据当前权限自动选择沙箱方式；各平台上报不支持的受限方式
-- **MiniMax 模型更新** — 为 M3 和 M2.7 代更新模型与上下文限制
-- **App Center 拆分** — 分离已安装与可用应用，扩展应用详情，新增简单模式入口
-- **插件安装容错** — 对声明更高兼容上限的包更宽容
-- **OneBot/QQ 消息顺序** — 保留文本和媒体顺序，展开引用或转发消息
+- 持久 Drivers 并发启动，加快工作区启动；降低长响应流式开销；稳定提示缓存前缀；长 Markdown 聊天保持响应
+- ReMe 运行时仪表盘与长期记忆指导改进；定时任务未变化时抑制通知；移除过时 Desktop Mode 提醒与旧审批提示
+- AgentScope 更新至 2.0.7.post1；Marketplace 更名为 Extensions 并恢复暗黑样式；嵌入模型变更显式可逆、回退 BM25
 
 #### 修复
-- **运行时/Agent** — 提供商特定的工具调用字段在流式/历史存储/压缩/重放中不再丢失；模型报上下文限制错误时自动压缩重试；Shell 执行保留多行命令且不再挂起于后台管道；Scroll 召回完整 CJK 轮次；复制 Agent 不再创建空脚手架
-- **控制台/UI** — 重连与 Agent 切换不再恢复错误聊天/频道/重复消息；图片上传不再将 Base64 计为文本夸大上下文用量；长输出使用有界预览；聊天回退标准 textarea 输入
-- **治理/安全** — 浏览器调试要求认证；项目导入只读已批准路径；沙箱子进程不再继承 `PYTHONHOME`；对话命令参数不再写入日志
-- **CLI/频道** — 空闲时定时任务正常触发；暂停/恢复保留启用状态；`qwenpaw update --prerelease` 发现新预发布；OneBot 默认仅本地监听、暴露网络要求 token；Matrix 兼容 Python 3.12
-- **桌面** — Computer-use 复用已签名应用身份；启动处理端口错误；Chrome 中断后重连；OS Shell 窗口保持在视口内
-- **记忆/MCP** — 上下文迁移与恢复期间记忆/检查点正确保存；自动记忆进度在压缩后保留；MCP 会话恢复不再丢弃工具
+- **模型/运行时/记忆** — 恢复完整免费模型与旧名；刷新阿里云/Kimi 目录；分离输出能力与请求限制；DashScope 严格 schema 兼容；从卡住模型流恢复；准确报告模型超时；启用 Ollama 嵌入后端；标题排除推理文本；后台任务默认超时；ReMe 服务提前启动
+- **控制台/文件/媒体** — 历史会话直接从新聊天重开；显示助手实际完成时间；重载后渲染 data-URL 图片；保留上传/非 ASCII 文件名及 Windows CRLF；远程文件下载回退；保存工具结果前持久化远程图片；内联视频限制可配置；截图存入活跃项目目录
+- **插件/桌面/运维** — 重载前恢复插件工作区状态并隔离绝对导入；Windows WebView2 崩溃恢复；处理 NSIS 卸载阻塞；保护环境配置免受损坏写入；SSE 关闭后备份任务继续运行；强制 File Guard 路径；QQ 会话隔离；可靠报告小艺主动发送失败；加速插件加载；恢复打包桌面中的 ReMe 插件；阻止 shell 续行绕过敏感路径保护
 
-> 完整 changelog：官方 [v2.0.1...v2.1.0](https://github.com/agentscope-ai/QwenPaw/compare/v2.0.1...v2.1.0)，含 9 位新贡献者。
+> 完整 changelog：官方 [v2.1.0...v2.2.0](https://github.com/agentscope-ai/QwenPaw/compare/v2.1.0...v2.2.0)，含 12 位新贡献者。
 
 ---
 
