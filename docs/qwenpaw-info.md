@@ -4,11 +4,152 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-09-11
+> **更新日期**: 2026-10-15
 
 ---
 
-## 重要更新 (2026-09-11)
+## 重要更新 (2026-10-15)
+
+### v2.2.2 (2026-10-15)
+
+> 完整 changelog 范围为 v2.2.1...v2.2.2。
+
+#### 新功能
+
+**控制台与工作区**
+- **主题调色板与自定义外观** - 新增六套主题调色板、自定义颜色与圆角，支持实时预览并保存偏好 (#7741)
+- **聊天内多标签终端** - 在聊天中新增需认证的多标签终端，每个会话拥有独立工作目录 (#7861)
+- **控制台字号可调** - 聊天和设置中的控制台字号可在 12–20 像素之间调整 (#8005)
+- **多文件夹工作区设为默认** - 可将多文件夹工作区保存为 Agent 的默认工作区，供后续任务使用 (#7789)
+- **回复下方直接展示文件** - Agent 交付的文件直接显示在回复下方，便于预览和下载 (#7750)
+
+**QwenPaw-Flash**
+- **本地模型推荐更新** - 本地推荐 QwenPaw-Flash 9B、27B 和 35B-A3B：更新 9B 推荐并新增 27B 与 35B-A3B 选项 (#8155)
+
+**PawPort**
+- **跨 Harness 迁移导入** - 新增 PawPort，可从 Codex 和 Qoder 导入受支持的会话、记忆、技能、插件、MCP 设置、项目和定时任务，含兼容性检查和选择性重试 (#6960)
+
+**QwenPaw Creator 与 Data**
+- **Creator 2.0.1** - 媒体生产前可审查脚本，手动重生成不再触发付费的下游步骤，可恢复停滞的项目 (#8121)
+- **QwenPaw Data 0.3.0** - 集成分析工作区、交互式澄清、内联 HTML 报告，聊天频道新增 `/data` 和 `/datasource` 命令 (#7637)
+
+**模型与记忆**
+- **统一模型发现、定价与选择** - 统一模型发现、定价和选择，新增候选模型池和按会话的模型与思考控制 (#7899)
+- **自定义提供商单对话框配置** - 在一个对话框中配置自定义提供商的名称、端点、协议和 API Key (#7826)
+- **ReMe 搜索重排序配置** - 可在控制台配置 ReMe 搜索重排序，含模型、端点、候选倍数和超时 (#6399)
+
+**Hub**
+- **Hub 模型网关** - 新增 Hub 模型网关，集中管理组织模型、成员 Token 预算、用量看板，并支持邀请注册 (#7779)
+- **CLI 初始化首个 Hub 管理员** - 支持从命令行初始化首个 Hub 管理员，含不含 Docker SDK 的纯本地部署 (#7696)
+
+**技能、工具、自动化与频道**
+- **view_audio 工具** - 新增 `view_audio` 工具，Agent 可通过现有转录管线理解音频文件 (#8083)
+- **定时任务增强** - 用纯文本指令和选定模型配置定时任务，中断后保留历史，并可从收件箱查看超时结果和会话 (#7776)
+- **技能批量分发** - 可将技能池中的选定技能批量分发到各工作区 (#7852)
+- **技能可分配至自定义频道** - 技能除内置频道外还可分配给自定义频道 (#7782)
+- **技能市场源作为插件装卸** - 可将技能市场源作为插件安装或移除，含 QwenPaw、ClawHub、ModelScope 和阿里云 (#8128)
+- **飞书思考面板折叠** - 飞书中新增可折叠的思考面板，生成后可选择性自动折叠 (#7685)
+- **Telegram Markdown 表格** - 在回复和完成的流式中将 Markdown 表格渲染为原生 Telegram Rich Messages，不支持时回退 (#7713)
+
+#### 变更
+
+- **控制台模型设置交互改进** - 改进控制台中的模型设置和选择交互 (#8017)
+- **设置导航与搜索改进** - 改进设置导航和搜索，新增更清晰的运行时配置标签，并平滑会话切换 (#7956)
+- **记忆命令统一为 /reme** - 记忆命令统一为 `/reme <action> key=value`，取代 `/dream`、`/memorize` 和 `/reme_status` (#7444)
+- **视觉压缩范围收窄** - 视觉压缩仅作用于较早的会话历史，保留最近两个用户轮次，并可用 `recall_context` 检索原文 (#7703)
+- **长对话延迟降低** - 避免每次请求都做完整的历史数据库检查，降低长对话延迟 (#7639)
+- **会话历史重设计** - 会话历史按时间、来源或不分组视图重设计，小屏空间更大，会话详情更丰富，支持复制会话 ID (#7665, #7688, #7788, #7846)
+- **会话列表默认按来源分组** - 会话列表默认使用来源分组 (#7972)
+- **聊天文件抽屉移至右侧** (#7704)
+- **按需加载减少初始下载** - 按需加载聊天依赖和语言资源，减少控制台初始下载量 (#7829)
+- **后台工具输出按需流式** - 仅在任务面板展开时流式输出后台工具结果，减少空闲连接 (#7831)
+- **Make Skill 升级至 2.1** - 规划更可靠，新增参数校验和评估指导 (#7753)
+- **每日运行活动上报** - Agent 执行（含定时任务）时上报每日运行活动，同时遵循既有的遥测同意与退出设置 (#7802)
+
+#### Bug 修复
+
+**PawPort**
+- **导入失败显示具体资产与原因** - PawPort 导入失败时显示具体资产和原因，便于重试失败项 (#7953)
+
+**控制台、聊天与文件**
+- **HTTP 部署下终端标签可用** - 在分配 UUID 会话 ID 的 HTTP 部署中保持聊天终端标签可用 (#8144, #8146)
+- **窄窗口下输入控件可用** - 窗口较窄时保持聊天输入控件可用 (#8145)
+- **恢复历史后保留 Agent 文件** - 会话从历史恢复后，Agent 发送的文件仍然可见 (#7949)
+- **加载消息时可中断切换会话** - 消息加载中允许用户中断会话切换 (#8214)
+- **忽略重放的 QQ 网关事件** - 忽略重放的 QQ 网关事件，防止消息重复处理 (#8006)
+- **排队消息绑定原 Agent 与会话** - 排队消息保持绑定到原 Agent 和会话，并防止延迟的会话创建或历史加载干扰导航与取消 (#7382)
+- **粘贴长文本保留草稿** - 向聊天粘贴长文本时保留未发送的草稿 (#8119)
+- **中断工具调用状态正确** - 停止回复后正确标记被中断的工具调用，不再停留在运行中状态 (#7345)
+- **恢复回复时间戳与操作可见性** - 恢复助手回复时间戳和响应操作的正确可见性 (#7851)
+- **/compact 在当前会话执行** - `/compact` 在当前会话执行，不再打开新会话 (#7834)
+- **文本与 CSV 标签刷新** - 重新打开或激活时刷新缓存的文本和 CSV 标签，同时保留未保存的编辑 (#7902)
+- **技能池下载移出请求路径** - 将技能池下载移出请求路径，并清理未完成的临时文件 (#8055)
+- **文件目录刷新保留分页** - 刷新展开的文件目录时不再丢失当前分页状态 (#8149)
+- **控制台渲染 LaTeX** - 在控制台发布说明和 Markdown 文件预览中渲染 LaTeX 公式 (#7909)
+- **控制台代码下载恢复** - 本地服务恢复后可重试控制台代码下载，不再过早耗尽重试次数 (#8154, #8219)
+- **项目目录选择更清晰** - 项目目录选择更清晰，可直接从浏览器应用目录 (#7897)
+- **慢网络加载改进** - 通过更小的 API 响应和更健壮的技能列表请求改进慢网络加载 (#7917)
+- **限制后台轮询** - 限制后台轮询，并在慢请求期间保持模型选择器响应 (#8221)
+- **模型路由随 Agent 设置保存** - 模型路由变更与其他 Agent 设置一起保存 (#7747)
+- **思考设置继承显示正确** - 正确显示继承的思考设置，允许从空模型池直接选择模型，并为全新安装提供 Kilo 免费模型默认值 (#7920)
+- **恢复越南语与巴西葡语** - 恢复越南语和巴西葡萄牙语语言选择 (#7752)
+- **侧边栏折叠状态保留** - 重新加载后保留侧边栏折叠状态 (#7681)
+- **设置颜色与菜单字体一致** - 设置页颜色和菜单字体与控制台其余部分保持一致 (#7682, #7805)
+- **恢复链接焦点指示** - 恢复链接上可见的键盘焦点指示 (#7759)
+- **恢复 PawPort 入口** - 恢复 Agent 配置中的 PawPort 入口 (#7770)
+
+**模型、运行时与安全**
+- **保留照片 EXIF 方向** - 缩放含 EXIF 旋转信息的图片时保留照片方向 (#8136)
+- **Hub 模型设置按上下文上限校验** - 依据模型解析出的上下文上限校验 Hub 模型设置 (#8168)
+- **工具停止时保留取消原因并继续循环** - 工具被停止时保留取消原因并继续 Agent 循环 (#8183)
+- **遵循提供商解析的上下文窗口** - 遵循提供商解析的上下文窗口，避免过早压缩会话 (#7652)
+- **时间戳使用夏令时感知时区** - 显示会话记录时间戳时使用夏令时感知的时区 (#8050)
+- **工具返回的 PDF 不再破坏后续请求** - 防止工具返回的 PDF 破坏对 Chat Completions 模型（含多模态模型）的后续请求 (#7636)
+- **恢复被拒的 input_audio 内容** - 提供商拒绝历史中不支持的 `input_audio` 内容时可恢复 (#7886)
+- **模型拒绝媒体载荷后恢复会话** - 模型拒绝图片或其他媒体载荷后恢复会话，不再每轮重放被拒的块 (#8010)
+- **按模型能力过滤历史图片** - 依据所选模型解析出的能力（含纯文本模型）过滤历史图片 (#8190)
+- **可选工具参数保持可选** - 除非显式启用严格校验，否则对 Responses API 模型保持可选工具参数为可选 (#7915)
+- **接受更新的 GPT Token 限制参数** - 接受模型提供商使用的更新 GPT Token 限制参数 (#8090)
+- **修正 Token 预算统计与循环告警** - 修正 Agent Token 预算统计与循环告警，并在流式回复开始时从上下文溢出中恢复 (#7748)
+- **更早回收旧媒体与工具结果** - 更早回收旧媒体和工具结果，使长对话保持在模型上下文窗口内 (#7965, #8193)
+- **循环保护不再误终止** - 防止循环保护在没有新的重复工具调用时终止任务 (#7919)
+- **ACP 回复与外部运行器加固** - 防止重复或碎片化的 ACP 回复，并对工具参数格式不同的外部运行器强制执行工作区保护 (#7783)
+- **按协议 kind 识别 ACP 权限** - 按协议定义的 kind 识别 ACP 权限选择，避免受信会话中出现不必要的提示 (#7732)
+- **容器/服务中查找用户命令** - 以服务方式或容器内运行时查找用户安装的命令行工具 (#7057)
+- **提供商关闭流时卡顿后恢复** - 提供商在关闭流时卡顿后恢复模型响应 (#7960)
+- **阻止 Windows 控制台控制事件终止服务** - 防止 Windows shell 命令传播会终止 QwenPaw 服务的控制台控制事件 (#7910)
+- **命令行启动加速** - 仅按需加载初始化代码，缩短命令行启动时间 (#8004)
+- **压缩的 MCP 错误响应** - 处理压缩的 MCP 错误响应而不破坏连接协商 (#7787)
+- **限制主密钥文件权限** - 在 Unix 系统上读取现有密钥时限制过宽的主密钥文件权限 (#7699)
+- **技能名安装路径校验** - 在将技能名用作安装路径前进行校验 (#8065)
+- **NaN/无穷数值返回校验错误** - 对 NaN 和无穷数值输入返回校验错误而非服务器错误 (#7677)
+
+**记忆、Hub 与部署**
+- **Hub 邀请失败显示原因** - 兑换 Hub 邀请失败时显示具体原因 (#7952)
+- **Hub 数据库连接释放** - 事务后关闭 Hub 数据库连接，避免连接耗尽 (#8038)
+- **优雅关闭等待记忆任务** - 优雅关闭（含 Windows 桌面关闭）期间允许待处理的记忆任务完成 (#7760)
+- **修复历史搜索索引** - 修复损坏的历史搜索索引并恢复保留期清理，不丢弃会话历史 (#7655)
+- **加强历史数据库读写与备份** - 加强历史数据库写入、备份和恢复，减少中断或失败操作后的数据丢失 (#6459)
+- **区分失败与空结果的记忆任务** - 在收件箱通知中区分错误详情为空的失败记忆任务与成功的空结果 (#7756)
+- **回滚失败后端后恢复记忆运行时** - 回滚失败的后端变更后恢复记忆运行时 (#7893)
+- **嵌入服务超时校验一致** - 保存设置或测试连接时一致地校验嵌入服务超时 (#7758)
+- **邮件处理确认与暂停** - 处理超过 50 封待处理邮件前要求确认，连续失败三次后暂停，并在收件箱提供恢复控制 (#7690)
+- **审批决策跨越超时竞态** - 让审批决策跨越超时竞态，使待处理工具请求一致地解决 (#8188)
+- **修复 Hub 本地运行时** - 修复 Hub 本地运行时初始化、CLI 访问和持久化工作区，并恢复带正确模型限制的已认证 PawApp 访问 (#7833)
+- **Hub 尊重管理员覆盖** - Hub 中检查成员 Token 权限时尊重管理员覆盖 (#8169)
+- **Hub 个人运行时代理文件预览** - 通过 Hub 个人运行时代理恢复文件预览 (#7766)
+- **Hub 审计日志记录登录** - 在 Hub 审计日志中记录登录尝试和被拒的运行时创建 (#7683)
+- **插件目录下载中断处理** - 处理中断的插件目录下载，不再返回内部服务器错误 (#7763)
+- **恢复捆绑 omp-roles 技能加载** - 当捆绑的 omp-roles 技能显示已安装但无法使用时恢复加载 (#7922)
+- **PawApp 流式资源释放** - 可靠释放 PawApp 流式资源，防止取消后任务无限等待 (#7488)
+- **桌面包包含 Console 频道** - 桌面包中包含 Console 频道，使应用能正确启动 (#7816)
+- **桌面宠物下工具审批恢复** - 启用桌面宠物时恢复工具请求的批准与拒绝 (#7933)
+- **Docker 与桌面统一 Python 运行时** - Docker 与桌面构建使用相同的固定应用 Python 运行时 (#7751)
+- **终端关闭后停止输出错误** - 启动 QwenPaw 的终端关闭后停止重复的输出错误 (#6569)
+
+**新贡献者**: Wiziechen、TerebiSAMA、yang0228、lorenzozanee、BeiMu-new、fanghua-ai、iluv7、shuziP、sdxwmlyl、Xinji-Mai、96loveslife。
+
+---
 
 ### v2.2.1 (2026-09-11)
 
@@ -2532,15 +2673,15 @@
 - `qwenpaw agents create` - 创建新 Agent，支持模板选择 (v1.1.2)
 - `qwenpaw acp` - 启动 ACP Server，暴露 agent 为 ACP 端点 (v1.1.3)
 - `qwenpaw approval` - 管理工具调用审批 (v1.1.4)
-- `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0)
+- `qwenpaw agents enable/disable` - 启用/禁用代理 (v1.0.0，v2.2.0 已移除)
 - `qwenpaw tui` - 启动全屏终端 UI（基于 textual），流式输出、工具调用渲染、会话管理 (v2.0.0)
 - `qwenpaw doctor` - 诊断检查与自动修复 (v1.1.2)
 - `qwenpaw skills info` - 查看技能详情 (v1.1.2)
 - `qwenpaw skills test` - 验证技能内容和安全扫描 (v1.1.6)
 - `qwenpaw skills install` - 安装技能 (v1.1.5.post2)
 - `qwenpaw skills uninstall` - 卸载技能 (v1.1.5.post2)
-- `qwenpaw message push/send` - 推送消息/发送请求 (v0.2.0)
-- `qwenpaw message send --background` - 后台发送代理请求 (v1.0.0)
+- `qwenpaw message push/send` - 推送消息/发送请求 (v0.2.0，v2.2.0 已移除)
+- `qwenpaw message send --background` - 后台发送代理请求 (v1.0.0，v2.2.0 已移除)
 - `qwenpaw update` - 自动更新 QwenPaw (v0.1.0)
 - `qwenpaw auth reset-password` - 重置 Web UI 密码 (v0.1.0)
 - `qwenpaw desktop` - 打开桌面应用窗口 (v0.0.6)
@@ -2548,16 +2689,16 @@
 - `qwenpaw models config-key gemini` - 配置 Gemini (v0.0.6)
 - `qwenpaw models config-key minimax` - 配置 MiniMax (v0.1.0)
 - `qwenpaw models config-key deepseek` - 配置 DeepSeek (v0.1.0)
-- `qwenpaw models config-key kimi` - 配置 Kimi (v0.1.0)
+- `qwenpaw models config-key kimi` - 配置 Kimi (v0.1.0，v2.2.0 拆分为 kimi-cn/kimi-intl)
 - `qwenpaw models config-key lmstudio` - 配置 LM Studio (v0.0.7)
-- `qwenpaw models config-key siliconflow` - 配置 SiliconFlow (v1.0.2)
-- `qwenpaw models config-key zhipu` - 配置智谱 (v1.0.1)
+- `qwenpaw models config-key siliconflow` - 配置 SiliconFlow (v1.0.2，v2.2.0 拆分为 siliconflow-cn/-intl)
+- `qwenpaw models config-key zhipu` - 配置智谱 (v1.0.1，v2.2.0 拆分为 zhipu-cn/zhipu-intl)
 - `qwenpaw models config-key openrouter` - 配置 OpenRouter (v1.1.1)
 - `qwenpaw models config-key opencode` - 配置 OpenCode/Zen (v1.1.1)
 - `qwenpaw providers update` - 更新提供商配置，含 Base URL (v1.1.3)
 - `qwenpaw models download/remove-local` - 本地模型管理 (llama.cpp/MLX)
-- `qwenpaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理
-- `qwenpaw channels install/add/remove` - 自定义频道管理
+- `qwenpaw models ollama-pull/ollama-list/ollama-remove` - Ollama 模型管理（v2.2.0 已移除，改用外部 `ollama` CLI）
+- `qwenpaw channels install/add/remove` - 自定义频道管理（v2.2.0 已移除，改用控制台或 plugins）
 - `qwenpaw cron get/pause/resume/state` - 定时任务状态管理
 - `qwenpaw cron update` - 编辑现有 cron 任务的调度/提示/配置 (v2.0.0)
 - `qwenpaw chats create/update/delete` - 会话管理
@@ -2891,10 +3032,10 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | LM Studio (v0.0.7 新增) | `lmstudio` | `http://localhost:1234/v1` |
 | DeepSeek (v0.1.0 新增) | `deepseek` | `https://api.deepseek.com` |
 | MiniMax (v0.1.0 新增) | `minimax` | 国际版/中国版分离端点 |
-| Kimi (v0.1.0 新增) | `kimi` | 中国版/国际版分离端点 |
+| Kimi (v0.1.0 新增，v2.2.0 拆分为 `kimi-cn`/`kimi-intl`) | `kimi-cn` / `kimi-intl` | 中国版/国际版分离端点 |
 | QwenPaw Local Model (v1.0.0 新增) | `qwenpaw-local` | 本地 llama.cpp 引擎 |
-| SiliconFlow (v1.0.2 新增) | `siliconflow` | 中国版/国际版分离端点 |
-| Zhipu / 智谱 (v1.0.1 新增) | `zhipu` | `https://open.bigmodel.cn/api/paas/v4` |
+| SiliconFlow (v1.0.2 新增，v2.2.0 拆分为 `siliconflow-cn`/`siliconflow-intl`) | `siliconflow-cn` / `siliconflow-intl` | 中国版/国际版分离端点 |
+| Zhipu / 智谱 (v1.0.1 新增，v2.2.0 拆分为 `zhipu-cn`/`zhipu-intl`) | `zhipu-cn` / `zhipu-intl` | `https://open.bigmodel.cn/api/paas/v4` |
 | OpenRouter (v1.1.1 新增) | `openrouter` | `https://openrouter.ai/api/v1` |
 | OpenCode / Zen (v1.1.1 新增) | `opencode` | OpenAI 兼容端点，提供免费模型，v1.1.9+ 含 OpenCode Go 可切换端点 |
 | Aliyun coding-plan | `codingplan` | （你自己填） |
@@ -2943,24 +3084,26 @@ Ollama 集成本地 Ollama 守护进程，动态加载其中的模型。
 - 安装 Ollama SDK：`pip install 'qwenpaw[ollama]'`
 
 ```bash
-# 下载 Ollama 模型
-qwenpaw models ollama-pull mistral:7b
-qwenpaw models ollama-pull qwen2.5:3b
+# 下载 Ollama 模型（使用外部 ollama CLI）
+ollama pull mistral:7b
+ollama pull qwen2.5:3b
 
 # 查看 Ollama 模型
-qwenpaw models ollama-list
+ollama list
 
 # 删除 Ollama 模型
-qwenpaw models ollama-remove mistral:7b
+ollama rm mistral:7b
 
 # 在配置流程中使用
 qwenpaw models config           # 选择 Ollama → 从模型列表中选择
 qwenpaw models set-llm          # 切换到其他 Ollama 模型
 ```
 
+> **注**：`qwenpaw models ollama-pull/ollama-list/ollama-remove` 已于 v2.2.0 移除，请改用外部 `ollama` CLI。
+
 **与本地模型的区别**：
 - 模型来自 Ollama 守护进程（不由 QwenPaw 下载）
-- 使用 `ollama-pull` / `ollama-remove` 而非 `download` / `remove-local`
+- 使用外部 `ollama` CLI 管理模型（而非 `qwenpaw models download` / `remove-local`）
 - 通过 Ollama CLI 或 QwenPaw 添加/删除模型时，模型列表自动更新
 
 支持的热门模型：`mistral:7b`、`qwen3:8b` 等
@@ -3000,14 +3143,23 @@ qwenpaw models config-key gemini       # 配置 Gemini API Key (v0.0.6+)
 qwenpaw models config-key lmstudio     # 配置 LM Studio (v0.0.7+)
 qwenpaw models config-key deepseek     # 配置 DeepSeek (v0.1.0+)
 qwenpaw models config-key minimax      # 配置 MiniMax (v0.1.0+)
-qwenpaw models config-key kimi         # 配置 Kimi (v0.1.0+)
-qwenpaw models config-key siliconflow  # 配置 SiliconFlow (v1.0.2+)
+qwenpaw models config-key kimi-cn      # 配置 Kimi 国内站 (v2.2.0+，旧 kimi 已拆分)
+qwenpaw models config-key kimi-intl    # 配置 Kimi 国际站 (v2.2.0+)
+qwenpaw models config-key zhipu-cn     # 配置智谱 (v2.2.0+，旧 zhipu 已拆分)
+qwenpaw models config-key zhipu-intl   # 配置智谱国际站 (v2.2.0+)
+qwenpaw models config-key siliconflow-cn    # 配置 SiliconFlow 国内站 (v2.2.0+)
+qwenpaw models config-key siliconflow-intl  # 配置 SiliconFlow 国际站 (v2.2.0+)
+qwenpaw models config-key volcengine-cn     # 配置火山引擎 (v2.2.0+，另有 -codingplan/-agentplan 变体)
 qwenpaw models config-key openrouter   # 配置 OpenRouter (v1.1.1+)
 qwenpaw models config-key opencode     # 配置 OpenCode/Zen (v1.1.1+)
+qwenpaw models config-key mimo         # 配置 Xiaomi MiMo (v1.1.11+，另有 mimo-tokenplan)
+qwenpaw models config-key ollama       # 配置 Ollama 本地模型 (v2.0.0+ 已内置)
+qwenpaw models config-key custom       # 配置自定义提供商
 qwenpaw models set-llm                 # 切换活跃模型
 qwenpaw models download <repo_id>      # 下载本地模型
 qwenpaw models local                   # 查看已下载模型
-qwenpaw models ollama-pull <model>     # 下载 Ollama 模型
+qwenpaw models remove-local <model_id> # 删除已下载模型
+# 注：Ollama 模型请用外部命令 `ollama pull/list/rm`（v2.2.0 起已移除 ollama-pull/ollama-list）
 ```
 
 ### 更新与认证 (v0.1.0 新增)
@@ -3022,12 +3174,8 @@ qwenpaw auth reset-password            # 重置 Web UI 密码
 ```bash
 qwenpaw agents list                    # 列出所有代理
 qwenpaw agents create                  # 创建新 Agent (v1.1.2 新增)
-qwenpaw agents enable/disable <agent>  # 启用/禁用代理 (v1.0.0 新增)
-qwenpaw message push <channel> <user>  # 向频道推送消息
-qwenpaw message send <agent> <msg>     # 向代理发送请求
-qwenpaw message send <agent> <msg> --background  # 后台发送请求 (v1.0.0 新增)
-qwenpaw message send <agent> <msg> --background --task-timeout 120  # 指定后台任务超时秒数 (v1.1.9 新增)
 qwenpaw task <prompt>                  # 运行一次性任务，无需 Web 服务 (v1.0.2 新增)
+# 注：旧版 `agents enable/disable` 与 `message push/send` 已在 v2.2.0 移除，请在控制台配置
 ```
 
 ### 桌面应用 (v0.0.6 新增)
@@ -3041,9 +3189,8 @@ qwenpaw desktop                        # 打开 QwenPaw 桌面应用窗口
 ```bash
 qwenpaw channels list                  # 查看所有频道（密钥脱敏）
 qwenpaw channels config                # 交互式配置
-qwenpaw channels install <key>         # 安装自定义频道模块
-qwenpaw channels add <key>             # 添加频道到 config
-qwenpaw channels remove <key>          # 删除自定义频道（--keep-config 保留配置）
+qwenpaw channels send                  # 向频道发送消息
+# 注：旧版 `channels install/add/remove <key>` 已在 v2.2.0 移除，改用控制台或 plugins 管理自定义频道
 ```
 
 ### 定时任务
@@ -3086,6 +3233,9 @@ qwenpaw approval                       # 管理工具调用审批（Tool Guard�
 | `/system_prompt` | 查看/设置系统提示（v2.0.0 新增） | v2.0.0 |
 | `/approve` | 批准被阻止的工具调用（TUI 中内联可用） | v0.0.7 |
 | `/deny` | 拒绝工具调用（TUI 中内联可用） | v0.0.7 |
+| `/reme` | 记忆命令统一入口：`/reme <action> key=value`（取代 `/dream`、`/memorize`、`/reme_status`） | v2.2.2 |
+| `/data` | QwenPaw Data 数据分析命令（需安装 QwenPaw Data） | v2.2.2 |
+| `/datasource` | QwenPaw Data 数据源命令（需安装 QwenPaw Data） | v2.2.2 |
 
 ### 会话管理
 
