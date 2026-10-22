@@ -4,11 +4,34 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-10-15
+> **更新日期**: 2026-10-22
 
 ---
 
-## 重要更新 (2026-10-15)
+## 重要更新 (2026-10-22)
+
+### v2.2.2.post1 (2026-10-22)
+
+> 补丁版本，完整 changelog 范围为 v2.2.2...v2.2.2.post1。仅含版本号提升与两项安全修复，无功能性变更。
+
+#### 安全修复
+
+- **Node.js 升级至 22.23.4** - 修复 Node.js 22 线上的两个漏洞 (#8371)：Brotli 解码器越界写可导致远程代码执行（CVE-2026-111497，高危）、keep-alive 套接字可能返回请求发出前写入的响应（CVE-2026-105481，中危）
+  - `.nvmrc` 成为 Node 版本的唯一来源（`22.23.4`），CI、桌面打包运行时与 Docker 构建均从该文件读取
+  - 官方 Docker 构建在运行镜像的 Node 版本与 `.nvmrc` 不一致时直接失败；`NODE_IMAGE` 默认改为 `node:22.23.4-slim`
+- **emSign/eMudhra 中间 CA 信任问题整改** - 统一整改依赖、安装脚本与构建链中的该 CA 信任问题 (#8370)：
+  - Python 依赖新增 `certifi>=2026.10.19`；插件依赖安装、`qwenpaw update` 与镜像构建均强制附带该下限
+  - 安装/更新流程要求 `pip>=26.2.2`、`uv>=0.13.4`，低于下限时拒绝执行并提示升级（见 `src/qwenpaw/utils/runtime_environment.py`）
+  - 官方镜像补充 `ca-certificates` 并在准备 Python 运行时后执行 `update-ca-certificates`
+
+#### 变更
+
+- **版本号提升至 v2.2.2.post1** (#8369)
+- **升级前置条件** - 插件依赖安装与自更新会校验安装器版本，`pip < 26.2.2` 或 `uv < 0.13.4` 将被拒绝，需先升级 pip/uv；官方安装脚本已固定使用 uv 0.13.4，并在镜像构建时校验 uv 二进制版本
+
+> **对 Docker 部署的影响**：官方 `deploy/Dockerfile` 移除 `python3-pip`、改用固定 Node 基础镜像并强制 `certifi>=2026.10.19`。自建镜像若沿用旧基础层，`pip`（26.2.1 及以下）与 `certifi`（2026.07.22 及以下）低于新下限，会导致**插件依赖安装失败**，构建时需显式升级二者。
+
+---
 
 ### v2.2.2 (2026-10-15)
 
@@ -2738,7 +2761,7 @@ QwenPaw 由 [AgentScope 团队](https://github.com/agentscope-ai) 基于以下�
 
 ### 环境要求
 
-- **Python 版本**: >= 3.10, < 3.14
+- **Python 版本**: >= 3.11, < 3.14
 
 ### 安装方式
 
@@ -2769,10 +2792,9 @@ curl -fsSL ... | bash -s -- --version 0.0.5
 # 从源码安装（开发/测试用）
 curl -fsSL ... | bash -s -- --from-source
 
-# 安装本地模型支持
-bash install.sh --extras llamacpp    # llama.cpp（跨平台）
-bash install.sh --extras mlx         # MLX（Apple Silicon）
-bash install.sh --extras ollama      # Ollama（需 Ollama 服务运行）
+# 安装可选扩展（逗号分隔，v2.2.0+ 可用 extras 见下方「可选扩展」）
+bash install.sh --extras hub
+bash install.sh --extras qwenpaw-data,whisper
 ```
 
 #### 方式二：pip 安装
@@ -2782,6 +2804,24 @@ pip install qwenpaw
 ```
 
 可选：先创建并激活虚拟环境再安装（`python -m venv .venv`，Linux/macOS 下 `source .venv/bin/activate`，Windows 下 `.venv\Scripts\Activate.ps1`）。
+
+#### 可选扩展 (extras)
+
+v2.2.2 起可用的 `pip install 'qwenpaw[<extra>]'` 扩展：
+
+| extra | 内容 |
+|-------|------|
+| `local` | `huggingface_hub`，支持从 Hugging Face 下载本地模型 |
+| `hub` | `docker` SDK，用于 QwenPaw Hub 本地运行容器 |
+| `whisper` | `openai-whisper`，本地语音转写 |
+| `codex` | Codex ACP Agent 支持 |
+| `qoder` | Qoder ACP Agent 支持 |
+| `qwenpaw-data` | QwenPaw Data 0.3.x 全套组件 |
+| `sip` / `sip-livekit` | SIP 语音频道的开发 / 生产后端（LiveKit 含 `sip`） |
+| `full` | 上述 `qwenpaw-data`、`hub`、`local`、`whisper`、`codex`、`qoder` 合集 |
+| `dev` / `test` | 开发与测试依赖 |
+
+> **注**：`llamacpp`、`mlx` 扩展在 v1.1.3 已移除；`ollama` 自 v2.0.0 起通过 `agentscope[model-ollama]` 内置，均不再是 extras。
 
 #### 方式三：桌面应用 (v0.0.6 新增，v1.1.9 新增 Tauri 版)
 
@@ -3047,16 +3087,13 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 
 ### 本地提供商
 
-#### llama.cpp / MLX
+#### QwenPaw Local (llama.cpp)
+
+> **v1.1.3 起 `llamacpp` / `mlx` extras 已移除**，llama.cpp 后端已内置。首次使用时在控制台 **模型 → QwenPaw Local** 中点击「下载 llama.cpp」，QwenPaw 会自动下载并配置运行库；MLX 后端已不再支持。
 
 ```bash
-# 安装后端
-pip install 'qwenpaw[llamacpp]'  # llama.cpp（跨平台）
-pip install 'qwenpaw[mlx]'       # MLX（Apple Silicon）
-
-# 下载模型
+# 下载模型（从 Hugging Face）
 qwenpaw models download Qwen/Qwen3-4B-GGUF
-qwenpaw models download Qwen/Qwen3-4B --backend mlx
 
 # 从 ModelScope 下载
 qwenpaw models download Qwen/Qwen2-0.5B-Instruct-GGUF --source modelscope
@@ -3071,9 +3108,10 @@ qwenpaw models remove-local <model_id>
 **选项说明**：
 | 选项 | 简写 | 默认值 | 说明 |
 |------|------|--------|------|
-| `--backend` | `-b` | `llamacpp` | 目标后端（llamacpp 或 mlx） |
 | `--source` | `-s` | `huggingface` | 下载源（huggingface 或 modelscope） |
-| `--file` | `-f` | （自动） | 指定文件名，省略时自动选择 |
+| `--file` | `-f` | （已废弃） | v2.0.0 起不再支持，仅下载整个仓库 |
+
+> **注**：`huggingface_hub` 由 `pip install 'qwenpaw[local]'` 提供，缺失时 Hugging Face 下载不可用。QwenPaw Local 仍处于测试阶段，官方建议追求稳定或需要 GPU 加速时改用 Ollama / LM Studio。
 
 #### Ollama
 
@@ -3081,7 +3119,7 @@ Ollama 集成本地 Ollama 守护进程，动态加载其中的模型。
 
 **前置条件**：
 - 从 [ollama.com](https://ollama.com/) 安装 Ollama
-- 安装 Ollama SDK：`pip install 'qwenpaw[ollama]'`
+- Ollama SDK 已内置（`agentscope[model-ollama]`），无需额外安装 extras
 
 ```bash
 # 下载 Ollama 模型（使用外部 ollama CLI）

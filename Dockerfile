@@ -43,15 +43,15 @@ RUN apt-get update && \
 # 安装 QwenPaw 及其依赖（支持动态版本指定和扩展）
 RUN if [ "$QWENPAW_VERSION" = "latest" ]; then \
       if [ -z "$QWENPAW_EXTRAS" ]; then \
-        uv pip install --no-cache-dir --system qwenpaw; \
+        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" qwenpaw; \
       else \
-        uv pip install --no-cache-dir --system "qwenpaw[$QWENPAW_EXTRAS]"; \
+        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "qwenpaw[$QWENPAW_EXTRAS]"; \
       fi \
     else \
       if [ -z "$QWENPAW_EXTRAS" ]; then \
-        uv pip install --no-cache-dir --system "qwenpaw==${QWENPAW_VERSION}"; \
+        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "qwenpaw==${QWENPAW_VERSION}"; \
       else \
-        uv pip install --no-cache-dir --system "qwenpaw[$QWENPAW_EXTRAS]==${QWENPAW_VERSION}"; \
+        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "qwenpaw[$QWENPAW_EXTRAS]==${QWENPAW_VERSION}"; \
       fi \
     fi
 

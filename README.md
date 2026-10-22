@@ -523,7 +523,23 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v2.2.2 更新（最新，2026-10-15）
+### v2.2.2.post1 更新（最新，2026-10-22）
+
+> 补丁版本，只含两项安全修复，无功能性变更。官方镜像内的 Node.js 与 Python 依赖证书库均有更新。
+
+#### 安全修复
+- **Node.js 升级至 22.23.4** — 修复 Brotli 解码器越界写导致的远程代码执行（CVE-2026-111497，高危）与 keep-alive 套接字响应错序（CVE-2026-105481，中危）(#8371)。官方将 `.nvmrc` 作为 Node 版本唯一来源，Docker 构建在 Node 版本不匹配时直接失败，`NODE_IMAGE` 默认改为 `node:22.23.4-slim`
+- **emSign/eMudhra 中间 CA 信任整改** — Python 依赖新增 `certifi>=2026.10.19`，安装脚本、插件依赖安装与镜像构建均强制该下限；安装与自更新要求 `pip>=26.2.2`、`uv>=0.13.4`，低于下限会被拒绝并提示升级 (#8370)
+
+#### 对本项目镜像的影响
+- 官方 `deploy/Dockerfile` 已移除 `python3-pip`、补充 `ca-certificates` 并执行 `update-ca-certificates`，同时在准备 Python 运行时后升级 `pip` 与 `certifi`
+- 本项目 Dockerfile 原先装出的镜像里 `pip` 为 26.2.1、`certifi` 为 2026.07.22，**均低于新下限**；由于 v2.2.2.post1 的插件依赖安装会校验 `pip>=26.2.2`，不升级会导致插件依赖装不上。现已在 Dockerfile 的 `uv pip install` 中同时安装 `"pip>=26.2.2"` 与 `"certifi>=2026.10.19"`，构建后实测 `pip 26.2.2` / `certifi 2026.10.19`，`require_pip`、`require_uv` 校验均通过
+
+> 完整 changelog：官方 [v2.2.2...v2.2.2.post1](https://github.com/agentscope-ai/QwenPaw/compare/v2.2.2...v2.2.2.post1)。
+
+---
+
+### v2.2.2 更新（2026-10-15）
 
 > 新增主题调色板与聊天内终端、PawPort 跨 Harness 迁移导入、Hub 模型网关，并将记忆命令统一为 `/reme`。
 
