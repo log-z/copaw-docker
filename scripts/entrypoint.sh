@@ -39,6 +39,15 @@ fi
 # 设置端口（带默认值），并 export 以确保子进程能正确获取
 export QWENPAW_PORT="${QWENPAW_PORT:-8088}"
 
+# 频道插件发放预设（v2.3.0+）
+# 官方镜像默认 light（仅发放历史已启用的频道）；本镜像默认 channels-full，
+# 因为已预装 channels extra、依赖齐全，启动时发布全部官方频道源码后，
+# 控制台即可直接启用任意频道，无需联网安装依赖。
+# 注意：该值仅在 config.json 首次初始化（channel_plugin_state.version == 0）时写入，
+# 之后以 config.json 中持久化的选择为准；如需切换请用：
+#   qwenpaw plugins preset apply light|channels-full
+export QWENPAW_CHANNEL_PRESET="${QWENPAW_CHANNEL_PRESET:-channels-full}"
+
 # 显示配置信息
 log_info "Starting QwenPaw container..."
 log_info "Working directory: ${QWENPAW_WORKING_DIR}"

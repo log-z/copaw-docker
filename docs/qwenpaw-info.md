@@ -4,11 +4,210 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-10-22
+> **更新日期**: 2026-11-11
 
 ---
 
-## 重要更新 (2026-10-22)
+## TODO
+
+### [ ] 频道源码升级后不会刷新（待观察上游 v2.3.1+）
+
+**问题**：v2.3.0 起官方频道源码播种到 `WORKING_DIR/plugins/<id>/`。`provision_bundled_channels()` 只判断目录是否存在（`find_installed_plugin_dir` 只查 `plugin.json`），已有目录不再覆盖；频道也不在 CDN 插件目录中（`publish: false`），无法在线更新。结果：**升级镜像后旧频道源码一直留存，上游频道 bug 修复不生效且无任何日志提示**。
+
+实测：篡改源码后 `docker restart` 与"删容器保留卷重建"均不恢复；仅 uninstall + 清墓碑 + 重启可恢复。
+
+**影响**：v2.3.0 的频道修复（Matrix 会话/密钥 #8558、钉钉分段 #8341、CJK 强调 #8067、频道响应缓存 #8564 等）在存量卷上升级后不生效。
+
+**可能方案**（下个版本评估）：
+1. `entrypoint.sh` 增加 `QWENPAW_REFRESH_CHANNEL_SOURCES=true`，启动前删除 18 个官方频道目录（保留 hub 类插件）并清除 `channel_plugin_state.uninstalled` 墓碑。最直接，但会丢弃用户本地改动。
+2. 改用"版本戳"判断：在 `plugins/<id>/` 写入来源 wheel 版本，与当前 `__version__` 不符时重新播种。更精确，需上游支持或自行 patch。
+3. 升级文档中加手动刷新步骤（`qwenpaw plugins uninstall` + 清墓碑 + 重启）。
+
+**验证**：升级镜像后比对 `plugins/telegram/qwenpaw_channel_telegram/platform.py` 的 md5，或检查是否含新版本修复代码。
+
+---
+
+## 重要更新 (2026-11-11)
+
+### v2.3.0 (2026-11-11)
+
+> **重大版本**，完整 changelog 范围为 v2.2.2...v2.3.0。核心变化：**频道全面插件化并子进程隔离**、新增 Piccolo 本地决策模型、Advisor Mode 与实验性 Python Code Mode、ReMe 升级至 0.4.2.0。
+
+#### 新功能
+
+**Piccolo 本地决策模型**
+- **本地决策模型** - 新增 Piccolo 4B、9B、27B 本地决策模型，用于工具审批和上下文压缩，提供 BF16、Q8_0 推荐配置，支持安装和更新配套运行时，并可选择 Hugging Face 或 ModelScope 下载源。审批与压缩需单独启用，本地运行时每次运行一个模型 (#8463, #8573)
+
+**QwenPaw 社区**
+- **社区接入** - 在控制台浏览、排序和评论 QwenPaw 社区帖子，可借助模型撰写关联资源的问题反馈，并打开社区编辑器；连接账号后，可将选定类别的社区消息同步到收件箱和桌面通知 (#7903)
+
+**控制台与桌面端**
+- **OpenUI 插件** - 新增可选插件，在回复中展示交互式表单和组件，流式生成时保留操作状态，并将提交内容发回原会话 (#8239, #8248)
+- **收件箱未读筛选** - 收件箱推送消息新增“仅看未读”筛选 (#8484)
+- **桌面多窗口共享后台服务** - 多个桌面窗口共用后台服务，关闭最后一个窗口时可选择继续后台运行，并协调多窗口更新；服务重连时保留未发送的草稿 (#8373)
+- **系统通知** - 新增审批、回复完成和后台任务的浏览器及桌面通知，最小化到托盘后仍可提醒；点击通知可返回对应会话或审批 (#8504)
+
+**执行模式**
+- **Advisor Mode** - 顾问模型与执行模型协作：开始任务前制定计划，执行中可主动咨询，并在工具连续失败时调整计划 (#7569)
+- **Python Code Mode（实验性）** - 可在一段脚本中组合已启用的工具，支持并发调用，并按顺序输出文本和媒体。工具仍遵循原有权限检查；启用 Code Mode 不会自动开启默认关闭的沙箱 (#8224)
+- **ACP 初始执行模式** - 支持通过 `qwenpaw acp --agent-mode` 为新建 ACP 会话指定初始执行模式 (#8352)
+- **决策模型辅助完成度自检** - 可按需使用决策模型结合对话和工具结果检查遗漏任务；模型不可用或判断不确定时沿用原有自检。该选项默认关闭 (#8544)
+
+**记忆**
+- **ReMe 0.4.2.0** - 支持图片记忆、自动标签、按标签检索，以及保留工具输出原文引用的决策模型上下文压缩。图片记忆、自动打标和决策压缩默认关闭；Auto-Dream 专注于记忆整合 (#8347)
+- **记忆标签浏览** - 支持点击记忆文件中的标签或使用“标签”页浏览 ReMe Light 记忆，显示文件数量并支持分页 (#8470)
+- **OpenViking 记忆插件** - 可连接配置好的 OpenViking 服务，自动召回记忆、保存已完成的对话轮次，并主动搜索记忆 (#7613)
+
+**模型与审批**
+- **ChatGPT 订阅登录** - 支持在本机部署中登录 ChatGPT 订阅账号，无需 Platform API Key 即可选择账号可用模型，并支持切换账号和退出登录；暂不支持远程或 Hub 登录 (#8437)
+- **TypeSafe/JEV 决策模型** - 新增独立于对话模型的决策模型配置，并支持用决策模型辅助工具审批。明确禁止的操作仍被拦截，判断不确定或服务失败时转为人工审批 (#8205, #8283, #8360)
+
+**QwenPaw Creator 与 Data**
+- **Creator 2.0.4** - 支持自定义 Skill 管理、直接导入剧本、旁白防重叠和临时文件清理；完善不同提供商的本地媒体传输、提高语音识别连接测试的准确性，并限制已保存凭据仅用于配置好的测试地址 (#8357, #8529)
+- **Data 1.0.3** - 配套运行时 0.3.3：默认继承工作区模型，按会话保存数据集选择，并等待分析完成后再结束流式响应。**已发布应用清单仍以 QwenPaw 2.2.2 为兼容目标，尚未声明兼容 2.3.0**；旧版未划分归属的会话仍保留在磁盘中，但不会自动出现在新列表里 (#8346)
+
+**Skills、插件、频道与工具**
+- **Skill 池下载取消** - 支持在控制台取消 Skill 池下载，显示取消进度，并在清理未完成下载时保留此前已安装的 Skill (#8285)
+- **Firecrawl 搜索提供商** - 新增 Firecrawl 网页搜索提供商，可选填 API Key (#8200)
+- **Tavily 可选 API Key** - 支持在控制台为 Tavily 配置可选 API Key，密钥被拒或遇到配额、速率限制时回退到免密钥搜索 (#8204)
+- **Shell 内存保护** - 新增可选的 Shell 内存保护，可在环境变量实时设置中配置，监测命令进程的内存使用并限制输出缓存。默认关闭，属于尽力而为的资源保护 (#8574)
+- **插件主题配色** - 支持插件分别设置浅色和深色主题的背景、表面、边框与文字配色，卸载插件后恢复用户原有主题 (#8422)
+- **Matrix 加密依赖随频道安装** - 安装 Matrix 频道时一并安装端到端加密依赖，无需再手动补装；加密仍默认关闭 (#8559)
+
+**评测**
+- **评测页面** - 新增中英文评测页面，展示基准得分、成本和耗时对比，支持调整基准权重、查看版本历史和下载结果记录 (#8253)
+
+#### 变更
+
+- **官方频道插件化（核心架构变更）** - 将 Console 之外的官方频道改为插件管理，仅在启用时启动独立进程，并保留已有频道配置 (#8187)
+- **默认搜索提供商** - 未保存搜索提供商时默认使用 AnySearch，保留用户已明确选择的提供商 (#8536)
+- **决策模型审批入口** - 直接从审批菜单启用决策模型审批，移除额外的会话开关；所选决策模型不可用时转为人工审批 (#8556)
+- **插件依赖检查与共享依赖升级** - 完善插件依赖检查与共享依赖升级，识别受影响的运行环境，支持可选依赖组，并在升级失败时回滚 (#8598)
+- **控制台布局与交互优化** - 优化桌面端和移动端的布局、点击区域、键盘操作、加载重试与草稿保留，减少重复轮询和不必要的后台处理 (#8332)
+- **模型管理拆分** - 区分全局模型管理与智能体运行设置，支持在提供商卡片上编辑 API Key，并让思考设置与模型声明的能力保持一致 (#8240)
+- **`/model` 只改 Agent 默认模型** - `/model` 切换/重置不再覆盖当前会话；已有会话级模型覆盖保持不变，需在会话模型选择器中清除。上下文压缩、容量显示、标题生成等功能统一使用会话生效模型
+- **数值输入控件统一** - 统一数值输入控件，整理执行方式设置页和侧边栏样式 (#8432)
+- **初始 Skill 选择收窄** - 智能体配置中的初始 Skill 选择仅用于创建阶段，已有智能体的 Skills 统一在 Skills 页面管理 (#8448)
+- **模型推荐与预设更新** - 更新模型推荐、能力信息和提供商预设，保留已有模型选择及用户自行添加的模型 (#8447)
+- **插件装卸无需重建工作区** - 安装、更新和移除插件时无需重建所有活动工作区，卸载时清理所占资源，更新失败时恢复旧版本 (#7565)
+- **历史数据库连接复用** - 在同一工作区内复用历史数据库连接，减少每次请求重复初始化和检查的开销 (#8482)
+- **安装器版本要求** - 更新内置运行环境和安装依赖；通过对应方式更新应用或安装插件时，要求 `pip >= 26.2.2` 或 `uv >= 0.13.4` (#8391)
+
+#### 破坏性变更
+
+- **工作区 ZIP 上传/下载 API 已删除** - 旧接口会覆盖使用中的 `history.db`。自动化脚本若依赖这些端点需改用“备份与恢复”；项目 ZIP 导入与普通文件传输不受影响 (#8508)
+- **频道 SDK 不再随核心包安装** - 所有频道依赖移入新的 `channels` extra（详见下方「对 Docker 部署的影响」），`pip install qwenpaw` 后启用频道会在运行期安装依赖
+- **内置工具 `lsp` 与 `ast_search` 已移除** - 相关依赖 `python-lsp-server[...]`、`ast-grep-cli` 一并从核心依赖中删除；已保存配置中的这两项会在加载时自动清理（见 `src/qwenpaw/config/config.py`）。另有 `html2text` 依赖被移除，`web_fetch` 改用标准库实现的轻量转换器（`src/qwenpaw/agents/tools/_html_to_markdown.py`）
+
+#### Bug 修复
+
+**控制台、对话与文件**
+- **按会话保存草稿** - 为每个会话分别保存未发送草稿，提交后立即清空已发送内容，避免延迟返回的响应删除刚输入的新文本 (#8362, #8272)
+- **会话直达链接** - 修复直达链接无法切换到正确智能体的问题，支持已归档会话，并为无效或不明确的链接提供错误提示和重试 (#8209)
+- **删除会话后停止使用过期会话** - 并避免一个会话的模型变更干扰其他会话 (#8375)
+- **行内插件提交串会话** - 修复切换会话期间行内插件提交内容可能发往错误会话的问题 (#8330)
+- **长会话消息定位** - 修复长会话中的消息定位，并在切换会话时暂停侧边栏轮询 (#8273, #8493)
+- **会话分组标题重叠** - 修复定时任务和子智能体分组中的首个会话与分组标题重叠的问题 (#8334)
+- **设置保存竞态** - 修复思考强度滑块显示不准确，以及保存完成前切换会话导致已提交设置丢失的问题 (#8287)
+- **配置保存失败保留窗口** - 配置校验或保存失败时保留编辑窗口，并明确提供继续编辑或放弃修改的选择 (#8263)
+- **重复调用保护阈值** - 修复阈值无法正常显示和编辑的问题 (#8282)
+- **移动端入口** - 修复移动端模型入口被裁切和后台工具策略入口缺失的问题 (#8452)
+- **HTML 预览** - 依赖 JavaScript 时显示说明和“在浏览器中打开”入口，避免只显示空白 (#8245)
+- **媒体预览失败提示** - 缩短提示，展开后可查看完整文件名和错误详情 (#8451)
+- **工具图标裁切** - 修复已完成步骤卡片中的工具图标被裁切的问题 (#8503)
+- **限制超大工具输出** - 加载会话历史时限制返回的超大工具输出，改善慢速网络下的加载，同时保留已存储的历史原文 (#8229)
+- **清空会话后命令残留** - 修复重新打开或刷新时，缓存的 `/clear`、`/new` 命令重新出现在对话中的问题 (#8600)
+- **项目目录保留** - 新任务发送首条消息时保留所选项目目录，保存目录后继续保留已打开的文件页签 (#8582)
+- **Markdown 相对链接** - 按文档所在目录解析预览中的相对链接和图片，兼容中文、空格及 Windows 路径 (#8551)
+- **设置搜索与字段定位** - 完善设置搜索，在插件页面保留设置导航，并按当前智能体运行环境展示可用设置 (#8545, #8593, #8572)
+- **音频查看工具命名** - 补全 `view_audio` 的多语言名称与说明，并归入媒体工具 (#8597)
+- **保留 CRLF** - 智能体编辑文件时保留 CRLF 及混合换行符，避免局部修改导致整份文件出现差异 (#8235)
+
+**模型、运行时与审批**
+- **思考参数一致性** - 按模型声明的请求参数应用默认思考设置和会话偏好，包括关闭思考；避免将内部控制字段传给模型服务 (#8358, #8436)
+- **会话模型一致** - 上下文压缩、容量显示、标题生成、媒体能力检查及子智能体继承设置一致使用当前会话选择的模型与思考参数 (#8465)
+- **模型流式超时** - 为等待模型流式响应启动设置超时，并提示过长的限流等待，避免界面无提示地卡住 (#8468)
+- **历史媒体过大** - 请求因历史媒体过大而超限时，移除请求中的旧媒体后恢复执行，同时保留原始文件和本轮媒体 (#8395)
+- **媒体被拒后会话恢复** - 修复模型服务拒绝历史视频或音频后会话持续失败的问题，兼容 llama-server 音频拒绝和 DashScope 音频地址错误 (#8299, #7654)
+- **Code Mode 媒体与工具** - 修复重新打开会话后 Code Mode 媒体预览丢失，以及 Code Mode 无法调用 CloudPaw 工具的问题 (#8461)
+- **减少不必要的审批** - 减少 JEV 模式下 Code Mode 普通计算触发的不必要审批，并在审批提示中区分本地预检、服务不可用和模型风险判断 (#8492)
+- **ACP 长任务** - 长时间工具调用期间保持 ACP 会话连接，并在结束前发送剩余响应，避免已完成任务的结果丢失 (#8327)
+- **旧版 MCP 服务兼容** - 兼容在探测新版发现协议时返回 HTTP 422 的旧版 MCP 服务 (#8051)
+- **思考预算校验** - 保存前拒绝无效的思考预算和上下文容量，避免错误配置导致提供商重启后消失 (#8550)
+- **Ollama 模型发现** - 命令行配置 Ollama 时自动发现已安装模型，发现失败时仍可选择已有配置中的模型 (#8309)
+- **摘要超时与输出上限** - 摘要超时支持配置，默认延长至 300 秒；统一输出 Token 上限参数，并改善 Scroll 低估上下文用量后的溢出恢复 (#8496, #8571)
+- **内联媒体总大小** - 限制单次模型请求中内联媒体的总大小，超限时优先保留较新的媒体，并在发送前移除空媒体内容 (#8034, #8066)
+- **Code Mode 同名参数** - 修复调用含 `name` 参数的工具时与内部路由冲突的问题，包括 `describe_tool(name=...)` (#8583)
+- **Windows 命令引号** - 修复未启用沙箱隔离时 Windows `cmd.exe` 命令的引号被错误转义的问题 (#8602)
+
+**记忆与历史**
+- **自动记忆召回泄露** - 避免自动记忆召回内容出现在用户可见的对话记录和频道消息中 (#7835)
+- **ReMe 重排序空 Key** - API Key 为空时不再发起无效请求，并明确提示缺少配置 (#8291)
+- **历史迁移与备份** - 启动时跳过已完成的历史迁移，备份时为使用中的 SQLite 数据库生成快照，并提供历史检查及可选的搜索索引修复命令 (#8541)
+- **Windows 长路径与网络路径** - 修复长路径、网络路径及含 URL 特殊字符的文件名导致历史数据库打开、召回或备份失败的问题 (#8587)
+
+**Skills 与插件**
+- **GitHub 导入二进制资源** - 修复从 GitHub 导入 Skill 时二进制资源文件损坏的问题 (#8198)
+- **Make Skill 校验安装** - 改用原生 Skills CLI 校验和安装，修复桌面安装包中无法导入内部 Python 模块的问题 (#8344)
+- **插件加载失败可见性** - 插件加载失败后仍可查看和移除，及时刷新 Skill Hub 安装状态，并使用内置来源完成本地重装 (#8261)
+- **插件下载错误原因** - 遇到连接失败、超时、TLS 错误或响应不完整时显示明确原因 (#8397)
+- **移除重复依赖检查** - 移除会误拦 SDK 插件安装的重复依赖检查，保留原有依赖保护 (#8462)
+- **导入缓存刷新** - 修复导入缓存刷新失败导致插件无法继续加载的问题 (#8497)
+- **桌面频道插件安装** - 修复桌面频道插件安装和依赖升级失败的问题，兼容 Windows 路径比较及只读源码文件备份 (#8509, #8633)
+- **第三方市场来源** - 保留第三方市场插件的安装来源，修复“全部更新”遗漏这些插件的问题 (#8231)
+- **依赖状态目录不可用** - 说明原因，并提示如何配置可写目录 (#8527)
+- **Make Skill 安全扫描误拦** - 修复内置 Make Skill 校验器被 Skill 安全扫描误拦的问题 (#8400)
+
+**Creator、邮件与定时任务**
+- **Creator Windows 问题** - 修复进程存活检查异常导致启动失败、日志文件占用导致项目无法删除，以及长路径下审阅决定失败后无法重试的问题 (#8196, #8210, #8167)
+- **邮箱账号名称** - 账号名称已是完整地址时不再重复追加域名，避免正确凭据仍无法登录 (#8438)
+- **定时任务重载** - 智能体重新加载时保留正在执行的定时任务、执行历史和并发限制 (#8353)
+- **定时任务时间选择器** - 修复显示不同步和提交时草稿被修改的问题，保存失败时保留草稿，并恢复明确的保存与取消操作 (#8349)
+- **Codex/Qoder 定时任务空指令** - 修复有效指令被误判为空而无法执行的问题 (#8535)
+
+**频道**
+- **Matrix 会话与密钥** - 修复会话恢复和设备密钥丢失问题，按身份隔离加密存储，迁移匹配的旧状态时保留 Windows 数据，并避免无关账号状态阻止启动 (#8558, #8584, #8599, #8411)
+- **钉钉长回复分段** - 按 Markdown 消息分段发送，保留表格和排版 (#8341)
+- **CJK 强调格式** - 修复支持 Markdown 的频道消息和 TUI 最终回复中，中日韩标点附近的强调格式无法正确显示的问题 (#8067)
+- **频道响应配置缓存** - 修复配置缓存经序列化后类型丢失导致回复无法发送的问题 (#8564)
+
+**Hub、桌面端与部署**
+- **Hub 网关超时** - 支持配置，默认延长至 600 秒；刷新时保留未保存的策略修改，并显示已过滤敏感信息的上游错误 (#8387, #8399)
+- **桌面端共享服务升级** - 升级后替换仍在后台运行的旧版共享服务；后台服务版本更高时提示使用新版桌面端 (#8430)
+- **Windows 安装器准备** - 修复因 PATH 中找不到 PowerShell 或启动器文件为空而准备失败的问题，并显示实际失败原因 (#8455)
+- **日志轮转** - 修复 Windows 桌面日志无法轮转，以及 macOS、Linux 日志轮转后重定向输出丢失的问题 (#8390)
+- **反向代理子路径** - 修复控制台部署在反向代理子路径下时的路由、资源加载和登录跳转问题 (#8316)
+- **Docker 构建缺少插件前端源码** - 修复构建控制台时缺少共享插件前端源码的问题 (#8450)
+- **桌面自动更新通道** - 自动更新仅使用正式版和 post 修订版，预发布安装包仍可手动下载 (#8575)
+- **视觉压缩资源** - 补齐桌面安装包中的视觉压缩资源，恢复 Visual Compact 功能 (#8514)
+- **Windows 中文路径** - 修复旧版桌面桥接打开工作区 HTML 时路径解码错误的问题 (#8524)
+- **SSE 缓冲** - 为控制台对话流禁用 nginx 缓冲，让收到的事件及时显示 (#8522)
+
+**新贡献者**: Li-john1021、JuampiHernandez、jcs130、Frank-zhu2000、AGImentu、wuwenbo0626、Heipa1、wang-qisen、LingHu01、passionworkeer、xypang33-sketch、pcbeingused333、twotnguyen、lanjinzhoucode、liuxuyang1236、xiong-wei1、wxhking。
+
+#### 对 Docker 部署的影响
+
+> 本节针对本项目（copaw-docker）的自建镜像，官方镜像的对应改动见 `deploy/Dockerfile` 与新增的 `deploy/DEPENDENCY_MAINTENANCE.md`。
+
+1. **频道 SDK 全部移出核心依赖（影响最大）**
+   - `discord-py`、`lark-oapi`、`python-telegram-bot`、`matrix-nio`、`dingtalk-stream`、`slack-bolt`、`twilio`、`paho-mqtt`、`wecom-aibot-python-sdk`、`pyVoIP`、`msal`、`PyJWT` 等 41 项依赖被移入新的 `channels` extra（含重复声明）；`full` extra 现包含 `channels`。
+   - 只装基础包时控制台仍可用（`console` 是唯一内置频道），但**首次启用某个频道时会在运行期把该频道的 `requirements.txt` 安装到 `<配置目录>/plugin_runtime/py<X.Y>-<os>-<arch>/site`**，需要外网且耗时；离线或受限网络部署应在构建时使用 `QWENPAW_EXTRAS=channels`（或 `full`）预装。本项目镜像默认已预装（`QWENPAW_INCLUDE_CHANNELS=true`），实测启用 Telegram 时依赖直接从 site-packages 解析、`plugin_runtime` 保持为空。
+   - 官方 `deploy/Dockerfile` 已改为先构建 wheel、再 `uv pip install "<wheel>[channels]"`，并在安装前运行 `scripts/pack/validate_channel_contracts.py`。
+2. **频道改为子进程隔离运行** - 每个启用的官方频道在启用时由独立子进程承载（`src/qwenpaw/app/channels/process_supervisor.py`），配置仍写在 `config.json` / `agent.json`；`config.json` 新增 `channel_plugin_state`（记录 `preset`、legacy 迁移与已卸载清单）。容器内多进程会让内存占用略升。
+3. **依赖协调状态目录** - 默认 `<passwd home>/.qwenpaw/dependency-environments`；若 home 不可写（只读容器、NAS 沙箱）会抛 `DEPENDENCY_STATE_ROOT_UNAVAILABLE`，需设置绝对路径的 `QWENPAW_DEPENDENCY_STATE_DIR`。本项目镜像中 uid 999 的 home 为 `/data/qwenpaw`，实际落在 `/data/qwenpaw/.qwenpaw/dependency-environments`（卷内、可写），默认无需覆盖。
+4. **官方镜像的 Supervisor 维护流程** - 官方镜像新增 `/run/qwenpaw-supervisor.sock`（0600）与 `deploy/DEPENDENCY_MAINTENANCE.md`。共享依赖替换升级会进入 `waiting_restart`，需按文档执行 `supervisorctl stop app` → 运行保留的 `dependency_worker.py` → `supervisorctl start app`。`qwenpaw app` 检测到 `SUPERVISOR_*` 环境变量时不再自行重启，只输出离线操作说明；本项目不用 Supervisor，走普通的 `qwenpaw app` 自动交接路径。
+5. **安装器版本门槛延续** - 插件依赖安装仍要求 `pip >= 26.2.2`（`src/qwenpaw/utils/runtime_environment.py`），缺失时尝试 `ensurepip`。本项目 Dockerfile 已固定 `pip>=26.2.2`，无需额外调整。
+6. **反向代理** - 修复子路径部署（路由/静态资源/登录跳转，#8316）；控制台 SSE 需在 nginx 侧关闭缓冲（`proxy_buffering off`，#8522）。`qwenpaw app` 内部已将 `proxy_headers` 关闭，客户端 IP 由应用层的可信代理逻辑解析。
+7. **镜像构建产物** - 官方 Dockerfile 额外需要 `src/qwenpaw/plugins/frontend`（控制台构建阶段）、`scripts/pack`、`plugins/channel` 与 `MANIFEST.in`（wheel 构建阶段）。
+
+#### 升级提示
+
+- **`qwenpaw update` 新增频道预处理** - 更新流程会在安装新版本后执行 `qwenpaw plugins prepare-upgrade`，为“已持久启用”的频道准备依赖；该步骤返回非零时更新以失败退出，命令会列出失败的频道及原因码。
+- **Python 要求不变** - 仍为 `>=3.11, <3.14`；`.nvmrc` 仍为 `22.23.4`（v2.2.2.post1 引入的 Node 下限未变）。
+- **Agentscope / ReMe 版本** - `agentscope[model-ollama,classifier-jev]==2.0.10`（新增 `classifier-jev`）；`reme-ai==0.4.2.0`、`reme-auto-fin==0.1.3`、`reme-daily-paper==0.1.3`。
+- **新增核心依赖** - `PyJWT[crypto]>=2.8`、`filelock>=3.13`、`markdown-it-py>=3.0.0,<5`。
+
+---
 
 ### v2.2.2.post1 (2026-10-22)
 
@@ -2807,21 +3006,24 @@ pip install qwenpaw
 
 #### 可选扩展 (extras)
 
-v2.2.2 起可用的 `pip install 'qwenpaw[<extra>]'` 扩展：
+v2.3.0 起可用的 `pip install 'qwenpaw[<extra>]'` 扩展：
 
 | extra | 内容 |
 |-------|------|
+| `channels` | **v2.3.0 新增**：所有官方频道 SDK（钉钉/飞书/QQ/Discord/Telegram/Slack/Matrix/企业微信/元宝/MQTT/Twilio/SIP 等 40 余项依赖）。不装时频道会在首次启用时于运行期下载安装 |
 | `local` | `huggingface_hub`，支持从 Hugging Face 下载本地模型 |
 | `hub` | `docker` SDK，用于 QwenPaw Hub 本地运行容器 |
 | `whisper` | `openai-whisper`，本地语音转写 |
 | `codex` | Codex ACP Agent 支持 |
 | `qoder` | Qoder ACP Agent 支持 |
-| `qwenpaw-data` | QwenPaw Data 0.3.x 全套组件 |
+| `qwenpaw-data` | QwenPaw Data 0.3.3 全套组件 |
 | `sip` / `sip-livekit` | SIP 语音频道的开发 / 生产后端（LiveKit 含 `sip`） |
-| `full` | 上述 `qwenpaw-data`、`hub`、`local`、`whisper`、`codex`、`qoder` 合集 |
+| `full` | `channels` + `qwenpaw-data`、`hub`、`local`、`whisper`、`codex`、`qoder` 合集 |
 | `dev` / `test` | 开发与测试依赖 |
 
 > **注**：`llamacpp`、`mlx` 扩展在 v1.1.3 已移除；`ollama` 自 v2.0.0 起通过 `agentscope[model-ollama]` 内置，均不再是 extras。
+>
+> **v2.3.0 频道依赖变更**：`discord-py`、`lark-oapi`、`python-telegram-bot`、`matrix-nio`、`dingtalk-stream`、`slack-bolt`、`twilio`、`paho-mqtt`、`wecom-aibot-python-sdk`、`pyVoIP`、`msal`、`PyJWT`、`cryptography` 等已不再随核心包安装。仅装 `qwenpaw` 时 `console` 频道仍可用（唯一内置频道），其他频道启用时按需安装到 `<配置目录>/plugin_runtime/<py平台>/site`。Docker 构建请显式加 `QWENPAW_EXTRAS=channels`（或 `full`）；本项目镜像通过 `QWENPAW_INCLUDE_CHANNELS`（默认 `true`）自动预装。
 
 #### 方式三：桌面应用 (v0.0.6 新增，v1.1.9 新增 Tauri 版)
 
@@ -2898,7 +3100,7 @@ qwenpaw app --host 0.0.0.0 --port 9090
 # 代码改动自动重载（开发用）
 qwenpaw app --reload
 
-# 多 worker 模式
+# 多 worker 模式（已废弃：QwenPaw 固定单 worker，--workers 仅打印警告）
 qwenpaw app --workers 4
 
 # 详细日志
@@ -2924,10 +3126,14 @@ qwenpaw daemon logs [-n N]  # 最近 N 行日志（默认 100）
 ### 验证安装
 
 ```bash
-curl -N -X POST "http://localhost:8088/api/agent/process" \
-  -H "Content-Type: application/json" \
-  -d '{"input":[{"role":"user","content":[{"type":"text","text":"你好"}]}],"session_id":"session123"}'
+# 就绪探针（v2.0.0.post1+）：启动中返回 503，就绪返回 200
+curl -f http://localhost:8088/api/healthz
+
+# 版本信息
+qwenpaw daemon version
 ```
+
+> **注**：旧的 `POST /api/agent/process` 验证接口已在 v2.0.0 移除，现在对话走 `POST /api/console/chat`（流式）或 `POST /api/console/chat/task`（后台任务）。
 
 ---
 
@@ -2950,6 +3156,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 │       ├── drivers/          # 外部能力驱动卡（MCP/ACP 等，v2.0.0+ 取代旧 mcp_clients/）
 │       ├── credentials.yaml  # 驱动/邮箱加密凭据（v2.2.0+）
 │       ├── history.db        # 滚动上下文工作历史（SQLite，每个工作区一份，v2.0.0+）
+│       ├── channel_state/    # 频道子进程状态（v2.3.0+，如 Matrix 加密身份与设备密钥、回执库）
 │       └── media/            # 该工作区上传媒体
 ├── HEARTBEAT.md             # 心跳每次要问 QwenPaw 的内容
 ├── jobs.json                # 定时任务列表
@@ -2961,6 +3168,7 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 ├── local_models/            # 本地模型目录（bin/logs/models/tmp，v2.0.0+）
 ├── models/                  # 本地模型数据目录
 ├── plugins/                 # 插件安装目录（`qwenpaw plugin install`）
+├── plugin_runtime/          # 频道插件依赖安装目标（v2.3.0+，按 py<X.Y>-<os>-<arch> 分桶）
 ├── .backups/                # BACKUP_DIR: 备份存储目录
 └── .runtime/                # SECRET_DIR (v0.1.0+)
     ├── providers.json       # LLM 提供商配置
@@ -2968,6 +3176,12 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
     └── auth.json            # Web 认证数据 (v0.1.0+)
 ```
 
+> **v2.3.0 工作目录变化**：
+> - 新增 `plugin_runtime/<py>-<os>-<arch>/site` —— 频道插件运行期依赖的安装目标（官方频道以子进程隔离运行）
+> - 新增 `workspaces/<id>/channel_state/` —— 频道子进程状态（Matrix 加密身份/设备密钥、投递回执库等），**需随工作区一起备份**
+> - `config.json` 新增 `channel_plugin_state` 字段（`version` / `preset` / `legacy_pending` / `legacy_captured` / `uninstalled`），记录频道插件发放与卸载意图
+> - 依赖协调状态目录默认在**启动账户 passwd home** 下的 `.qwenpaw/dependency-environments`（不是 QwenPaw 工作目录；本项目镜像中两者都是 `/data/qwenpaw`，实际落在 `/data/qwenpaw/.qwenpaw/dependency-environments`），可用 `QWENPAW_DEPENDENCY_STATE_DIR` 覆盖
+>
 > **v2.0.0 工作目录变化**：
 > - 新增 `history.db`（SQLite）—— 滚动上下文工作历史，含 FTS5 全文搜索和驱逐索引，默认 30 天保留，启动时自动导入现有会话
 > - `memory/` 改由 ReMe v0.4.0 后端管理，支持 `none` 后端完全禁用记忆系统
@@ -2993,6 +3207,9 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 
 ### 支持的频道
 
+> **v2.3.0 起除 `console` 外，所有官方频道均以插件形式交付并子进程隔离运行**（#8187）。频道定义源在 `plugins/channel/`，随 wheel 以 `qwenpaw/official_channels/*.zip` 打包，按需播种到 `plugins/` 目录；启用时才由独立子进程承载，依赖装到 `plugin_runtime/`。下表「说明/凭据字段」仍适用于对应频道。<br>
+> 频道是否启用仍写在 `config.json` / `agent.json` 的 `channels.<key>` 中；插件的安装/卸载状态另记在 `channel_plugin_state`。
+
 | 频道 | 说明 | 凭据字段 |
 |------|------|----------|
 | **dingtalk** | 钉钉 | `client_id`, `client_secret`, `open`, `allow_from` (v0.0.5+) |
@@ -3002,19 +3219,27 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | **imessage** | macOS iMessage | `db_path`, `poll_sec` |
 | **telegram** | Telegram 机器人 | `bot_token` (v0.0.5+ 支持 CLI 配置) |
 | **wecom** | 企业微信 (v0.1.0 新增) | 企业微信 AI Bot SDK 配置 |
-| **wechat-ilink** | 微信 iLink Bot (v1.0.0 新增) | iLink Bot API 配置 |
-| **onebot-v11** | OneBot v11 / NapCat QQ (v1.0.1 新增) | 反向 WebSocket 服务器配置，支持个人账号和群消息 |
+| **wechat** | 微信 iLink Bot (v1.0.0 新增) | iLink Bot API 配置 |
+| **onebot** | OneBot v11 / NapCat QQ (v1.0.1 新增) | 反向 WebSocket 服务器配置，支持个人账号和群消息 |
 | **xiaoyi** | 小艺 (v0.1.0 新增) | 华为 A2A 协议配置 |
 | **yuanbao** | 腾讯元宝 (v1.1.10 新增) | 腾讯元宝 Bot API 配置 |
 | **slack** | Slack (v2.0.0 新增) | 完整频道实现，含多模态附件、话题回复和流式输出 |
 | **azure-bot** | Azure Bot (v2.0.0 新增，插件) | Azure Bot 频道作为插件，含 i18n/自定义图标/doc_url 支持 |
 | **mqtt** | MQTT 消息队列 (v0.0.6 新增) | `host`, `port`, `transport`, `qos`, `subscribe_topic`, `publish_topic` |
-| **twilio voice** | Twilio 语音 (v0.0.5 新增) | `account_sid`, `auth_token`, `phone_number` |
+| **twilio** | Twilio 语音 (v0.0.5 新增) | `account_sid`, `auth_token`, `phone_number` |
 | **sip** | SIP 语音 (v1.1.4 新增) | SIP 配置，双模式后端（pyVoIP 开发 / LiveKit 生产） |
 | **mattermost** | Mattermost (v0.0.7 新增) | `url`, `token`, `team_name` |
-| **matrix** | Matrix 协议 (v0.0.7 新增) | `homeserver`, `user_id`, `access_token`；v2.0.0 支持就地编辑流式 |
-| **console** | 控制台 | （只需开关） |
+| **matrix** | Matrix 协议 (v0.0.7 新增；v2.3.0 随频道安装端到端加密依赖) | `homeserver`, `user_id`, `access_token`；v2.0.0 支持就地编辑流式，v2.3.0 修复会话恢复与设备密钥丢失 |
+| **console** | 控制台（v2.3.0 起为**唯一内置频道**） | （只需开关） |
 
+> **频道 key 以配置为准**：`config.json` 中使用的键为 `telegram`、`slack`、`discord`、`mqtt`、`mattermost`、`dingtalk`、`feishu`、`qq`、`wecom`、`yuanbao`、`xiaoyi`、`wechat`、`matrix`、`imessage`、`onebot`、`azure_bot`、`voice`、`sip`、`console`（共 19 个，见 `src/qwenpaw/plugins/official_channel_catalog.py`）。`QWENPAW_ENABLED_CHANNELS` / `QWENPAW_DISABLED_CHANNELS` 也要用这些键名。
+
+> **v2.3.0 频道架构变化**：
+> - **频道插件化** — 除 `console` 外的 18 个官方频道（telegram/slack/discord/mqtt/mattermost/dingtalk/feishu/qq/wecom/yuanbao/xiaoyi/wechat/matrix/imessage/onebot/azure_bot/voice/sip）改为插件，启用时启动独立子进程
+> - **两种发放预设** — `config.json` 的 `channel_plugin_state.preset` 取 `light`（默认，仅播种历史已启用的频道）或 `channels-full`（全部播种）。可用 `qwenpaw plugins preset apply light|channels-full` 切换；安装脚本在 `--extras` 含 `channels`/`full` 时自动应用 `channels-full`。官方镜像通过 `QWENPAW_CHANNEL_PRESET` 环境变量指定（默认 `light`）
+> - **依赖按需安装** — 各频道的 `requirements.txt` 在启用/preflight 时安装到 `plugin_runtime/`，见上文 extras 说明
+> - **环境变量过滤仍有效** — `QWENPAW_ENABLED_CHANNELS`（白名单）与 `QWENPAW_DISABLED_CHANNELS`（黑名单，官方镜像默认排除 `imessage`）在频道发放与升级准备阶段同样生效
+>
 > **v2.0.0 频道增强**：
 > - **钉钉私有化部署** — `api_endpoint` 配置用于本地钉钉实例
 > - **Telegram 自定义 Base URL** — `api_base_url` 用于自托管 Telegram Bot API 服务器
@@ -3056,6 +3281,43 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 
 ---
 
+## 关键环境变量
+
+> 以下为部署相关的环境变量；模型 API Key **不支持**通过环境变量配置，需在控制台或 `qwenpaw models config` 中设置。
+
+### 频道与插件（v2.3.0 相关）
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `QWENPAW_ENABLED_CHANNELS` | （空） | 频道白名单（逗号分隔）；设置后只有这些频道生效，优先级高于黑名单 |
+| `QWENPAW_DISABLED_CHANNELS` | （空） | 频道黑名单（逗号分隔）；官方镜像默认 `imessage` |
+| `QWENPAW_CHANNEL_PRESET` | `light` | 频道插件发放预设：`light`（仅历史已启用）或 `channels-full`（全部）。写入 `channel_plugin_state.preset`，仅首次初始化时生效 |
+| `QWENPAW_DEPENDENCY_STATE_DIR` | `<home>/.qwenpaw/dependency-environments` | 依赖协调状态根目录（锁、读租约、维护标记、升级记录）。必须是**绝对路径**；home 不可写的只读容器/NAS 沙箱必须显式设置，否则启动报 `DEPENDENCY_STATE_ROOT_UNAVAILABLE` |
+| `QWENPAW_SHELL_MEMORY_LIMIT_MB` | `0` | Shell 内存保护上限（MiB）。`0` 关闭，`auto` 自动，正整数为上限。默认关闭，属于尽力而为的资源保护 |
+
+### 工作目录与部署
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `QWENPAW_WORKING_DIR` | `~/.qwenpaw` | 工作目录（本项目镜像为 `/data/qwenpaw`） |
+| `QWENPAW_SECRET_DIR` | `{WORKING_DIR}.secret` | 敏感配置目录（本项目镜像软链到卷内 `.runtime`） |
+| `QWENPAW_BACKUP_DIR` | `{WORKING_DIR}.backups` | 备份目录（本项目镜像软链到卷内 `.backups`） |
+| `QWENPAW_CONFIG_FILE` | `config.json` | 配置文件名 |
+| `QWENPAW_LOG_LEVEL` | `info` | 日志级别 |
+| `QWENPAW_PORT` | `8088` | 监听端口（`qwenpaw app` 使用 `--host/--port`，本项目入口脚本用它拼命令行） |
+| `QWENPAW_AUTH_ENABLED` | `false` | 是否启用 Web 认证 |
+| `QWENPAW_CORS_ORIGINS` | （空） | 允许的 CORS 来源 |
+
+### 依赖链中的内部变量（一般无需手动设置）
+
+| 变量 | 说明 |
+|------|------|
+| `QWENPAW_RUNTIME_MODE` | `qwenpaw app` 启动时自动设置：有 `QWENPAW_RUNTIME_ID` 时为 `hub`，否则 `standalone` |
+| `SUPERVISOR_ENABLED` / `SUPERVISOR_PROCESS_NAME` / `SUPERVISOR_GROUP_NAME` | 由 Supervisor 注入。存在时 `qwenpaw app` **不**记录自重启命令，改由 Supervisor 管理（官方镜像即此模式） |
+| `QWENPAW_CHANNEL_RUNTIME_MANIFEST` / `QWENPAW_CHANNEL_SUPPORT_ROOT` / `QWENPAW_CHANNEL_DEPENDENCY_PATHS` / `QWENPAW_DESKTOP_PY_RUNTIME` / `QWENPAW_TAURI_RESOURCE_DIR` | 桌面（冻结）构建的频道运行时身份校验，必须成组出现 |
+
+---
+
 ## 模型提供商
 
 ### 内置提供商
@@ -3083,7 +3345,11 @@ curl -N -X POST "http://localhost:8088/api/agent/process" \
 | Aliyun Token Plan (v1.1.6 新增) | `aliyun-token-plan` | （阿里云 Token 计划端点） |
 | Xiaomi MiMo (v1.1.11 新增) | `mimo` | （小米 MiMo Token Plan 端点） |
 | GitHub Models (v2.0.0 新增) | `github-models` | 新 API 端点，支持细粒度 PAT |
+| ChatGPT 订阅 (v2.3.0 新增) | `openai-chatgpt` | `https://api.openai.com/v1`，OAuth 登录订阅账号，无需 API Key（仅本机部署） |
+| TypeSafe / JEV (v2.3.0 新增) | `typesafe` | `https://api.typesafe.ai`，决策模型（`jev-latest`），用于工具审批 |
 | 自定义 | `custom` | （你自己填） |
+
+> **v2.3.0 决策模型（decision model）**：模型目录新增 `model_type="decision"` 类型。除 `typesafe` 外，已下载的 Piccolo 本地模型（4B/9B/27B，BF16/Q8_0/Q4_K_M）在本地模型列表中也标记为 `decision` 类型。决策模型用于工具审批与上下文压缩，默认关闭；`qwenpaw models config` 的模型选择列表已过滤为仅 `chat` 类型（v2.3.0 起），避免误选决策模型作为对话模型。
 
 ### 本地提供商
 
@@ -3222,6 +3488,14 @@ qwenpaw task <prompt>                  # 运行一次性任务，无需 Web 服�
 qwenpaw desktop                        # 打开 QwenPaw 桌面应用窗口
 ```
 
+### ACP Server (v1.1.3 新增)
+
+```bash
+qwenpaw acp                            # 启动 ACP Server
+qwenpaw acp --agent-mode code          # v2.3.0 新增：为新建会话指定初始执行模式
+                                       # 可选 code / goal / mission / custom:<id> / plugin:<name>
+```
+
 ### 频道管理
 
 ```bash
@@ -3229,6 +3503,40 @@ qwenpaw channels list                  # 查看所有频道（密钥脱敏）
 qwenpaw channels config                # 交互式配置
 qwenpaw channels send                  # 向频道发送消息
 # 注：旧版 `channels install/add/remove <key>` 已在 v2.2.0 移除，改用控制台或 plugins 管理自定义频道
+
+# v2.3.0 新增：频道回执核查（未知投递结果的归档与人工核对记录）
+qwenpaw channels receipts --channel dingtalk list --limit 100
+qwenpaw channels receipts --channel dingtalk resolve <handle> --note "已人工确认"
+```
+
+### 插件管理 (v2.3.0 扩充)
+
+```bash
+qwenpaw plugins list                   # 列出已安装插件
+qwenpaw plugins install <source>       # 从本地路径或 URL 安装
+qwenpaw plugins info <plugin_id>       # 查看插件详情
+qwenpaw plugins uninstall <plugin_id>  # 卸载插件
+qwenpaw plugins validate <path>        # 校验插件
+
+# v2.3.0 新增：官方频道发放预设（light / channels-full）
+qwenpaw plugins preset apply light
+qwenpaw plugins preset apply channels-full --offline
+
+# v2.3.0 新增：为已启用的频道预装依赖（qwenpaw update 会自动调用）
+qwenpaw plugins prepare-upgrade
+
+# v2.3.0 新增：共享依赖替换升级的人工维护流程
+qwenpaw plugins dependency-upgrade status <operation_id>
+qwenpaw plugins dependency-upgrade apply <operation_id>
+qwenpaw plugins dependency-upgrade cancel <operation_id>
+```
+
+### 历史库维护 (v2.3.0 新增)
+
+```bash
+# 检查历史数据库完整性（需先停止对应 Agent）
+qwenpaw history check <path/to/history.db>
+qwenpaw history check <path/to/history.db> --repair-fts   # 重建损坏的 FTS 索引
 ```
 
 ### 定时任务
@@ -3272,8 +3580,11 @@ qwenpaw approval                       # 管理工具调用审批（Tool Guard�
 | `/approve` | 批准被阻止的工具调用（TUI 中内联可用） | v0.0.7 |
 | `/deny` | 拒绝工具调用（TUI 中内联可用） | v0.0.7 |
 | `/reme` | 记忆命令统一入口：`/reme <action> key=value`（取代 `/dream`、`/memorize`、`/reme_status`） | v2.2.2 |
+| `/advisor` | 顾问模式：`/advisor <任务>`、`/advisor on`、`/advisor off`、`/advisor status` | v2.3.0 |
 | `/data` | QwenPaw Data 数据分析命令（需安装 QwenPaw Data） | v2.2.2 |
 | `/datasource` | QwenPaw Data 数据源命令（需安装 QwenPaw Data） | v2.2.2 |
+
+> **v2.3.0 `/model` 语义变化** - `/model <provider>:<model>` 现在修改的是 **Agent 默认模型**，不再覆盖当前会话；已有会话级模型覆盖的会话会保留原选择，需在会话模型选择器中清除覆盖才会继承。`/model` 与 **[ACTIVE]** 标记显示的是叠加会话/请求级覆盖后生效的模型。
 
 ### 会话管理
 
@@ -3294,7 +3605,13 @@ qwenpaw skills info                    # 查看技能详情 (v1.1.2 新增)
 qwenpaw skills test                    # 验证技能内容和运行安全扫描 (v1.1.6 新增)
 qwenpaw skills install                 # 安装技能 (v1.1.5.post2 新增)
 qwenpaw skills uninstall               # 卸载技能 (v1.1.5.post2 新增)
+
+# v2.3.0：install 支持本地目录，并可用 --workspace 指定目标工作区
+qwenpaw skills install ./my_skill --agent-id abc123
+qwenpaw skills test ./my_skill --workspace /path/to/workspace --json   # --json 返回结构化结果
 ```
+
+> **v2.3.0 变更**：`skills install` 现在可直接接收**本地技能目录**（此前只有 URL）；`install` 与 `test` 支持 `--workspace PATH`（不能与 `--agent-id` / `--pool` 同时使用）与 `--json`（含 `ok` 字段，失败返回非零退出码）。本地目录安装不会覆盖已有技能。安全扫描遵循 `security.skill_scanner.mode`，可用 `QWENPAW_SKILL_SCAN_MODE` 覆盖。
 
 ---
 
@@ -3340,8 +3657,8 @@ docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working agentscope/qwenpa
 ```
 
 > **注**：本项目（copaw-docker）与官方镜像的主要区别在于：
-> - 官方镜像：由 AgentScope 团队维护，简单直接
-> - 本项目：增加了更多自动化功能（自动初始化、健康检查）、工作流测试、镜像发布等
+> - 官方镜像：由 AgentScope 团队维护，简单直接。v2.3.0 起构建流程为：构建 wheel → `validate_channel_contracts.py` 校验 → 安装 `qwenpaw[channels]`；运行时用 Supervisor 管理，并新增 `/run/qwenpaw-supervisor.sock`（0600）用于共享依赖升级的停/装/启流程（见 `deploy/DEPENDENCY_MAINTENANCE.md`）
+> - 本项目：增加了更多自动化功能（自动初始化、健康检查）、工作流测试、镜像发布等，直接 `pip install` 而非构建 wheel，不使用 Supervisor
 
 ---
 

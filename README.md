@@ -186,6 +186,7 @@ copaw-data:/
     ├── local_models/          # 本地模型目录（含 bin/logs/models/tmp，v2.0.0+）
     ├── models/                # 本地模型数据目录
     ├── plugins/               # 插件安装目录（`qwenpaw plugin install`）
+    ├── plugin_runtime/        # 频道插件依赖安装目标（v2.3.0+，按 py<X.Y>-<os>-<arch> 分桶）
     ├── workspaces/            # 多代理工作区目录（v0.1.0+）
     │   └── default/           # 默认代理工作区
     │       ├── agent.json     # 代理配置
@@ -198,6 +199,7 @@ copaw-data:/
     │       ├── drivers/       # 外部能力驱动卡（MCP/ACP 等，v2.0.0+ 取代旧 mcp_clients/）
     │       ├── credentials.yaml   # 驱动/邮箱加密凭据（v2.2.0+）
     │       ├── history.db     # 滚动上下文工作历史（SQLite + FTS5，每个工作区一份，v2.0.0+）
+    │       ├── channel_state/ # 频道子进程状态（Matrix 加密身份/设备密钥、投递回执，v2.3.0+）
     │       └── media/         # 该工作区上传媒体
     ├── chats.json             # 会话列表
     ├── config.json            # 根配置文件（包含代理引用，v0.1.0+）
@@ -209,6 +211,8 @@ copaw-data:/
 > **v0.1.0 多工作区迁移**：现有配置会在首次启动时自动迁移到新的多工作区架构。
 >
 > **v2.0.0 工作目录变化**：新增 `history.db`（SQLite 滚动上下文，默认 30 天保留，启动时自动导入现有会话）；`memory/` 改由 ReMe v0.4.0 后端管理；记忆写入改为按轮次中间件执行，不再绑定到会话关闭。
+>
+> **v2.3.0 工作目录变化**：新增 `plugin_runtime/`（频道插件依赖目标，本镜像已预装 `channels`）与 `workspaces/<id>/channel_state/`（频道子进程状态，如 Matrix 加密身份与投递回执，**备份时请一并包含**）；`config.json` 新增 `channel_plugin_state` 字段。
 
 ---
 
@@ -347,9 +351,23 @@ docker compose exec qwenpaw qwenpaw doctor fix          # 自动修复问题
 
 # ACP Server（v1.1.3+）
 docker compose exec qwenpaw qwenpaw acp                # 启动 ACP Server
+docker compose exec qwenpaw qwenpaw acp --agent-mode code  # 指定新建会话的初始执行模式（v2.3.0+）
 
 # QwenPaw Hub（v2.2.0+，需 qwenpaw[hub]）
 docker compose exec qwenpaw qwenpaw hub                # 启动多用户 Hub 服务
+
+# 频道插件与依赖（v2.3.0+）
+docker compose exec qwenpaw qwenpaw plugins preset apply channels-full  # 发布全部官方频道源码
+docker compose exec qwenpaw qwenpaw plugins preset apply light          # 仅发布历史已启用的频道
+docker compose exec qwenpaw qwenpaw plugins prepare-upgrade             # 为已启用频道预装依赖
+docker compose exec qwenpaw qwenpaw plugins dependency-upgrade status <operation_id>  # 共享依赖升级维护
+
+# 历史库维护（v2.3.0+，需先停止对应 Agent）
+docker compose exec qwenpaw qwenpaw history check /data/qwenpaw/workspaces/default/history.db
+docker compose exec qwenpaw qwenpaw history check /data/qwenpaw/workspaces/default/history.db --repair-fts
+
+# 频道回执核查（v2.3.0+）
+docker compose exec qwenpaw qwenpaw channels receipts --channel dingtalk list --limit 100
 ```
 
 ---
@@ -377,6 +395,8 @@ docker compose exec qwenpaw qwenpaw hub                # 启动多用户 Hub 服
   - `providers.json` - LLM 提供商配置
 - `memory/` - Agent 记忆文件（v2.0.0+ 由 ReMe v0.4.0 后端管理）
 - `media/` - 频道媒体默认目录（v2.0.0+）
+- `plugins/` - 插件安装目录（含 v2.3.0 起自动发布的官方频道插件源码）
+- `plugin_runtime/` - 频道插件依赖安装目标（v2.3.0+）
 - `workspaces/default/` - 默认代理工作区（v0.1.0+）
   - `active_skills/` - 当前激活的技能
   - `customized_skills/` - 用户自定义技能
@@ -384,6 +404,7 @@ docker compose exec qwenpaw qwenpaw hub                # 启动多用户 Hub 服
   - `drivers/` - 外部能力驱动卡（MCP/ACP 等，v2.0.0+ 取代旧 mcp_clients/）
   - `credentials.yaml` - 驱动/邮箱加密凭据（v2.2.0+）
   - `history.db` - 滚动上下文工作历史（SQLite，每个工作区一份，v2.0.0+）
+  - `channel_state/` - 频道子进程状态（Matrix 加密身份/设备密钥、投递回执，v2.3.0+）
   - `AGENTS.md` - 详细的工作流程、规则和指南
   - `PROFILE.md` - 身份和用户画像
   - `SOUL.md` - 核心身份与行为原则
@@ -516,6 +537,26 @@ docker compose restart
 - **Node.js 版本**: 24.x LTS（用于 MCP 功能）
 - **工作目录**: `/data/qwenpaw`
 - **运行用户**: `qwenpaw`（非 root）
+- **预装扩展**: `channels`（v2.3.0+，频道 SDK 全部内置）
+
+构建参数：
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `QWENPAW_VERSION` | `latest` | QwenPaw 版本 |
+| `QWENPAW_EXTRAS` | （空） | 额外扩展，逗号分隔，如 `local,hub,qwenpaw-data` |
+| `QWENPAW_INCLUDE_CHANNELS` | `true` | 是否预装 `channels` 扩展。设为 `false` 可减小镜像（实测解压后小 147MB、镜像层约小 13MB），但启用频道时需联网安装依赖 |
+
+```bash
+# 默认构建（含频道支持）
+docker build -t qwenpaw:latest .
+
+# 带本地模型支持
+docker build --build-arg QWENPAW_EXTRAS=local -t qwenpaw:local .
+
+# 极简镜像（不预装频道 SDK）
+docker build --build-arg QWENPAW_INCLUDE_CHANNELS=false -t qwenpaw:slim .
+```
 
 ---
 
@@ -523,47 +564,51 @@ docker compose restart
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v2.2.2.post1 更新（最新，2026-10-22）
+### v2.3.0 更新（最新，2026-11-11）
 
-> 补丁版本，只含两项安全修复，无功能性变更。官方镜像内的 Node.js 与 Python 依赖证书库均有更新。
-
-#### 安全修复
-- **Node.js 升级至 22.23.4** — 修复 Brotli 解码器越界写导致的远程代码执行（CVE-2026-111497，高危）与 keep-alive 套接字响应错序（CVE-2026-105481，中危）(#8371)。官方将 `.nvmrc` 作为 Node 版本唯一来源，Docker 构建在 Node 版本不匹配时直接失败，`NODE_IMAGE` 默认改为 `node:22.23.4-slim`
-- **emSign/eMudhra 中间 CA 信任整改** — Python 依赖新增 `certifi>=2026.10.19`，安装脚本、插件依赖安装与镜像构建均强制该下限；安装与自更新要求 `pip>=26.2.2`、`uv>=0.13.4`，低于下限会被拒绝并提示升级 (#8370)
-
-#### 对本项目镜像的影响
-- 官方 `deploy/Dockerfile` 已移除 `python3-pip`、补充 `ca-certificates` 并执行 `update-ca-certificates`，同时在准备 Python 运行时后升级 `pip` 与 `certifi`
-- 本项目 Dockerfile 原先装出的镜像里 `pip` 为 26.2.1、`certifi` 为 2026.07.22，**均低于新下限**；由于 v2.2.2.post1 的插件依赖安装会校验 `pip>=26.2.2`，不升级会导致插件依赖装不上。现已在 Dockerfile 的 `uv pip install` 中同时安装 `"pip>=26.2.2"` 与 `"certifi>=2026.10.19"`，构建后实测 `pip 26.2.2` / `certifi 2026.10.19`，`require_pip`、`require_uv` 校验均通过
-
-> 完整 changelog：官方 [v2.2.2...v2.2.2.post1](https://github.com/agentscope-ai/QwenPaw/compare/v2.2.2...v2.2.2.post1)。
-
----
-
-### v2.2.2 更新（2026-10-15）
-
-> 新增主题调色板与聊天内终端、PawPort 跨 Harness 迁移导入、Hub 模型网关，并将记忆命令统一为 `/reme`。
+> **重大版本**。核心变化是**频道全面插件化并改为子进程隔离运行**，所有频道 SDK 也从核心依赖中移出。本项目镜像已相应预装 `channels` 扩展，频道开箱即用。
 
 #### 新增
-- **控制台/工作区** — 六套主题调色板与自定义颜色/圆角（实时预览）(#7741)；聊天内需认证的多标签终端、每会话独立工作目录 (#7861)；控制台字号 12–20px 可调 (#8005)；多文件夹工作区可设为 Agent 默认 (#7789)；Agent 交付文件直接显示在回复下方 (#7750)
-- **PawPort** — 从 Codex 和 Qoder 导入会话、记忆、技能、插件、MCP 设置、项目与定时任务，含兼容性检查与选择性重试 (#6960)
-- **Creator 2.0.1 / Data 0.3.0** — Creator 媒体生产前可审查脚本、手动重生成不触发付费下游步骤、可恢复停滞项目 (#8121)；Data 集成分析工作区、交互式澄清、内联 HTML 报告，新增 `/data` 与 `/datasource` 命令 (#7637)
-- **模型/记忆** — 统一模型发现、定价与选择，新增候选模型池与按会话模型/思考控制 (#7899)；单对话框配置自定义提供商 (#7826)；控制台可配置 ReMe 搜索重排序 (#6399)
-- **Hub** — 新增 Hub 模型网关（集中管理组织模型、成员 Token 预算、用量看板、邀请注册）(#7779)；支持从 CLI 初始化首个 Hub 管理员（含纯本地部署）(#7696)
-- **技能/工具/自动化/频道** — 新增 `view_audio` 音频理解工具 (#8083)；定时任务支持纯文本指令+指定模型、中断保留历史、收件箱查看超时结果 (#7776)；技能批量分发到工作区 (#7852)；技能可分配至自定义频道 (#7782)；技能市场源可作为插件装卸 (#8128)；飞书可折叠思考面板 (#7685)；Telegram Markdown 表格渲染为 Rich Messages (#7713)
-- **本地模型** — 本地推荐 QwenPaw-Flash 9B/27B/35B-A3B (#8155)
+- **Piccolo 本地决策模型** — 新增 4B/9B/27B 三档本地决策模型，用于工具审批与上下文压缩，提供 BF16/Q8_0 推荐配置，支持 Hugging Face 或 ModelScope 下载源。审批与压缩需单独启用，本地运行时每次只跑一个模型 (#8463, #8573)
+- **Advisor Mode** — 顾问模型与执行模型协作：开始前制定计划，执行中可按需咨询，工具连续失败时调整计划 (#7569)；新增 `/advisor` 聊天命令
+- **Python Code Mode（实验性）** — 可在一段脚本中组合已启用工具，支持并发调用与按序输出文本/媒体。工具仍遵循原有权限检查，且**不会**自动开启沙箱 (#8224)
+- **ChatGPT 订阅登录** — 本机部署可登录 ChatGPT 订阅账号，无需 Platform API Key 即可选用账号可用模型 (#8437)
+- **决策模型审批** — 新增独立于对话模型的 TypeSafe/JEV 决策模型配置，用于辅助工具审批；明确禁止的操作仍被拦截，判断不确定或服务失败时转人工审批 (#8205, #8283, #8360)
+- **ReMe 0.4.2.0** — 支持图片记忆、自动标签与按标签检索；图片记忆、自动打标、决策压缩默认关闭 (#8347)；新增 OpenViking 记忆插件 (#7613)
+- **控制台/桌面** — 社区帖子浏览与评论 (#7903)；可选 OpenUI 插件在回复中渲染交互式表单 (#8239, #8248)；收件箱"仅看未读"筛选 (#8484)；桌面多窗口共享后台服务 (#8373)；审批/回复完成/后台任务的浏览器与桌面通知 (#8504)
+- **工具与频道** — 新增 Firecrawl 搜索提供商 (#8200)、Tavily 可选 API Key (#8204)、可选 Shell 内存保护 (#8574)、插件深浅色主题配色 (#8422)、Matrix 加密依赖随频道安装 (#8559)
 
 #### 变更
-- 记忆命令统一为 `/reme <action> key=value`，取代 `/dream`、`/memorize`、`/reme_status` (#7444)
-- 会话历史重设计（按时间/来源/不分组视图、复制会话 ID），会话列表默认按来源分组 (#7665, #7688, #7788, #7846, #7972)；聊天文件抽屉移至右侧 (#7704)
-- 视觉压缩仅作用于较早历史并保留最近两个用户轮次，可用 `recall_context` 检索原文 (#7703)；避免每请求全量历史库检查以降低长对话延迟 (#7639)
-- 控制台按需加载聊天依赖与语言资源减少初始下载 (#7829)；后台工具输出仅在任务面板展开时流式 (#7831)；Make Skill 升级至 2.1 (#7753)；改进模型设置与设置导航/搜索 (#8017, #7956)
+- **官方频道插件化** — 除 `console` 外的官方频道改为插件，启用时启动独立子进程，已有频道配置保留 (#8187)
+- **频道 SDK 移出核心依赖** — 41 项频道依赖移入新的 `channels` extra，`full` 现包含 `channels`
+- **`/model` 语义变化** — `/model` 切换/重置现在改的是 **Agent 默认模型**，不再覆盖当前会话；已有会话模型覆盖的会话需在选择器中清除覆盖才会继承
+- **搜索默认值** — 未保存搜索提供商时默认使用 AnySearch (#8536)
+- **插件装卸加速** — 安装/更新/移除插件不再重建所有活动工作区，失败时回滚旧版本 (#7565)
+- **历史库连接复用** — 同工作区内复用连接，降低每次请求开销 (#8482)
+- **安装器版本要求延续** — 更新应用或安装插件仍要求 `pip>=26.2.2` 或 `uv>=0.13.4` (#8391)
 
-#### 修复
-- **控制台/聊天/文件** — HTTP 部署下终端标签可用 (#8144, #8146)；恢复历史后保留 Agent 文件 (#7949)；排队消息绑定原 Agent 与会话 (#7382)；停止回复后正确标记中断的工具调用 (#7345)；`/compact` 在当前会话执行 (#7834)；粘贴长文本保留草稿 (#8119)；慢网络加载改进 (#7917)；限制后台轮询保持模型选择器响应 (#8221)；恢复越南语与巴西葡语选择 (#7752)
-- **模型/运行时/安全** — 保留 EXIF 照片方向 (#8136)；遵循提供商解析的上下文窗口避免过早压缩 (#7652)；模型拒绝图片/媒体载荷后恢复会话 (#8010)；按模型能力过滤历史图片 (#8190)；更早回收旧媒体与工具结果 (#7965, #8193)；阻止 Windows 控制台事件终止服务 (#7910)；容器/服务中查找用户命令行工具 (#7057)；处理压缩的 MCP 错误响应 (#7787)；限制主密钥文件权限 (#7699)；技能名安装路径校验 (#8065)
-- **记忆/Hub/部署** — 修复损坏的历史搜索索引并恢复保留清理 (#7655)；加强历史库写入/备份/恢复 (#6459)；优雅关闭等待待处理记忆任务 (#7760)；修复 Hub 本地运行时与持久化工作区 (#7833)；Hub 事务后关闭数据库连接 (#8038)；Docker 与桌面统一 Python 运行时 (#7751)
+#### 破坏性变更
+- **移除旧版工作区 ZIP 上传/下载 API** — 旧接口可能覆盖使用中的 `history.db`。工作区备份请改用"备份与恢复"；普通文件传输与项目 ZIP 导入不受影响 (#8508)
+- **内置工具 `lsp` / `ast_search` 已移除** — 依赖 `python-lsp-server`、`ast-grep-cli`、`html2text` 一并删除；已保存配置中的这两项会自动清理
+- **频道 SDK 不再随核心包安装** — 见下方"对本项目镜像的影响"
 
-> 完整 changelog：官方 [v2.2.1...v2.2.2](https://github.com/agentscope-ai/QwenPaw/compare/v2.2.1...v2.2.2)，含 11 位新贡献者。
+#### 修复（部分）
+- **控制台/聊天** — 按会话保存草稿并避免响应删除新输入 (#8362, #8272)；会话直达链接可切到正确 Agent (#8209)；修复切换会话时行内插件提交串会话 (#8330)；修复思考强度滑块显示与保存竞态 (#8287)；清空会话后 `/clear`、`/new` 不再回到对话 (#8600)；限制超大工具输出以改善慢网络加载 (#8229)
+- **模型/运行时** — 统一使用会话生效模型做压缩、容量显示、标题生成 (#8465)；历史媒体过大时移除旧媒体后恢复执行 (#8395)；内联媒体总大小限制并优先保留新媒体 (#8034, #8066)；ACP 长任务保持连接不丢结果 (#8327)；兼容返回 HTTP 422 的旧版 MCP 服务 (#8051)
+- **记忆/历史** — 自动记忆召回不再泄漏到可见对话与频道消息 (#7835)；备份时为使用中的 SQLite 生成快照，并新增历史检查与索引修复命令 (#8541)；修复 Windows 长路径/网络路径导致历史库失败 (#8587)
+- **频道** — Matrix 会话恢复与设备密钥持久化，按身份隔离加密存储 (#8558, #8584)；钉钉长回复按 Markdown 分段发送 (#8341)；修复 CJK 标点附近强调格式 (#8067)
+- **部署** — 修复反向代理子路径下的路由/资源/登录跳转 (#8316)；控制台对话流禁用 nginx 缓冲 (#8522)；Docker 构建补齐共享插件前端源码 (#8450)
+
+> 完整 changelog：官方 [v2.2.2...v2.3.0](https://github.com/agentscope-ai/QwenPaw/compare/v2.2.2...v2.3.0)，含 17 位新贡献者。
+
+#### 对本项目镜像的影响
+
+- **镜像默认预装 `channels` 扩展** — Dockerfile 新增构建参数 `QWENPAW_INCLUDE_CHANNELS`（默认 `true`），会在 `QWENPAW_EXTRAS` 前自动拼接 `channels`。这样频道 SDK 全部内置，首次启用频道时**不会**联网安装依赖（实测启用 Telegram 时直接从 site-packages 解析依赖，`plugin_runtime/` 保持为空）。固定旧版本（< 2.3.0）时会自动跳过该 extra，避免装出无频道支持的镜像而不提示。如需极简镜像可设 `--build-arg QWENPAW_INCLUDE_CHANNELS=false`（实测解压后小 147MB、镜像层仅小约 13MB，因纯 Python wheel 压缩率高；但启用频道需外网）
+- **频道发放预设改为 `channels-full`** — 入口脚本默认设置 `QWENPAW_CHANNEL_PRESET=channels-full`（官方镜像默认 `light`），启动时即把所有官方频道源码发布到 `plugins/`，控制台里可直接启用任意频道，无需等待安装。依赖已预装，因此这一步只复制源码、开销很小。如希望与官方行为一致可设 `QWENPAW_CHANNEL_PRESET=light`
+- **工作目录新增 `plugin_runtime/`** — 频道插件运行期依赖的安装目标（本镜像已预装，通常为空或仅含少量运行时依赖）
+- **工作区新增 `channel_state/`** — 频道子进程状态（Matrix 加密身份/设备密钥、投递回执库等），**请随工作区一并备份**
+- **数据卷升级兼容** — 已有 `config.json` 不受影响，升级后原频道配置继续生效；`channel_plugin_state` 字段会在首次启动时自动补齐
+- **无需改动健康检查** — 仍使用 `/api/healthz`（启动中就返回 503）
 
 ---
 

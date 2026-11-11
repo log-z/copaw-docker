@@ -1,13 +1,19 @@
 # ==================== QwenPaw Docker 镜像 ====================
 #
 # 构建参数说明:
-#   QWENPAW_VERSION  - QwenPaw 版本 (默认: latest)
-#   QWENPAW_EXTRAS   - 可选扩展，用逗号分隔 (例如: local,hub,qwenpaw-data,whisper,codex,qoder,sip,sip-livekit)
-#                      注意: 自 v2.0.0 起 ollama 已内置(经 agentscope[model-ollama])，不再是 extras；
-#                            llamacpp/mlx 已在旧版本移除。
+#   QWENPAW_VERSION          - QwenPaw 版本 (默认: latest)
+#   QWENPAW_EXTRAS           - 额外可选扩展，用逗号分隔
+#                              (例如: local,hub,qwenpaw-data,whisper,codex,qoder,sip,sip-livekit)
+#                              注意: 自 v2.0.0 起 ollama 已内置(经 agentscope[model-ollama])，不再是 extras；
+#                                    llamacpp/mlx 已在旧版本移除。
+#   QWENPAW_INCLUDE_CHANNELS - 是否预装 channels 扩展 (默认: true)
+#                              v2.3.0 起所有官方频道 SDK 移出核心依赖，改为 channels extra。
+#                              预装后频道开箱即用，不会在首次启用时联网安装依赖；
+#                              设为 false 可减小镜像（实测解压后约 147MB、镜像层约 13MB），
+#                              但启用频道时需要外网。
 #
 # 使用示例:
-#   # 基础镜像（仅云端模型，包含 Node.js 用于 MCP）
+#   # 基础镜像（含频道支持与 Node.js，用于 MCP）
 #   docker build --build-arg QWENPAW_VERSION=latest -t qwenpaw:latest .
 #
 #   # 带本地模型支持 (huggingface)
@@ -15,6 +21,9 @@
 #
 #   # 带 Hub / QwenPaw Data / 全量扩展
 #   docker build --build-arg QWENPAW_EXTRAS=full -t qwenpaw:full .
+#
+#   # 极简镜像（不预装频道 SDK，实测镜像层约省 13MB）
+#   docker build --build-arg QWENPAW_INCLUDE_CHANNELS=false -t qwenpaw:slim .
 #
 # 注意:
 #   - 扩展会显著增加镜像大小，请按需选择
@@ -29,6 +38,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # 设置构建参数
 ARG QWENPAW_VERSION="latest"
 ARG QWENPAW_EXTRAS=""
+# 预装频道 SDK（v2.3.0+ 才有 channels extra；旧版本会自动忽略，不会报错）
+ARG QWENPAW_INCLUDE_CHANNELS="true"
 
 # 设置工作目录
 WORKDIR /build
@@ -41,19 +52,13 @@ RUN apt-get update && \
         && rm -rf /var/lib/apt/lists/*
 
 # 安装 QwenPaw 及其依赖（支持动态版本指定和扩展）
-RUN if [ "$QWENPAW_VERSION" = "latest" ]; then \
-      if [ -z "$QWENPAW_EXTRAS" ]; then \
-        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" qwenpaw; \
-      else \
-        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "qwenpaw[$QWENPAW_EXTRAS]"; \
-      fi \
-    else \
-      if [ -z "$QWENPAW_EXTRAS" ]; then \
-        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "qwenpaw==${QWENPAW_VERSION}"; \
-      else \
-        uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "qwenpaw[$QWENPAW_EXTRAS]==${QWENPAW_VERSION}"; \
-      fi \
-    fi
+RUN if [ "$QWENPAW_INCLUDE_CHANNELS" = "true" ]; then extras="channels"; else extras=""; fi; \
+    if [ -n "$QWENPAW_EXTRAS" ]; then extras="${extras:+$extras,}$QWENPAW_EXTRAS"; fi; \
+    echo "Resolved extras: [$extras]"; \
+    pkg="qwenpaw"; \
+    if [ -n "$extras" ]; then pkg="$pkg[$extras]"; fi; \
+    if [ "$QWENPAW_VERSION" != "latest" ]; then pkg="$pkg==${QWENPAW_VERSION}"; fi; \
+    uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "$pkg"
 
 # ==================== 运行阶段 ====================
 FROM python:3.13-slim
