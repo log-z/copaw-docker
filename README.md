@@ -156,6 +156,8 @@ copaw-docker/
 ├── scripts/
 │   ├── entrypoint.sh          # 容器启动脚本（自动初始化检查）
 │   ├── healthcheck.sh         # 健康检查脚本（Docker HEALTHCHECK）
+│   ├── migrate-legacy-dir.sh  # 旧版 .copaw 目录迁移脚本
+│   ├── patch-sandbox-landlock-probe.py # 构建期修正容器内 Landlock 探测
 │   └── test-startup.sh        # 启动流程测试脚本
 ├── .dockerignore              # Docker 构建忽略文件
 ├── .env.example               # 环境变量配置示例
@@ -512,7 +514,50 @@ curl http://localhost:8088/
 docker volume ls | grep qwenpaw
 ```
 
-### 4. API Key 无效
+### 4. Agent 无法执行命令，报错 `Sandbox is enabled but unavailable`
+
+在控制台「设置 → 安全」里打开了**沙箱开关**（`security.sandbox_enabled=true`）后，Code Mode 的 `run_code` 每次都会报：
+
+```
+Script failed: Sandbox is enabled but unavailable
+```
+
+原因是上游探测逻辑在容器内误判了 Landlock（镜像已内置修正脚本，自本项目构建的镜像不会出现该问题）：
+
+- Linux 沙箱后端按 `bubblewrap > Landlock > none` 顺序探测。容器内通常没有 `bwrap`，且默认不安装它（user namespace 在默认 seccomp 下也被禁）。
+- 回退到 Landlock 时，上游 `_probe_linux_landlock()` 第 2 步要求能读 `/sys/kernel/security/lsm`。容器默认不挂载 securityfs，该文件不存在，探测直接返回 `supported=False`。
+- 而内核 Landlock 实际可用。此时 `run_code`（fail-closed 工具）走 `ResourceGovernor.execution_sandbox_config()`，遇到「开关打开但后端不可用」直接抛异常，于是所有命令失败。
+
+镜像在构建阶段执行 [scripts/patch-sandbox-landlock-probe.py](scripts/patch-sandbox-landlock-probe.py)，回移上游 PR `fix/landlock-probe-without-securityfs` 的修复：把 LSM 列表降级为 best-effort 证据，读不到时不再短路第 3 步的 `landlock_create_ruleset` 系统调用探测；可读但不含 `landlock` 仍判定不支持；未知架构既无 syscall 号也无 LSM 证据时拒绝猜测。产物与上游 PR 分支的文件逐字节一致（`2ec1c73a…`），并通过该 PR 的全部 11 项回归测试。探测成功后 `run_code` 与 Bash 都会正常进入 Landlock 沙箱（工作区可读写，工作区外写入被内核拒绝）。
+
+> **该补丁只针对 QwenPaw 2.3.0**。脚本会先核对已安装版本与上游文件 SHA-256，两者不符就拒绝修改并让镜像构建失败——升级 QwenPaw 时需要先审阅新版本的探测逻辑，再更新脚本里的 `TARGET_SHA256`。注意 2.2.2 与 2.3.0 的 `sandbox/config.py` 字节完全相同，所以仅靠文件哈希无法区分版本，脚本额外校验了包版本号。
+
+可这样确认沙箱是否生效：
+
+```bash
+# 1. 探测结果应为 supported=True / mode=landlock
+docker compose exec qwenpaw python -c \
+  "from qwenpaw.sandbox import probe_sandbox_support as p; print(p())"
+
+# 2. 控制台状态接口应返回 effective=true
+curl -s http://localhost:8088/api/config/security/sandbox
+```
+
+如果仍在用旧镜像，或自建镜像时跳过了该补丁脚本，有两个临时规避方案：
+
+```bash
+# 方案 A：关闭沙箱开关（命令直接执行，不隔离）
+#   控制台「设置 → 安全」关闭沙箱，或修改 config.json：
+#   "security": { "sandbox_enabled": false }
+
+# 方案 B：把宿主机 securityfs 只读挂入容器，让上游探测能读到 LSM 列表
+#   在 docker-compose.yml 的 volumes 中追加（仅 Linux 宿主有效）：
+#   - /sys/kernel/security:/sys/kernel/security:ro
+```
+
+> 说明：`bwrap` 在默认 Docker seccomp 策略下无法创建 user namespace（本镜像实测 `unshare -U` 返回 `Operation not permitted`），因此容器内的沙箱后端实际是 Landlock，而不是 bubblewrap。
+
+### 5. API Key 无效
 
 确保 `.env` 文件中的 API Key 正确，并重启服务：
 

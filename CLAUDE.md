@@ -172,3 +172,4 @@ Key variables (see [.env.example](.env.example) for full list):
 | [docker-compose.yml](docker-compose.yml) | Docker Compose configuration |
 | [scripts/entrypoint.sh](scripts/entrypoint.sh) | Container startup script |
 | [scripts/healthcheck.sh](scripts/healthcheck.sh) | Health check script |
+| [scripts/patch-sandbox-landlock-probe.py](scripts/patch-sandbox-landlock-probe.py) | Build-time fix for the container Landlock probe |

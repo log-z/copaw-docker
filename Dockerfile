@@ -126,6 +126,10 @@ ENV CHROME_BIN=/usr/bin/chromium \
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
+# 临时修复容器内 securityfs 不可读导致 Landlock 误判
+COPY scripts/patch-sandbox-landlock-probe.py /usr/local/bin/patch-sandbox-landlock-probe.py
+RUN python3 /usr/local/bin/patch-sandbox-landlock-probe.py
+
 # 通过软链接实现持久化设置和备份
 # SECRET_DIR: {WORKING_DIR}.secret → 卷内 .runtime 目录
 # BACKUP_DIR: {WORKING_DIR}.backups → 卷内 .backups 目录
