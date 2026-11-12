@@ -583,6 +583,7 @@ docker compose restart
 - **工作目录**: `/data/qwenpaw`
 - **运行用户**: `qwenpaw`（非 root）
 - **预装扩展**: `channels`（v2.3.0+，频道 SDK 全部内置）
+- **预装 Python 包**: `pip>=26.2.2`、`certifi>=2026.10.19`、`six>=1.17.0`（QwenPaw Creator 插件依赖链 Creator → oss2 → six，`oss2` 未声明该依赖，缺失时插件报 `missing dependencies: six` 且状态为 inactive）
 
 构建参数：
 

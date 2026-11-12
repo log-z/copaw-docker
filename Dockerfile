@@ -52,13 +52,16 @@ RUN apt-get update && \
         && rm -rf /var/lib/apt/lists/*
 
 # 安装 QwenPaw 及其依赖（支持动态版本指定和扩展）
+# 附带预装 six: QwenPaw Creator 插件的依赖链为 Creator → oss2 → six，
+# 而 oss2 未在依赖清单中声明 six（假定系统已预装）。缺失时插件状态为 inactive，
+# 启用时报告 "Plugin 'qwenpaw-creator' is missing dependencies: six"，故此处显式补上。
 RUN if [ "$QWENPAW_INCLUDE_CHANNELS" = "true" ]; then extras="channels"; else extras=""; fi; \
     if [ -n "$QWENPAW_EXTRAS" ]; then extras="${extras:+$extras,}$QWENPAW_EXTRAS"; fi; \
     echo "Resolved extras: [$extras]"; \
     pkg="qwenpaw"; \
     if [ -n "$extras" ]; then pkg="$pkg[$extras]"; fi; \
     if [ "$QWENPAW_VERSION" != "latest" ]; then pkg="$pkg==${QWENPAW_VERSION}"; fi; \
-    uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "$pkg"
+    uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "six>=1.17.0" "$pkg"
 
 # ==================== 运行阶段 ====================
 FROM python:3.13-slim
