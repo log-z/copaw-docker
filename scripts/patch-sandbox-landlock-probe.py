@@ -15,7 +15,7 @@ With ``security.sandbox_enabled=true`` that mismatch made every Code Mode
 What this does
 --------------
 Applies the reviewed upstream fix (branch
-``fix/landlock-probe-without-securityfs``) to the released 2.3.0 source. Three
+``fix/landlock-probe-without-securityfs``) to a released QwenPaw source. Three
 hunks:
 
 1. Docstring: steps 2 and 3 are optional evidence; step 3 (the syscall) is the
@@ -31,30 +31,40 @@ Hunk 3 is the part a naive "just delete the OSError return" patch gets wrong: it
 would start reporting ``supported=True`` on unknown architectures (riscv64, ...)
 without verifying anything.
 
-The result is byte-identical to the upstream PR head, which is verified below by
-comparing against ``TARGET_PATCHED_SHA256`` before anything is written.
+The patched probe is byte-identical to the upstream PR head; only the
+surrounding file differs, because 2.3.0.post1 also ships the unrelated
+"never write a sandbox ACE on a volume root" change (#8018). The pinned
+post-patch digests below are therefore per release, and each is verified before
+anything is written.
+
+As of 2.3.0.post1 the upstream fix is *not* merged: the released
+``_probe_linux_landlock()`` is unchanged and still returns
+``supported=False`` when securityfs is absent, so this backport is still
+required.
 
 Safety model
 ------------
 This script edits third-party code that ships from PyPI, so it refuses to act
 on a file it has not verified:
 
-1. The installed package must report version ``TARGET_VERSION``.
+1. The installed package must report a version pinned in ``TARGETS``.
 2. Every hunk's search text must match exactly once.
-3. The result must hash to the pinned post-patch digest *before* it is written.
+3. The result must hash to that version's pinned post-patch digest *before* it
+   is written.
 
 Any mismatch exits non-zero and changes nothing, which fails the image build
 rather than shipping silently-modified code.
 
-Pinned hashes (QwenPaw 2.3.0)::
+Pinned releases (LF-normalised SHA-256 of ``qwenpaw/sandbox/config.py``)::
 
-    pre  (v2.3.0 / PyPI wheel, LF-normalised):
-      a12dae8ea7ce16765870fb30a9b4fe6467f214435c74f00c019053808e5bbd11
-    post (upstream PR head 54edf0e8, LF-normalised):
-      2ec1c73ab43a5057d6e4744a81b91542787b8ba7c2a6ae15d8513ea85cba3141
+    2.3.0        pre  a12dae8ea7ce16765870fb30a9b4fe6467f214435c74f00c019053808e5bbd11
+                 post 2ec1c73ab43a5057d6e4744a81b91542787b8ba7c2a6ae15d8513ea85cba3141
+                 (upstream PR head 54edf0e8)
+    2.3.0.post1  pre  b833da543e575ea001b7f59147272ab5632a1c0c8b6960835f3db4113cc5d6d9
+                 post 0d4731a17087e71f51e97556957a02280681bb657997a094dd63866d03717b35
 
-The PR base commit ``fc1db1a4`` ships a ``sandbox/config.py`` identical to the
-v2.3.0 tag and the PyPI wheel, so this backport is exact rather than approximate.
+Both ``pre`` digests were confirmed against the PyPI wheel, not just the git
+tag, so the backport is exact rather than approximate.
 
 Regenerating the hashes for a future reviewed upgrade::
 
@@ -67,18 +77,48 @@ from __future__ import annotations
 import argparse
 import hashlib
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
-# ── Pinned upstream revision ────────────────────────────────────────────────
-# ONLY QwenPaw 2.3.0 is targeted. Hashes are LF-normalised so a CRLF checkout
-# still verifies.
-TARGET_VERSION = "2.3.0"
-TARGET_SHA256 = (
-    "a12dae8ea7ce16765870fb30a9b4fe6467f214435c74f00c019053808e5bbd11"
-)
-# Digest of the upstream PR result; verified before anything lands.
-TARGET_PATCHED_SHA256 = (
-    "2ec1c73ab43a5057d6e4744a81b91542787b8ba7c2a6ae15d8513ea85cba3141"
+
+@dataclass(frozen=True)
+class Target:
+    """One reviewed QwenPaw release this backport is pinned to.
+
+    Attributes:
+        version: ``qwenpaw.__version__`` of the release.
+        pre_sha256: Digest of the shipped (unpatched) ``sandbox/config.py``.
+        post_sha256: Digest of the same file after this backport.
+    """
+
+    version: str
+    pre_sha256: str
+    post_sha256: str
+
+
+# ── Pinned upstream revisions ────────────────────────────────────────────────
+# Hashes are LF-normalised so a CRLF checkout still verifies. Add a row only
+# after reviewing that release's probe; the version file is the discriminator
+# because several releases ship byte-identical (or near-identical) copies.
+TARGETS: tuple[Target, ...] = (
+    Target(
+        version="2.3.0",
+        pre_sha256=(
+            "a12dae8ea7ce16765870fb30a9b4fe6467f214435c74f00c019053808e5bbd11"
+        ),
+        post_sha256=(
+            "2ec1c73ab43a5057d6e4744a81b91542787b8ba7c2a6ae15d8513ea85cba3141"
+        ),
+    ),
+    Target(
+        version="2.3.0.post1",
+        pre_sha256=(
+            "b833da543e575ea001b7f59147272ab5632a1c0c8b6960835f3db4113cc5d6d9"
+        ),
+        post_sha256=(
+            "0d4731a17087e71f51e97556957a02280681bb657997a094dd63866d03717b35"
+        ),
+    ),
 )
 
 # Marker for an already-patched file. Present in hunk 1's replacement text.
@@ -181,9 +221,9 @@ def find_config_module() -> Path | None:
 def read_installed_version(config_path: Path) -> str | None:
     """Read ``qwenpaw/__version__.py`` without importing the package.
 
-    The 2.2.2 and 2.3.0 releases ship a byte-identical ``sandbox/config.py``,
-    so the file hash alone cannot scope this patch to 2.3.0. The package
-    version file is the only reliable discriminator.
+    Several releases ship a byte-identical ``sandbox/config.py`` (2.2.2 and
+    2.3.0 are identical), so the file hash alone cannot scope this patch. The
+    package version file is the only reliable discriminator.
     """
     version_file = config_path.parent.parent / "__version__.py"
     try:
@@ -233,6 +273,27 @@ def apply_hunks(norm: str) -> str | None:
     return out
 
 
+def target_for_version(version: str | None) -> Target | None:
+    """Return the pinned release for *version*, or None if unsupported."""
+    for target in TARGETS:
+        if target.version == version:
+            return target
+    return None
+
+
+def post_hash_match(pre_hash: str) -> Target | None:
+    """Return the target whose reviewed result equals *pre_hash*."""
+    for target in TARGETS:
+        if target.post_sha256 == pre_hash:
+            return target
+    return None
+
+
+def pinned_versions() -> str:
+    """Human-readable list of the pinned releases."""
+    return ", ".join(target.version for target in TARGETS)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
@@ -243,7 +304,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--allow-unknown",
         action="store_true",
-        help="patch even when the version or file hash is not the pinned one "
+        help="patch even when the version or file hash is not pinned "
         "(requires manual review of that exact file)",
     )
     parser.add_argument(
@@ -266,19 +327,22 @@ def main(argv: list[str] | None = None) -> int:
     norm = normalise(text)
     pre_hash = sha256_text(norm)
     installed_version = read_installed_version(path)
+    target = target_for_version(installed_version)
 
-    # ── Already patched: confirm it is the reviewed result ──────────────────
+    # ── Already patched: confirm it is a reviewed result ────────────────────
     if APPLIED_MARKER in norm:
-        if pre_hash == TARGET_PATCHED_SHA256:
+        reviewed = post_hash_match(pre_hash)
+        if reviewed is not None:
             print(
                 f"Already patched (installed QwenPaw "
-                f"{installed_version or 'unknown'}): {path}",
+                f"{installed_version or 'unknown'}, matches the reviewed "
+                f"{reviewed.version} result): {path}",
             )
         else:
             print(
-                f"Already patched, but the result hash {pre_hash} is not the "
-                f"reviewed QwenPaw {TARGET_VERSION} post-patch digest. "
-                f"Someone edited this file by hand; verify it yourself: {path}",
+                f"Already patched, but the result hash {pre_hash} is not any "
+                f"pinned post-patch digest ({pinned_versions()}). Someone "
+                f"edited this file by hand; verify it yourself: {path}",
                 file=sys.stderr,
             )
         return 0
@@ -287,30 +351,38 @@ def main(argv: list[str] | None = None) -> int:
         candidate = apply_hunks(norm)
         print(f"path:      {path}")
         print(f"version:   {installed_version}")
+        print(f"pinned:    {target.version if target else 'NO'}")
         print(f"crlf:      {uses_crlf}")
         print(f"pre-sha256 {pre_hash}")
         print(
             f"post-sha256 {sha256_text(candidate) if candidate else 'hunks did not apply'}",
         )
         print(f"hunk matches: {[norm.count(o) for o, _ in HUNKS]}")
+        if target is None:
+            print(
+                f"note:      QwenPaw {installed_version or 'unknown'} is not "
+                f"pinned; copy the hashes above into TARGETS after review",
+            )
         return 0
 
-    # ── Only the pinned QwenPaw 2.3.0 release is patched ────────────────────
-    if installed_version != TARGET_VERSION and not args.allow_unknown:
+    # ── Only pinned releases are patched ────────────────────────────────────
+    if target is None and not args.allow_unknown:
         return fail(
             f"installed QwenPaw is {installed_version or 'unknown'}, "
-            f"not {TARGET_VERSION} ({path}).\n"
-            f"This backport is scoped to QwenPaw {TARGET_VERSION} only. "
-            "Review the upstream probe for the installed release, then pin it "
-            "in TARGET_VERSION / TARGET_SHA256 / TARGET_PATCHED_SHA256; or "
-            "re-run with --allow-unknown for a one-off build.",
+            f"which is not pinned ({pinned_versions()}) ({path}).\n"
+            f"This backport is scoped to reviewed releases only. Review the "
+            "upstream probe for the installed release, then add a Target row "
+            "in TARGETS; or re-run with --allow-unknown for a one-off build.",
         )
-    if pre_hash != TARGET_SHA256 and not args.allow_unknown:
+    expected_pre = target.pre_sha256 if target else None
+    expected_post = target.post_sha256 if target else None
+    if expected_pre is not None and pre_hash != expected_pre:
         return fail(
-            f"QwenPaw {TARGET_VERSION} file hash mismatch at {path}.\n"
-            f"  expected {TARGET_SHA256}\n"
+            f"QwenPaw {target.version} file hash mismatch at {path}.\n"
+            f"  expected {expected_pre}\n"
             f"  got      {pre_hash}\n"
-            "The version says 2.3.0 but the probe file is not the reviewed "
+            "The version says "
+            f"{target.version} but the probe file is not the reviewed "
             "one: either the wheel was republished or this file was edited "
             "locally. Refusing to patch. Next steps:\n"
             "  1. inspect the file and the blocks this patch replaces:\n"
@@ -318,9 +390,10 @@ def main(argv: list[str] | None = None) -> int:
             "  2. confirm the replacement still makes sense for it\n"
             "  3. pin the new hashes, or re-run with --allow-unknown",
         )
-    if pre_hash != TARGET_SHA256:
+    if expected_pre is None:
         print(
-            f"WARNING: patching unreviewed file hash {pre_hash} because "
+            f"WARNING: patching unreviewed QwenPaw "
+            f"{installed_version or 'unknown'} (hash {pre_hash}) because "
             "--allow-unknown was given. You are responsible for having "
             "reviewed this file.",
             file=sys.stderr,
@@ -337,10 +410,10 @@ def main(argv: list[str] | None = None) -> int:
     patched_norm = apply_hunks(norm)
     assert patched_norm is not None
     post_hash = sha256_text(patched_norm)
-    if post_hash != TARGET_PATCHED_SHA256:
+    if expected_post is not None and post_hash != expected_post:
         return fail(
             f"post-patch digest mismatch: got {post_hash}, "
-            f"expected {TARGET_PATCHED_SHA256}; nothing was written",
+            f"expected {expected_post}; nothing was written",
         )
 
     if uses_crlf:
@@ -350,7 +423,7 @@ def main(argv: list[str] | None = None) -> int:
     path.write_bytes(patched_text.encode("utf-8"))
 
     print(f"Patched {path}")
-    print(f"  upstream:  QwenPaw {TARGET_VERSION}")
+    print(f"  upstream:  QwenPaw {installed_version}")
     print(f"  backport:  fix/landlock-probe-without-securityfs")
     print(f"  pre-hash:  {pre_hash}")
     print(f"  post-hash: {post_hash}")

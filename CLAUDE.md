@@ -104,6 +104,8 @@ docker compose up → entrypoint.sh → check config.json
 
 > **v2.0.0 note**: Kernel refactored on AgentScope 2.0 (Runtime 2.0). Long-term memory is now backed by ReMe v0.4.0; scrolling context uses a SQLite `history.db` (FTS5) with 30-day default retention and auto-import of existing sessions on startup. A `none` memory backend option can fully disable memory for lightweight deployments.
 
+> **v2.3.0.post1 note**: Channels are plugins; the console detects version drift against `qwenpaw/official_channels/index.json` and offers a hot-update button (`POST /api/plugins/install` with `bundled:<id>` + `force=true`) — it does NOT auto-update on boot. Codex/Qoder moved out of core into `qwenpaw-harness-*` plugins, and `qwenpaw[full]` no longer includes their extras. WeChat bot tokens moved from `WORKING_DIR/wechat_bot_token` to `<workspace>/wechat/` with no migration. CRITICAL: the container Landlock probe is still unfixed upstream — do not drop `scripts/patch-sandbox-landlock-probe.py`.
+
 ### Data Persistence
 
 All data stored in Docker volume `copaw-data` at `/data/qwenpaw`:
@@ -172,4 +174,4 @@ Key variables (see [.env.example](.env.example) for full list):
 | [docker-compose.yml](docker-compose.yml) | Docker Compose configuration |
 | [scripts/entrypoint.sh](scripts/entrypoint.sh) | Container startup script |
 | [scripts/healthcheck.sh](scripts/healthcheck.sh) | Health check script |
-| [scripts/patch-sandbox-landlock-probe.py](scripts/patch-sandbox-landlock-probe.py) | Build-time fix for the container Landlock probe |
+| [scripts/patch-sandbox-landlock-probe.py](scripts/patch-sandbox-landlock-probe.py) | Build-time backport of the Landlock probe fix, pinned per release in `TARGETS` (2.3.0, 2.3.0.post1). The upstream fix is NOT merged — required. When bumping `QWENPAW_VERSION`, review `sandbox/config.py`, add a `Target` row, verify with `--print-hashes`. |

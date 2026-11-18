@@ -364,6 +364,12 @@ docker compose exec qwenpaw qwenpaw plugins preset apply light          # 仅发
 docker compose exec qwenpaw qwenpaw plugins prepare-upgrade             # 为已启用频道预装依赖
 docker compose exec qwenpaw qwenpaw plugins dependency-upgrade status <operation_id>  # 共享依赖升级维护
 
+# 频道插件更新（v2.3.0.post1+，控制台频道抽屉也可一键更新）
+docker compose exec qwenpaw qwenpaw plugins install bundled:telegram --force
+
+# Codex / Qoder 后端（v2.3.0.post1+ 改为插件，需先安装对应 harness 插件包）
+docker compose exec qwenpaw qwenpaw plugins migrate-legacy-harnesses --plugin-dir /path/to/prepared-bundles --dry-run
+
 # 历史库维护（v2.3.0+，需先停止对应 Agent）
 docker compose exec qwenpaw qwenpaw history check /data/qwenpaw/workspaces/default/history.db
 docker compose exec qwenpaw qwenpaw history check /data/qwenpaw/workspaces/default/history.db --repair-fts
@@ -528,9 +534,9 @@ Script failed: Sandbox is enabled but unavailable
 - 回退到 Landlock 时，上游 `_probe_linux_landlock()` 第 2 步要求能读 `/sys/kernel/security/lsm`。容器默认不挂载 securityfs，该文件不存在，探测直接返回 `supported=False`。
 - 而内核 Landlock 实际可用。此时 `run_code`（fail-closed 工具）走 `ResourceGovernor.execution_sandbox_config()`，遇到「开关打开但后端不可用」直接抛异常，于是所有命令失败。
 
-镜像在构建阶段执行 [scripts/patch-sandbox-landlock-probe.py](scripts/patch-sandbox-landlock-probe.py)，回移上游 PR `fix/landlock-probe-without-securityfs` 的修复：把 LSM 列表降级为 best-effort 证据，读不到时不再短路第 3 步的 `landlock_create_ruleset` 系统调用探测；可读但不含 `landlock` 仍判定不支持；未知架构既无 syscall 号也无 LSM 证据时拒绝猜测。产物与上游 PR 分支的文件逐字节一致（`2ec1c73a…`），并通过该 PR 的全部 11 项回归测试。探测成功后 `run_code` 与 Bash 都会正常进入 Landlock 沙箱（工作区可读写，工作区外写入被内核拒绝）。
+镜像在构建阶段执行 [scripts/patch-sandbox-landlock-probe.py](scripts/patch-sandbox-landlock-probe.py)，回移上游 PR `fix/landlock-probe-without-securityfs`：把 LSM 列表降级为 best-effort 证据，读不到时不再短路 `landlock_create_ruleset` 探测；可读但不含 `landlock` 仍判定不支持；未知架构无 syscall 号也无 LSM 证据时拒绝猜测。补丁后的探测函数与上游 PR 逐字节一致，通过其全部 11 项回归测试。
 
-> **该补丁只针对 QwenPaw 2.3.0**。脚本会先核对已安装版本与上游文件 SHA-256，两者不符就拒绝修改并让镜像构建失败——升级 QwenPaw 时需要先审阅新版本的探测逻辑，再更新脚本里的 `TARGET_SHA256`。注意 2.2.2 与 2.3.0 的 `sandbox/config.py` 字节完全相同，所以仅靠文件哈希无法区分版本，脚本额外校验了包版本号。
+> **该补丁针对 QwenPaw 2.3.0 与 2.3.0.post1**（脚本内 `TARGETS` 表）。脚本会核对已安装版本与文件 SHA-256，不符则拒绝修改并让构建失败。升级 QwenPaw 时需先审阅新版本的探测逻辑，再把该版本哈希加进 `TARGETS`。多个版本的 `sandbox/config.py` 可能字节相同（2.2.2 与 2.3.0 完全一致），所以版本号是主要判据。
 
 可这样确认沙箱是否生效：
 
@@ -582,7 +588,7 @@ docker compose restart
 - **Node.js 版本**: 24.x LTS（用于 MCP 功能）
 - **工作目录**: `/data/qwenpaw`
 - **运行用户**: `qwenpaw`（非 root）
-- **预装扩展**: `channels`（v2.3.0+，频道 SDK 全部内置）
+- **预装扩展**: `channels`（v2.3.0+，频道 SDK 全部内置）。`codex`/`qoder` 需通过 `QWENPAW_EXTRAS` 自建
 - **预装 Python 包**: `pip>=26.2.2`、`certifi>=2026.10.19`、`six>=1.17.0`（QwenPaw Creator 插件依赖链 Creator → oss2 → six，`oss2` 未声明该依赖，缺失时插件报 `missing dependencies: six` 且状态为 inactive）
 
 构建参数：
@@ -590,7 +596,7 @@ docker compose restart
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
 | `QWENPAW_VERSION` | `latest` | QwenPaw 版本 |
-| `QWENPAW_EXTRAS` | （空） | 额外扩展，逗号分隔，如 `local,hub,qwenpaw-data` |
+| `QWENPAW_EXTRAS` | （空） | 额外扩展，逗号分隔，如 `local,hub,qwenpaw-data`。`full` 自 v2.3.0.post1 起不含 `codex`/`qoder`，需要就写 `codex,qoder` |
 | `QWENPAW_INCLUDE_CHANNELS` | `true` | 是否预装 `channels` 扩展。设为 `false` 可减小镜像（实测解压后小 147MB、镜像层约小 13MB），但启用频道时需联网安装依赖 |
 
 ```bash
@@ -610,7 +616,44 @@ docker build --build-arg QWENPAW_INCLUDE_CHANNELS=false -t qwenpaw:slim .
 
 > 历史版本更新详见 [docs/qwenpaw-info.md](docs/qwenpaw-info.md)。
 
-### v2.3.0 更新（最新，2026-11-11）
+### v2.3.0.post1 更新（最新，2026-11-18）
+
+> 补丁版本，无破坏性变更。**升级后必须重新构建镜像**（沙箱补丁脚本已加入 post1 的版本哈希）。
+
+#### 新增
+- **频道插件可在线更新** — 控制台频道抽屉显示「有新版本」与更新按钮，热替换无需重启 (#8699)
+- **Codex / Qoder 改为插件** — 不再随核心包发布，改为 `qwenpaw-harness-codex` / `qwenpaw-harness-qoder` (#8426)
+- 跟进草稿可引用回复片段 (#8609)；命令卡片显示意图标题 (#8638)；Whisper API 模型名可配置 (#8052)；Creator 2.0.5–2.0.6 (#8654)
+
+#### 修复（与部署相关）
+- **安全** — 沙箱 ACE 不再写入卷根目录 (#8018)；Office COM 自动化在降级到非沙箱前加防护 (#8048)
+- **频道** — 微信送达加固、cron 重载死锁、只带 `message_id` 的回执、bot 误报冲突 (#8720, #8715)；企业微信空 body 分片回执 (#8767)；飞书 supervisor 存活与文件名解码 (#8749, #8753)
+- **插件** — 启用前重试恢复 (#8721)；UTF-8 读取旧 CloudPaw JSON (#8734)
+- **控制台** — 终端状态检查需要认证 (#8660)；标签标题跟随会话；超大图片降采样 (#8632)；技能池原地重命名 (#8477)
+
+#### 对本项目镜像的影响
+
+- **沙箱补丁扩展到 post1** — post1 的 `_probe_linux_landlock()` 未变，上游修复分支仍未合入。**补丁不可移除**（实测见「常见问题 4」）
+- **`full` 不再包含 `codex` / `qoder`** — 需要这两个后端时自建：`--build-arg QWENPAW_EXTRAS=codex,qoder`
+- **微信 bot token 路径变更** — 从 `/data/qwenpaw/wechat_bot_token` 改为 `<工作区>/wechat/wechat_bot_token`，**上游未做迁移**。存量卷需手动搬：
+  ```bash
+  docker compose exec qwenpaw sh -c '
+    mkdir -p /data/qwenpaw/workspaces/default/wechat &&
+    [ -f /data/qwenpaw/wechat_bot_token ] &&
+      mv /data/qwenpaw/wechat_bot_token /data/qwenpaw/workspaces/default/wechat/ ;
+    [ -f /data/qwenpaw/wechat_context_tokens.json ] &&
+      mv /data/qwenpaw/wechat_context_tokens.json /data/qwenpaw/workspaces/default/wechat/ ;
+    true'
+  ```
+  非默认 Agent 把 `default` 换成对应工作区名；或在频道配置里填 `bot_token_file` 指向旧路径。
+- **存量卷的频道源码不会自动刷新** — 控制台会提示可更新，需手动点一次（或 `qwenpaw plugins install bundled:<id> --force`）
+- **entrypoint / 健康检查无变化** — CLI 命令、`QWENPAW_CHANNEL_PRESET`、目录结构均未变
+
+> 完整 changelog：官方 [v2.3.0...v2.3.0.post1](https://github.com/agentscope-ai/QwenPaw/compare/v2.3.0...v2.3.0.post1)。
+
+---
+
+### v2.3.0 更新（2026-11-11）
 
 > **重大版本**。核心变化是**频道全面插件化并改为子进程隔离运行**，所有频道 SDK 也从核心依赖中移出。本项目镜像已相应预装 `channels` 扩展，频道开箱即用。
 

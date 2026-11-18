@@ -5,7 +5,8 @@
 #   QWENPAW_EXTRAS           - 额外可选扩展，用逗号分隔
 #                              (例如: local,hub,qwenpaw-data,whisper,codex,qoder,sip,sip-livekit)
 #                              注意: 自 v2.0.0 起 ollama 已内置(经 agentscope[model-ollama])，不再是 extras；
-#                                    llamacpp/mlx 已在旧版本移除。
+#                                    llamacpp/mlx 已在旧版本移除；
+#                                    自 v2.3.0.post1 起 full 不包含 codex,qoder，需要时显式添加。
 #   QWENPAW_INCLUDE_CHANNELS - 是否预装 channels 扩展 (默认: true)
 #                              v2.3.0 起所有官方频道 SDK 移出核心依赖，改为 channels extra。
 #                              预装后频道开箱即用，不会在首次启用时联网安装依赖；
@@ -126,6 +127,7 @@ ENV CHROME_BIN=/usr/bin/chromium \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # 从构建阶段复制 Python 包
+RUN rm -rf /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
@@ -147,7 +149,7 @@ RUN ln -sf /usr/local/bin/qwenpaw /usr/local/bin/copaw && \
     ln -sf /data/qwenpaw/.runtime /data/copaw.secret
 
 # 设置目录所有权
-RUN chown -R qwenpaw:qwenpaw /usr/local/lib/python3.13/site-packages/qwenpaw && \
+RUN chown -R qwenpaw:qwenpaw /usr/local/lib/python3.13/site-packages && \
     chown -R qwenpaw:qwenpaw /data/qwenpaw
 
 # 设置工作目录

@@ -4,26 +4,43 @@
 >
 > 官方文档：http://qwenpaw.agentscope.io/docs/
 >
-> **更新日期**: 2026-11-11
+> **更新日期**: 2026-11-18
 
 ---
 
-## TODO
+## 重要更新 (2026-11-18)
 
-### [ ] 频道源码升级后不会刷新（待观察上游 v2.3.1+）
+### v2.3.0.post1 (2026-11-18)
 
-**问题**：v2.3.0 起官方频道源码播种到 `WORKING_DIR/plugins/<id>/`。`provision_bundled_channels()` 只判断目录是否存在（`find_installed_plugin_dir` 只查 `plugin.json`），已有目录不再覆盖；频道也不在 CDN 插件目录中（`publish: false`），无法在线更新。结果：**升级镜像后旧频道源码一直留存，上游频道 bug 修复不生效且无任何日志提示**。
+> 补丁版本，完整 changelog 范围为 v2.3.0...v2.3.0.post1（45 个提交），**无破坏性变更**。核心变化：频道插件支持在线更新与版本守卫、第三方 Agent（Codex/Qoder）抽离为插件、沙箱不再在卷根写 ACL。
 
-实测：篡改源码后 `docker restart` 与"删容器保留卷重建"均不恢复；仅 uninstall + 清墓碑 + 重启可恢复。
+#### 新功能
+- **频道插件更新与版本守卫** — 官方频道插件转为可发布到市场（`publish: true`），新增版本兼容守卫 `qwenpaw_version.min/max`，控制台频道抽屉显示更新提示与一键更新 (#8699)
+- **第三方 Agent 插件化** — `src/qwenpaw/harnesses/{codex,qoder}` 整体删除，改为 `plugins/harness/{codex,qoder}` 插件（`qwenpaw-harness-codex` / `qwenpaw-harness-qoder`，SDK 1.1.0，`capabilities: ["harnesses"]`）。新增 CLI `qwenpaw plugins migrate-legacy-harnesses --plugin-dir <dir> [--apply]`，为存量 `agent.json` 中 `backend: codex|qoder` 的 Agent 准备本地插件包 (#8426)
+- **跟进草稿引用选中片段** (#8609)
+- **命令卡片显示意图标题** (#8638)
+- **Whisper API 模型名可配置** (#8052)
+- **Creator 2.0.5–2.0.6** — 安全素材、音频与技能市场更新 (#8654)
 
-**影响**：v2.3.0 的频道修复（Matrix 会话/密钥 #8558、钉钉分段 #8341、CJK 强调 #8067、频道响应缓存 #8564 等）在存量卷上升级后不生效。
+#### 修复
+- **安全** — 沙箱 ACE 绝不再写到卷根（Windows `C:\` / POSIX `/`），避免可继承 ACL 覆盖整卷导致盘符对管理员也不可访问；此时回退为不沙箱执行并记录警告 (#8018)；Office COM 自动化在降级为非沙箱前增加防护 (#8048)；社区密码登录改由部署层访问控制把关 (#8679)
+- **频道** — 微信：送达加固、cron 重载死锁、只带 `message_id` 的回执、bot 误报冲突、token/上下文状态隔离到 `<workspace>/wechat/` (#19e73c5d, #8720, #8715)；企业微信：无 body 的分片上传回执 (#8767)；飞书：清理异常后 supervisor 存活 (#8749)、解码 `%` 转义文件名 (#8753)；保留频道 worker 的运行时目录上下文 (#8692)
+- **插件** — 启用前先重试恢复 (#8721)；以 UTF-8 读取旧 CloudPaw JSON (#8734)；按版本号分桶发布到 OSS (#8800)；安装改为 `run_sync_io` 避免阻塞事件循环，`preflight_backend` 新增 `allow_install` 形参
+- **控制台** — 终端状态检查需要认证 (#8660)；标签页标题跟随当前会话与完成状态 (#8631, #8691)；Safari 消息队列图标 (#8670)；平板端 Markdown 预览 (#8708)；初始包体积优化 (#8761)；Agent 发起的轮次不再发完成通知 (#8754)
+- **媒体/技能** — 超大图片降采样并把被裁掉的媒体标记为 omitted (#8632)；技能池安装改为原地重命名 (#8477)
+- **调度** — 跟踪定时 Agent 运行 (#8634)；保留完成完整性并本地化警告 (#8676)
 
-**可能方案**（下个版本评估）：
-1. `entrypoint.sh` 增加 `QWENPAW_REFRESH_CHANNEL_SOURCES=true`，启动前删除 18 个官方频道目录（保留 hub 类插件）并清除 `channel_plugin_state.uninstalled` 墓碑。最直接，但会丢弃用户本地改动。
-2. 改用"版本戳"判断：在 `plugins/<id>/` 写入来源 wheel 版本，与当前 `__version__` 不符时重新播种。更精确，需上游支持或自行 patch。
-3. 升级文档中加手动刷新步骤（`qwenpaw plugins uninstall` + 清墓碑 + 重启）。
+#### 依赖与打包变化
+- `full` extra 缩水：`qwenpaw[channels] + qwenpaw[qwenpaw-data,hub,local,whisper]`，**移除 `codex`、`qoder`**
+- `codex` / `qoder` extra 保留，注释说明「仅为过渡依赖准备，需另行安装并启用对应插件，保留一个兼容周期」
+- `test` extra 新增 `pyinstaller>=6.0.0`，移除 `qoder-agent-sdk==1.0.9`
+- `deploy/Dockerfile`：前端构建阶段固定 `--platform=$BUILDPLATFORM` 并设 `NODE_OPTIONS=--max-old-space-size=6144`
+- 新增 `plugins/harness/{codex,qoder}/` 与发布流水线 `scripts/pack/check_plugin_versions.py`、`plugin-release-guard.yml`
 
-**验证**：升级镜像后比对 `plugins/telegram/qwenpaw_channel_telegram/platform.py` 的 md5，或检查是否含新版本修复代码。
+#### 配置/数据影响
+- 微信 `bot_token_file` 默认值从 `~/.qwenpaw/wechat_bot_token` 改为 `<workspace>/wechat/wechat_bot_token`；`wechat_context_tokens.json` 同步移到 `<workspace>/wechat/`
+- `config.json` 结构无新增字段；`channel_plugin_state` 沿用
+- 环境变量无新增/删除（`QWENPAW_MCP_` 仅出现在已删除的 codex harness 投影代码中）
 
 ---
 
@@ -3014,11 +3031,11 @@ v2.3.0 起可用的 `pip install 'qwenpaw[<extra>]'` 扩展：
 | `local` | `huggingface_hub`，支持从 Hugging Face 下载本地模型 |
 | `hub` | `docker` SDK，用于 QwenPaw Hub 本地运行容器 |
 | `whisper` | `openai-whisper`，本地语音转写 |
-| `codex` | Codex ACP Agent 支持 |
-| `qoder` | Qoder ACP Agent 支持 |
+| `codex` | 仅含 SDK 依赖 `openai-codex`（含约 123MB 的 CLI 二进制），**不含后端代码**。需另装 `qwenpaw-harness-codex` 插件才可使用 |
+| `qoder` | 仅含 SDK 依赖 `qoder-agent-sdk`，**不含后端代码**。需另装 `qwenpaw-harness-qoder` 插件才可使用 |
 | `qwenpaw-data` | QwenPaw Data 0.3.3 全套组件 |
 | `sip` / `sip-livekit` | SIP 语音频道的开发 / 生产后端（LiveKit 含 `sip`） |
-| `full` | `channels` + `qwenpaw-data`、`hub`、`local`、`whisper`、`codex`、`qoder` 合集 |
+| `full` | `channels` + `qwenpaw-data`、`hub`、`local`、`whisper` 合集（**v2.3.0.post1 起移除 `codex`、`qoder`**） |
 | `dev` / `test` | 开发与测试依赖 |
 
 > **注**：`llamacpp`、`mlx` 扩展在 v1.1.3 已移除；`ollama` 自 v2.0.0 起通过 `agentscope[model-ollama]` 内置，均不再是 extras。
