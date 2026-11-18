@@ -61,7 +61,7 @@ RUN if [ "$QWENPAW_INCLUDE_CHANNELS" = "true" ]; then extras="channels"; else ex
     pkg="qwenpaw"; \
     if [ -n "$extras" ]; then pkg="$pkg[$extras]"; fi; \
     if [ "$QWENPAW_VERSION" != "latest" ]; then pkg="$pkg==${QWENPAW_VERSION}"; fi; \
-    uv pip install --no-cache-dir --system "pip>=26.2.2" "certifi>=2026.10.19" "six>=1.17.0" "$pkg"
+    uv pip install --no-cache-dir --system "pip>=26.3" "certifi>=2026.10.19" "six>=1.17.0" "$pkg"
 
 # ==================== 运行阶段 ====================
 FROM python:3.13-slim
