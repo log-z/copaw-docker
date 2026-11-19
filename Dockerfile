@@ -128,7 +128,7 @@ ENV CHROME_BIN=/usr/bin/chromium \
 
 # 从构建阶段复制 Python 包
 RUN rm -rf /usr/local/lib/python3.13/site-packages
-COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --chown=qwenpaw:qwenpaw --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # 临时修复容器内 securityfs 不可读导致 Landlock 误判
@@ -146,11 +146,11 @@ RUN mkdir -p /data/qwenpaw/.runtime /data/qwenpaw/.backups && \
 RUN ln -sf /usr/local/bin/qwenpaw /usr/local/bin/copaw && \
     ln -sf /usr/local/lib/python3.13/site-packages/qwenpaw /usr/local/lib/python3.13/site-packages/copaw && \
     ln -sf /data/qwenpaw /data/copaw && \
-    ln -sf /data/qwenpaw/.runtime /data/copaw.secret
+    ln -sf /data/qwenpaw/.runtime /data/copaw.secret && \
+    chown -h qwenpaw:qwenpaw /usr/local/lib/python3.13/site-packages/copaw
 
 # 设置目录所有权
-RUN chown -R qwenpaw:qwenpaw /usr/local/lib/python3.13/site-packages && \
-    chown -R qwenpaw:qwenpaw /data/qwenpaw
+RUN chown -R qwenpaw:qwenpaw /data/qwenpaw
 
 # 设置工作目录
 WORKDIR /data/qwenpaw
